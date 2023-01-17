@@ -1,0 +1,9 @@
+﻿Add-Migration -Context CAAContext -OutputDir Data\CAMigrations Initial
+
+Update-Database -Context CAAContext
+
+Add-Migration -Context ApplicationDbContext -OutputDir Data\Migrations Initial
+Update-Database -Context ApplicationDbContext
+
+
+The entity type 'List<string>' requires a primary key to be defined. If you intended to use a keyless entity type, call 'HasNoKey' in 'OnModelCreating'. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.

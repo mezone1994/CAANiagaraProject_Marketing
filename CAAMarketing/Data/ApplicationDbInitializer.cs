@@ -41,7 +41,7 @@ namespace CAAMarketing.Data
                         Email = "admin@caaniagara.ca"
                     };
 
-                    IdentityResult result = userManager.CreateAsync(user, "Admin123").Result;
+                    IdentityResult result = userManager.CreateAsync(user, "Admins@123").Result;
 
                     if (result.Succeeded)
                     {
@@ -56,7 +56,7 @@ namespace CAAMarketing.Data
                         Email = "super@caaniagara.ca"
                     };
 
-                    IdentityResult result = userManager.CreateAsync(user, "Super123").Result;
+                    IdentityResult result = userManager.CreateAsync(user, "Supers@123").Result;
 
                     if (result.Succeeded)
                     {
@@ -71,7 +71,7 @@ namespace CAAMarketing.Data
                         Email = "user@caaniagara.ca"
                     };
 
-                    IdentityResult result = userManager.CreateAsync(user, "User123").Result;
+                    IdentityResult result = userManager.CreateAsync(user, "Users@123").Result;
                     //Not in any role
                 }
             }

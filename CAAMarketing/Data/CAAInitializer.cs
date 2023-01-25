@@ -26,6 +26,31 @@ public static class CAAInitializer
             //To randomly generate data
             Random rd = new Random();
 
+            if (!context.Employees.Any())
+            {
+                context.Employees.AddRange(
+                 new Employee
+                 {
+                     FirstName = "Gregory",
+                     LastName = "House",
+                     Email = "admin@caaniagara.ca"
+                 },
+                 new Employee
+                 {
+                     FirstName = "Fred",
+                     LastName = "Flintstone",
+                     Email = "super@caaniagara.ca"
+                 },
+                 new Employee
+                 {
+                     FirstName = "Betty",
+                     LastName = "Rubble",
+                     Email = "user@caaniagara.ca"
+                 });
+
+                context.SaveChanges();
+            }
+
             // Look for any Doctors.  Since we can't have patients without Doctors.
             if (!context.Suppliers.Any())
             {
@@ -219,6 +244,7 @@ public static class CAAInitializer
                 );
                 context.SaveChanges();
             }
+
 
 
 

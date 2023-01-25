@@ -25,10 +25,10 @@ builder.Services.AddDefaultIdentity<IdentityUser>
 builder.Services.Configure<IdentityOptions>(options =>
 {
     // Password settings.
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
     options.Password.RequiredLength = 6;
     options.Password.RequiredUniqueChars = 1;
 
@@ -61,6 +61,9 @@ builder.Services.AddSingleton<IEmailConfiguration>(builder.Configuration
 //For the Identity System
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+//Email with added methods for production use.
+builder.Services.AddTransient<IMyEmailSender, MyEmailSender>();
 
 //To give access to IHttpContextAccessor for Audit Data with IAuditable
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -95,5 +98,7 @@ app.MapRazorPages();
 
 ApplicationDbInitializer.Seed(app);
 CAAInitializer.Seed(app);
+
+
 
 app.Run();

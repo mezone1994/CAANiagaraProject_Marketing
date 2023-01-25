@@ -41,6 +41,7 @@ namespace CAAMarketing.Models
 
         public ItemThumbNail ItemThumbNail { get; set; }
 
+
         //Calling the Supplier to connect its table into this class
         [Display(Name = "Type of Supplier")]
         [Required(ErrorMessage = "You Must Select A Supplier Name")]

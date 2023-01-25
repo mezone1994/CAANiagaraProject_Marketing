@@ -24,6 +24,7 @@ namespace CAAMarketing.Models
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime? DeliveryDate { get; set; }
 
+
         //Calling the Item to connect its table into this class
         [Display(Name = "Type of Item")]
         [Required(ErrorMessage = "You Must Select A Item")]

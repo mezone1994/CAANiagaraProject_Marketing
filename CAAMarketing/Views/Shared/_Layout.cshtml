@@ -21,40 +21,48 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse nav-center collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav @*flex-grow-1*@ mx-auto">
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Items" asp-action="Index">Items</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Inventories" asp-action="Index">Inventory</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="InventoryTransfers" asp-action="Index">Inventory Tranfer</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Events" asp-action="Index">Events</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Orders" asp-action="Index">Orders</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Locations" asp-action="Index">Locations</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Categories" asp-action="Index">Categories</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Equipments" asp-action="Index">Equipments</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="UserRoles" asp-action="Index">User Roles</a>
-                        </li>
+                    <ul class="navbar-nav flex-grow-1">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Inventories" asp-action="Index">Inventory</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Office Menu
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Items" asp-action="Index">Items</a></li>
+                                    @if (User.IsInRole("Supervisor"))
+                                    {
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Orders" asp-action="Index">Orders</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Locations" asp-action="Index">Locations</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Categories" asp-action="Index">Categories</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Events" asp-action="Index">Events</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Equipments" asp-action="Index">Equipments</a></li>
+                                    }
+                                    else if (User.IsInRole("Admin"))
+                                    {
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Orders" asp-action="Index">Orders</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Locations" asp-action="Index">Locations</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Categories" asp-action="Index">Categories</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Events" asp-action="Index">Events</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Equipments" asp-action="Index">Equipments</a></li>
+
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="InventoryTransfers" asp-action="Index">Inventory Transfer</a></li>
+
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="UserRoles" asp-action="Index">User Roles</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Employees" asp-action="Index">Maintain Employees</a></li>
+                                    }
+                                </ul>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

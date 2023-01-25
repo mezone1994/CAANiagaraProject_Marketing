@@ -58,7 +58,10 @@ namespace CAAMarketing.Data
 
         public DbSet<Equipment> Equipments { get; set; }
 
-    
+        public DbSet<Employee> Employees { get; set; }
+
+
+        public DbSet<Subscription> Subscriptions { get; set; }
 
         public DbSet<InventoryTransfer> InventoryTransfers { get; set; }
 
@@ -86,6 +89,13 @@ namespace CAAMarketing.Data
                 .HasOne(t => t.ToLocation)
                 .WithMany(l => l.InventoryTransfersTo)
                 .HasForeignKey(t => t.ToLocationId);
+
+            //Add a unique index to the Employee Email
+            modelBuilder.Entity<Employee>()
+            .HasIndex(a => new {
+                a.Email
+            })
+            .IsUnique();
 
             //Prevent Cascade Delete from Location to Inventory
             //so we are prevented from deleting a location with Inventory

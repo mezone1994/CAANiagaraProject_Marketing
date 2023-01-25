@@ -4,7 +4,6 @@ namespace CAAMarketing.Models
 {
     public class ItemEvent
     {
-        public int ID { get; set; }
 
         public int EventID { get; set; }
         public Event Event { get; set; }

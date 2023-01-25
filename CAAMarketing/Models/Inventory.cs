@@ -3,7 +3,7 @@ using System.Xml.Linq;
 
 namespace CAAMarketing.Models
 {
-    public class Inventory
+    public class Inventory : Auditable
     {
         public int Id { get; set; }
 
@@ -19,14 +19,13 @@ namespace CAAMarketing.Models
         public int ItemID { get; set; }
         //Making a collection of play objects in this class
         [Display(Name = "Items")]
-        public ICollection<Item> Items { get; set; } = new HashSet<Item>();
-
-        [Display(Name = "User Name")]
-        public int userID { get; set; }
-        public User users { get; set; }
+        public Item Item { get; set; }
 
         [Display(Name = "Location")]
         public int LocationID { get; set; }
         public Location Location { get; set; }
+
+        public bool IsLowInventory { get; set; }
+        public int LowInventoryThreshold { get; set; } = 10;
     }
 }

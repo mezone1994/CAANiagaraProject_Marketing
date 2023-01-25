@@ -11,17 +11,36 @@ namespace CAAMarketing.Data
 {
     public class CAAContext : DbContext
     {
-        public CAAContext(DbContextOptions<CAAContext> options)
-            : base(options)
+        //To give access to IHttpContextAccessor for Audit Data with IAuditable
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        //Property to hold the UserName value
+        public string UserName
         {
+            get; private set;
         }
 
-
-        
-
-        public DbSet<User> Users { get; set; }
+        public CAAContext(DbContextOptions<CAAContext> options, IHttpContextAccessor httpContextAccessor)
+            : base(options)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            if (_httpContextAccessor.HttpContext != null)
+            {
+                //We have a HttpContext, but there might not be anyone Authenticated
+                UserName = _httpContextAccessor.HttpContext?.User.Identity.Name;
+                UserName ??= "Unknown";
+            }
+            else
+            {
+                //No HttpContext so seeding data
+                UserName = "Seed Data";
+            }
+        }
 
         public DbSet<ItemImages> itemImages { get; set; }
+
+        public DbSet<ItemThumbNail> ItemThumbNails { get; set; }
+
 
         public DbSet<Item> Items { get; set; }
 
@@ -35,12 +54,13 @@ namespace CAAMarketing.Data
 
         public DbSet<Location> Locations { get; set; }
 
-        public DbSet<Equipment> Equipments { get; set; }
-
         public DbSet<Inventory> Inventories { get; set; }
 
-        public DbSet<Transfer> Transfers { get; set; }
+        public DbSet<Equipment> Equipments { get; set; }
 
+    
+
+        public DbSet<InventoryTransfer> InventoryTransfers { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -50,15 +70,30 @@ namespace CAAMarketing.Data
 
             //Many to Many for Play Table to Musician
             modelBuilder.Entity<ItemEvent>()
-                .HasIndex(p => new { p.ItemID, p.EventID })
-                .IsUnique();
+                .HasKey(p => new { p.ItemID, p.EventID });
 
-            modelBuilder.Entity<Transfer>()
-                .HasIndex(p => new { p.userID, p.LocationID, p.InventoryID })
-                .IsUnique();
+            modelBuilder.Entity<InventoryTransfer>()
+            .HasOne(t => t.Item)
+            .WithMany(i => i.InventoryTransfers)
+            .HasForeignKey(t => t.ItemId);
 
+            modelBuilder.Entity<InventoryTransfer>()
+                .HasOne(t => t.FromLocation)
+                .WithMany(l => l.InventoryTransfersFrom)
+                .HasForeignKey(t => t.FromLocationId);
 
+            modelBuilder.Entity<InventoryTransfer>()
+                .HasOne(t => t.ToLocation)
+                .WithMany(l => l.InventoryTransfersTo)
+                .HasForeignKey(t => t.ToLocationId);
 
+            //Prevent Cascade Delete from Location to Inventory
+            //so we are prevented from deleting a location with Inventory
+            //modelBuilder.Entity<Location>()
+            //    .HasMany<Inventory>(i => i.)
+            //    .WithOne(l => l.Location)
+            //    .HasForeignKey(l => l.LocationID)
+            //    .OnDelete(DeleteBehavior.Restrict);
             ////Prevents cascade delete from Introment class to musician
             //modelBuilder.Entity<Musician>()
             //    .HasOne<Instrument>(i => i.Instrument)
@@ -78,6 +113,47 @@ namespace CAAMarketing.Data
             //    .HasIndex(m => m.SIN)
             //    .IsUnique();
         }
+
+        //The following code is to override both the sync and async SaveChanges methods
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            OnBeforeSaving();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            OnBeforeSaving();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private void OnBeforeSaving()
+        {
+            var entries = ChangeTracker.Entries();
+            foreach (var entry in entries)
+            {
+                if (entry.Entity is IAuditable trackable)
+                {
+                    var now = DateTime.UtcNow;
+                    switch (entry.State)
+                    {
+                        case EntityState.Modified:
+                            trackable.UpdatedOn = now;
+                            trackable.UpdatedBy = UserName;
+                            break;
+
+                        case EntityState.Added:
+                            trackable.CreatedOn = now;
+                            trackable.CreatedBy = UserName;
+                            trackable.UpdatedOn = now;
+                            trackable.UpdatedBy = UserName;
+                            break;
+                    }
+                }
+            }
+        }
+
+        public DbSet<CAAMarketing.Models.Category> Category { get; set; }
 
         //public override int SaveChanges(bool acceptAllChangesOnSuccess)
         //{

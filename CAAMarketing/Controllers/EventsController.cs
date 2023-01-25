@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
+using Microsoft.Extensions.Options;
 
 namespace CAAMarketing.Controllers
 {
@@ -20,10 +21,98 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: Events
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string SearchString, int? LocationID
+            , string actionButton, string sortDirection = "asc", string sortField = "Event")
         {
-            var cAAContext = _context.Events.Include(a => a.users);
-            return View(await cAAContext.ToListAsync());
+
+            //Toggle the Open/Closed state of the collapse depending on if we are filtering
+            ViewData["Filtering"] = ""; //Assume not filtering
+                                        //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
+
+
+            //Populating the DropDownLists for the Search/Filtering criteria, which are the Category and Supplier DDL
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
+
+            // List of sort options.
+            //NOTE: make sure this array has matching values to the column headings
+            string[] sortOptions = new[] { "Event", "Date", "Location" };
+
+
+            var events = _context.Events
+                .Include(a => a.Location)
+                .AsNoTracking();
+
+            //Add as many filters as needed
+            if (LocationID.HasValue)
+            {
+                events = events.Where(p => p.LocationID == LocationID);
+                ViewData["Filtering"] = " show";
+            }
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                events = events.Where(p => p.Name.ToUpper().Contains(SearchString.ToUpper()));
+                ViewData["Filtering"] = " show";
+            }
+
+            //Before we sort, see if we have called for a change of filtering or sorting
+            if (!String.IsNullOrEmpty(actionButton)) //Form Submitted!
+            {
+                if (sortOptions.Contains(actionButton))//Change of sort is requested
+                {
+                    if (actionButton == sortField) //Reverse order on same field
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;//Sort by the button clicked
+                }
+            }
+
+            //Now we know which field and direction to sort by
+            if (sortField == "Location")
+            {
+                if (sortDirection == "asc")
+                {
+                    events = events
+                        .OrderBy(p => p.Location);
+                }
+                else
+                {
+                    events = events
+                        .OrderByDescending(p => p.Location);
+                }
+            }
+            else if (sortField == "Date")
+            {
+                if (sortDirection == "asc")
+                {
+                    events = events
+                        .OrderBy(p => p.Date);
+                }
+                else
+                {
+                    events = events
+                        .OrderByDescending(p => p.Date);
+                }
+            }
+            else //Sorting by Patient Name
+            {
+                if (sortDirection == "asc")
+                {
+                    events = events
+                        .OrderBy(p => p.Name);
+                }
+                else
+                {
+                    events = events
+                        .OrderByDescending(p => p.Name);
+                }
+            }
+            //Set sort for next time
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
+
+
+            return View(await events.ToListAsync());
         }
 
         // GET: Events/Details/5
@@ -35,7 +124,7 @@ namespace CAAMarketing.Controllers
             }
 
             var @event = await _context.Events
-                .Include(a => a.users)
+                .Include(a => a.Location)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (@event == null)
             {
@@ -48,7 +137,7 @@ namespace CAAMarketing.Controllers
         // GET: Events/Create
         public IActionResult Create()
         {
-            ViewData["userID"] = new SelectList(_context.Users, "ID", "ID");
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
             return View();
         }
 
@@ -57,7 +146,7 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Description,Date,location,userID")] Event @event)
+        public async Task<IActionResult> Create([Bind("ID,Name,Description,Date,LocationID")] Event @event)
         {
             if (ModelState.IsValid)
             {
@@ -65,7 +154,7 @@ namespace CAAMarketing.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["userID"] = new SelectList(_context.Users, "ID", "ID", @event.userID);
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", @event.LocationID);
             return View(@event);
         }
 
@@ -82,7 +171,7 @@ namespace CAAMarketing.Controllers
             {
                 return NotFound();
             }
-            ViewData["userID"] = new SelectList(_context.Users, "ID", "ID", @event.userID);
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", @event.LocationID);
             return View(@event);
         }
 
@@ -91,35 +180,48 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Description,Date,location,userID")] Event @event)
+        public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
-            if (id != @event.ID)
+            //Go get the Event to update
+            var eventToUpdate = await _context.Events.FirstOrDefaultAsync(e => e.ID == id);
+
+            if (eventToUpdate == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            //Put the original RowVersion value in the OriginalValues collection for the entity
+            _context.Entry(eventToUpdate).Property("RowVersion").OriginalValue = RowVersion;
+
+            //Try updating it with the values posted
+            if (await TryUpdateModelAsync<Event>(eventToUpdate, "",
+                e => e.Name, e => e.Description, e => e.Date, e => e.LocationID))
             {
                 try
                 {
-                    _context.Update(@event);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!EventExists(@event.ID))
+                    if (!EventExists(eventToUpdate.ID))
                     {
                         return NotFound();
                     }
                     else
                     {
-                        throw;
+                        ModelState.AddModelError(string.Empty, "The record you attempted to edit "
+                            + "was modified by another user. Please go back and refresh.");
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (DbUpdateException dex)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
+
+                }
             }
-            ViewData["userID"] = new SelectList(_context.Users, "ID", "ID", @event.userID);
-            return View(@event);
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", eventToUpdate.LocationID);
+            return View(eventToUpdate);
         }
 
         // GET: Events/Delete/5
@@ -131,7 +233,7 @@ namespace CAAMarketing.Controllers
             }
 
             var @event = await _context.Events
-                .Include(a => a.users)
+                .Include(a => a.Location)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (@event == null)
             {

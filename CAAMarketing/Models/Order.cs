@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CAAMarketing.Models
 {
-    public class Order
+    public class Order : Auditable
     {
         //PROPERTY FIELDS
         public int ID { get; set; }
@@ -24,15 +24,7 @@ namespace CAAMarketing.Models
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime? DeliveryDate { get; set; }
 
-        //Calling the Supplier to connect its table into this class
-        [Display(Name = "Type of User")]
-        [Required(ErrorMessage = "You Must Select A User Name")]
-        public int UserID { get; set; }
-
-        [Display(Name = "User Name")]
-        public User User { get; set; }
-
-        //Calling the Supplier to connect its table into this class
+        //Calling the Item to connect its table into this class
         [Display(Name = "Type of Item")]
         [Required(ErrorMessage = "You Must Select A Item")]
         public int ItemID { get; set; }

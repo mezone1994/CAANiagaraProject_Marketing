@@ -20,10 +20,113 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: Orders
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string SearchString, int? SupplierID
+            , string actionButton, string sortDirection = "asc", string sortField = "OrderItem")
         {
-            var cAAContext = _context.Orders.Include(o => o.Item).Include(o => o.User);
-            return View(await cAAContext.ToListAsync());
+            
+
+            //Toggle the Open/Closed state of the collapse depending on if we are filtering
+            ViewData["Filtering"] = ""; //Assume not filtering
+            //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
+
+
+            //Populating the DropDownLists for the Search/Filtering criteria, which are the Category and Supplier DDL
+            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name");
+
+
+            //List of sort options.
+            //NOTE: make sure this array has matching values to the column headings
+            string[] sortOptions = new[] { "OrderItem", "Quantity", "DateMade", "DeliveryDate" };
+
+            var orders = _context.Orders
+                .Include(o => o.Item)
+                .AsNoTracking();
+
+            //Add as many filters as needed
+            if (SupplierID.HasValue)
+            {
+                orders = orders.Where(p => p.Item.SupplierID == SupplierID);
+                ViewData["Filtering"] = " show";
+            }
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                orders = orders.Where(p => p.Item.Name.ToUpper().Contains(SearchString.ToUpper())
+                                       || p.Item.UPC.Contains(SearchString.ToUpper()));
+                ViewData["Filtering"] = " show";
+            }
+
+            //Before we sort, see if we have called for a change of filtering or sorting
+            if (!String.IsNullOrEmpty(actionButton)) //Form Submitted!
+            {
+                if (sortOptions.Contains(actionButton))//Change of sort is requested
+                {
+                    if (actionButton == sortField) //Reverse order on same field
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;//Sort by the button clicked
+                }
+            }
+
+            //Now we know which field and direction to sort by
+            if (sortField == "DeliveryDate")
+            {
+                if (sortDirection == "asc")
+                {
+                    orders = orders
+                        .OrderBy(p => p.DeliveryDate);
+                }
+                else
+                {
+                    orders = orders
+                        .OrderByDescending(p => p.DeliveryDate);
+                }
+            }
+            else if (sortField == "DateMade")
+            {
+                if (sortDirection == "asc")
+                {
+                    orders = orders
+                        .OrderByDescending(p => p.DateMade);
+                }
+                else
+                {
+                    orders = orders
+                        .OrderBy(p => p.DateMade);
+                }
+            }
+            else if (sortField == "Quantity")
+            {
+                if (sortDirection == "asc")
+                {
+                    orders = orders
+                        .OrderBy(p => p.Quantity);
+                }
+                else
+                {
+                    orders = orders
+                        .OrderByDescending(p => p.Quantity);
+                }
+            }
+            else //Sorting by Patient Name
+            {
+                if (sortDirection == "asc")
+                {
+                    orders = orders
+                        .OrderBy(p => p.Item.Name);
+                }
+                else
+                {
+                    orders = orders
+                        .OrderByDescending(p => p.Item.Name);
+                }
+            }
+            //Set sort for next time
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
+
+
+            return View(await orders.ToListAsync());
         }
 
         // GET: Orders/Details/5
@@ -36,7 +139,6 @@ namespace CAAMarketing.Controllers
 
             var order = await _context.Orders
                 .Include(o => o.Item)
-                .Include(o => o.User)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (order == null)
             {
@@ -49,8 +151,7 @@ namespace CAAMarketing.Controllers
         // GET: Orders/Create
         public IActionResult Create()
         {
-            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Category");
-            ViewData["UserID"] = new SelectList(_context.Users, "ID", "ID");
+            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name");
             return View();
         }
 
@@ -59,16 +160,39 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Quantity,DateMade,DeliveryDate,UserID,ItemID")] Order order)
+        public async Task<IActionResult> Create([Bind("ID,Quantity,DateMade,DeliveryDate,ItemID")] Order order)
         {
             if (ModelState.IsValid)
             {
+                // Check if item already exists in items table
+                var item = await _context.Items.FirstOrDefaultAsync(i => i.ID == order.ItemID);
+                if (item == null)
+                {
+                    // If item doesn't exist, create a new item
+                    item = new Item { ID = order.ItemID };
+                    _context.Add(item);
+                }
+                // Add order to orders table
                 _context.Add(order);
                 await _context.SaveChangesAsync();
+
+                var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == order.ItemID);
+                if (inventory != null)
+                {
+                    inventory.Quantity += order.Quantity;
+                    _context.Update(inventory);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    // If inventory for the item doesn't exist, create a new inventory
+                    inventory = new Inventory { ItemID = order.ItemID, Quantity = order.Quantity };
+                    _context.Add(inventory);
+                    await _context.SaveChangesAsync();
+                }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Category", order.ItemID);
-            ViewData["UserID"] = new SelectList(_context.Users, "ID", "ID", order.UserID);
+            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", order.ItemID);
             return View(order);
         }
 
@@ -85,8 +209,7 @@ namespace CAAMarketing.Controllers
             {
                 return NotFound();
             }
-            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Category", order.ItemID);
-            ViewData["UserID"] = new SelectList(_context.Users, "ID", "ID", order.UserID);
+            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", order.ItemID);
             return View(order);
         }
 
@@ -95,36 +218,51 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Quantity,DateMade,DeliveryDate,UserID,ItemID")] Order order)
+        public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
-            if (id != order.ID)
+            //Go get the order to update
+            var orderToUpdate = await _context.Orders.FirstOrDefaultAsync(o => o.ID == id);
+
+            //Check that you got it or exit with a not found error
+            if (orderToUpdate == null)
             {
                 return NotFound();
+
             }
 
-            if (ModelState.IsValid)
+            //Put the original RowVersion value in the OriginalValues collection for the entity
+            _context.Entry(orderToUpdate).Property("RowVersion").OriginalValue = RowVersion;
+
+            //Try updating it with the values posted
+            if (await TryUpdateModelAsync<Order>(orderToUpdate, "",
+                o => o.Quantity, o => o.DateMade, o => o.DeliveryDate, o => o.ItemID))
             {
                 try
                 {
-                    _context.Update(order);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!OrderExists(order.ID))
+                    if (!OrderExists(orderToUpdate.ID))
                     {
                         return NotFound();
                     }
                     else
                     {
-                        throw;
+                        ModelState.AddModelError(string.Empty, "The record you attempted to edit "
+                            + "was modified by another user. Please go back and refresh.");
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (DbUpdateException dex)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
+
+                }
+
             }
-            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Category", order.ItemID);
-            ViewData["UserID"] = new SelectList(_context.Users, "ID", "ID", order.UserID);
-            return View(order);
+            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", orderToUpdate.ItemID);
+            return View(orderToUpdate);
         }
 
         // GET: Orders/Delete/5
@@ -137,7 +275,6 @@ namespace CAAMarketing.Controllers
 
             var order = await _context.Orders
                 .Include(o => o.Item)
-                .Include(o => o.User)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (order == null)
             {

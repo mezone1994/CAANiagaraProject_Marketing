@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
+using CAAMarketing.Utilities;
 
 namespace CAAMarketing.Controllers
 {
@@ -20,10 +21,122 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: Items
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string SearchString, int? SupplierID, int? CategoryID
+            , string actionButton, string sortDirection = "asc", string sortField = "Item")
         {
-            var cAAContext = _context.Items.Include(i => i.Supplier);
-            return View(await cAAContext.ToListAsync());
+            //Toggle the Open/Closed state of the collapse depending on if we are filtering
+            ViewData["Filtering"] = ""; //Assume not filtering
+            //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
+
+
+            //Populating the DropDownLists for the Search/Filtering criteria, which are the Category and Supplier DDL
+            ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name");
+            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name");
+
+            //List of sort options.
+            //NOTE: make sure this array has matching values to the column headings
+            string[] sortOptions = new[] { "Item", "Category", "DateRecieved", "Supplier" };
+
+
+            var items = _context.Items
+                .Include(i => i.Category)
+                .Include(i => i.Supplier)
+                .Include(p => p.ItemThumbNail)
+                .AsNoTracking();
+
+            //Add as many filters as needed
+            //Add as many filters as needed
+            if (SupplierID.HasValue)
+            {
+                items = items.Where(p => p.SupplierID == SupplierID);
+                ViewData["Filtering"] = " show";
+            }
+            if (CategoryID.HasValue)
+            {
+                items = items.Where(p => p.CategoryID == CategoryID);
+                ViewData["Filtering"] = " show";
+            }
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                items = items.Where(p => p.Name.ToUpper().Contains(SearchString.ToUpper())
+                                       || p.UPC.Contains(SearchString.ToUpper()));
+                ViewData["Filtering"] = " show";
+            }
+
+            //Before we sort, see if we have called for a change of filtering or sorting
+            if (!String.IsNullOrEmpty(actionButton)) //Form Submitted!
+            {
+                if (sortOptions.Contains(actionButton))//Change of sort is requested
+                {
+                    if (actionButton == sortField) //Reverse order on same field
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;//Sort by the button clicked
+                }
+            }
+
+            //Now we know which field and direction to sort by
+            if (sortField == "Category")
+            {
+                if (sortDirection == "asc")
+                {
+                    items = items
+                        .OrderBy(p => p.Name);
+                }
+                else
+                {
+                    items = items
+                        .OrderByDescending(p => p.Name);
+                }
+            }
+            else if (sortField == "DateRecieved")
+            {
+                if (sortDirection == "asc")
+                {
+                    items = items
+                        .OrderByDescending(p => p.DateReceived);
+                }
+                else
+                {
+                    items = items
+                        .OrderBy(p => p.DateReceived);
+                }
+            }
+            else if (sortField == "Supplier")
+            {
+                if (sortDirection == "asc")
+                {
+                    items = items
+                        .OrderBy(p => p.Supplier.Name);
+                }
+                else
+                {
+                    items = items
+                        .OrderByDescending(p => p.Supplier.Name);
+                }
+            }
+            else //Sorting by Patient Name
+            {
+                if (sortDirection == "asc")
+                {
+                    items = items
+                        .OrderBy(p => p.Name);
+                }
+                else
+                {
+                    items = items
+                        .OrderByDescending(p => p.Name);
+                }
+            }
+            //Set sort for next time
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
+
+
+            
+
+            return View(await items.ToListAsync());
         }
 
         // GET: Items/Details/5
@@ -35,7 +148,9 @@ namespace CAAMarketing.Controllers
             }
 
             var item = await _context.Items
+                .Include(i => i.Category)
                 .Include(i => i.Supplier)
+                .Include(p => p.ItemImages)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (item == null)
             {
@@ -48,7 +163,8 @@ namespace CAAMarketing.Controllers
         // GET: Items/Create
         public IActionResult Create()
         {
-            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Address");
+            ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name");
+            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name");
             return View();
         }
 
@@ -57,15 +173,47 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Description,Notes,Category,UPC,DateReceived,SupplierID")] Item item)
+        public async Task<IActionResult> Create([Bind("ID,Name,Description,Notes,CategoryID,UPC,DateReceived,SupplierID")] Item item, Inventory inventory, IFormFile thePicture)
         {
             if (ModelState.IsValid)
             {
+                
                 _context.Add(item);
+                await AddPicture(item, thePicture);
                 await _context.SaveChangesAsync();
+                _context.SaveChanges();
+                try
+                {
+                    
+                    inventory.Cost = 0;
+                    inventory.LocationID = 1;
+                    inventory.Quantity = 0;
+                    inventory.ItemID = item.ID;
+                    _context.Add(inventory);
+                    _context.SaveChanges();
+                }
+                catch { }
+
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Address", item.SupplierID);
+
+            //if (ModelState.IsValid)
+            //{
+            //    try
+            //    {
+            //        inventory.Cost = 0;
+            //        inventory.LocationID = 1;
+            //        inventory.Quantity = 0;
+            //        inventory.ItemID = _context.Items.Count();
+            //        _context.Add(inventory);
+            //        await _context.SaveChangesAsync();
+            //    }
+            //    catch { }
+            //}
+
+            ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name", item.CategoryID);
+            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name", item.SupplierID);
             return View(item);
         }
 
@@ -77,12 +225,15 @@ namespace CAAMarketing.Controllers
                 return NotFound();
             }
 
-            var item = await _context.Items.FindAsync(id);
+            var item = await _context.Items
+                .Include(p => p.ItemImages)
+                .FirstOrDefaultAsync(p => p.ID == id);
             if (item == null)
             {
                 return NotFound();
             }
-            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Address", item.SupplierID);
+            ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name", item.CategoryID);
+            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name", item.SupplierID);
             return View(item);
         }
 
@@ -91,35 +242,75 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Description,Notes,Category,UPC,DateReceived,SupplierID")] Item item)
+        public async Task<IActionResult> Edit(int id, Byte[] RowVersion, string chkRemoveImage, IFormFile thePicture)
         {
-            if (id != item.ID)
+            //Go get the patient to update
+            var itemToUpdate = await _context.Items
+                .Include(p => p.ItemImages)
+                .FirstOrDefaultAsync(p => p.ID == id);
+
+            //Check that you got it or exit with a not found error
+            if (itemToUpdate == null)
             {
                 return NotFound();
+
             }
 
-            if (ModelState.IsValid)
+            //Put the original RowVersion value in the OriginalValues collection for the entity
+            _context.Entry(itemToUpdate).Property("RowVersion").OriginalValue = RowVersion;
+
+            //Try updating it with the values posted
+            if (await TryUpdateModelAsync<Item>(itemToUpdate, "",
+                p => p.Name, p => p.Description, p => p.Notes, p => p.CategoryID, p => p.UPC,
+                p => p.DateReceived, p => p.SupplierID))
             {
                 try
                 {
-                    _context.Update(item);
+                    //For the image
+                    if (chkRemoveImage != null)
+                    {
+                        //If we are just deleting the two versions of the photo, we need to make sure the Change Tracker knows
+                        //about them both so go get the Thumbnail since we did not include it.
+                        itemToUpdate.ItemThumbNail = _context.ItemThumbNails.Where(p => p.ItemID == itemToUpdate.ID).FirstOrDefault();
+                        //Then, setting them to null will cause them to be deleted from the database.
+                        itemToUpdate.ItemImages = null;
+                        itemToUpdate.ItemThumbNail = null;
+                    }
+                    else
+                    {
+                        await AddPicture(itemToUpdate, thePicture);
+                    }
+
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ItemExists(item.ID))
+                    if (!ItemExists(itemToUpdate.ID))
                     {
                         return NotFound();
                     }
                     else
                     {
-                        throw;
+                        ModelState.AddModelError(string.Empty, "The record you attempted to edit "
+                            + "was modified by another user. Please go back and refresh.");
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (DbUpdateException dex)
+                {
+                    if (dex.GetBaseException().Message.Contains("UNIQUE constraint failed"))
+                    {
+                        ModelState.AddModelError("UPC", "Unable to save changes. Remember, you cannot have duplicate UPC numbers.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
+                    }
+                }
             }
-            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Address", item.SupplierID);
-            return View(item);
+            ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name", itemToUpdate.CategoryID);
+            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name", itemToUpdate.SupplierID);
+            return View(itemToUpdate);
         }
 
         // GET: Items/Delete/5
@@ -131,6 +322,7 @@ namespace CAAMarketing.Controllers
             }
 
             var item = await _context.Items
+                .Include(i => i.Category)
                 .Include(i => i.Supplier)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (item == null)
@@ -151,18 +343,75 @@ namespace CAAMarketing.Controllers
                 return Problem("Entity set 'CAAContext.Items'  is null.");
             }
             var item = await _context.Items.FindAsync(id);
-            if (item != null)
+
+            try
             {
-                _context.Items.Remove(item);
+                if (item != null)
+                {
+                    _context.Items.Remove(item);
+                }
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            catch (DbUpdateException)
+            {
+                //Note: there is really no reason a delete should fail if you can "talk" to the database.
+                ModelState.AddModelError("", "Unable to delete record. Try again, and if the problem persists see your system administrator.");
+            }
+            return View(item);
+
         }
 
         private bool ItemExists(int id)
         {
-          return _context.Items.Any(e => e.ID == id);
+            return _context.Items.Any(e => e.ID == id);
         }
+
+
+        private async Task AddPicture(Item item, IFormFile thePicture)
+        {
+            //Get the picture and save it with the Patient (2 sizes)
+            if (thePicture != null)
+            {
+                string mimeType = thePicture.ContentType;
+                long fileLength = thePicture.Length;
+                if (!(mimeType == "" || fileLength == 0))//Looks like we have a file!!!
+                {
+                    if (mimeType.Contains("image"))
+                    {
+                        using var memoryStream = new MemoryStream();
+                        await thePicture.CopyToAsync(memoryStream);
+                        var pictureArray = memoryStream.ToArray();//Gives us the Byte[]
+
+                        //Check if we are replacing or creating new
+                        if (item.ItemImages != null)
+                        {
+                            //We already have pictures so just replace the Byte[]
+                            item.ItemImages.Content = ResizeImage.shrinkImageWebp(pictureArray, 500, 600);
+
+                            //Get the Thumbnail so we can update it.  Remember we didn't include it
+                            item.ItemThumbNail = _context.ItemThumbNails.Where(p => p.ItemID == item.ID).FirstOrDefault();
+                            item.ItemThumbNail.Content = ResizeImage.shrinkImageWebp(pictureArray, 100, 120);
+                        }
+                        else //No pictures saved so start new
+                        {
+                            item.ItemImages = new ItemImages
+                            {
+                                Content = ResizeImage.shrinkImageWebp(pictureArray, 500, 600),
+                                MimeType = "image/webp"
+                            };
+                            item.ItemThumbNail = new ItemThumbNail
+                            {
+                                Content = ResizeImage.shrinkImageWebp(pictureArray, 100, 120),
+                                MimeType = "image/webp"
+                            };
+                        }
+                    }
+                }
+            }
+        }
+
+
     }
 }

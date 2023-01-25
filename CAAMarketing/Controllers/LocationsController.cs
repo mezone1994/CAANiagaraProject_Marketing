@@ -20,9 +20,63 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: Locations
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string SearchString
+            , string actionButton, string sortDirection = "asc", string sortField = "Location")
         {
-              return View(await _context.Locations.ToListAsync());
+
+            //Toggle the Open/Closed state of the collapse depending on if we are filtering
+            ViewData["Filtering"] = ""; //Assume not filtering
+                                        //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
+
+            var locations = _context.Locations
+                .AsNoTracking();
+
+            //List of sort options.
+            //NOTE: make sure this array has matching values to the column headings
+            string[] sortOptions = new[] { "Location" };
+
+
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                locations = locations.Where(p => p.Name.ToUpper().Contains(SearchString.ToUpper()));
+
+                ViewData["Filtering"] = " show";
+            }
+
+            //Before we sort, see if we have called for a change of filtering or sorting
+            if (!String.IsNullOrEmpty(actionButton)) //Form Submitted!
+            {
+                if (sortOptions.Contains(actionButton))//Change of sort is requested
+                {
+                    if (actionButton == sortField) //Reverse order on same field
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;//Sort by the button clicked
+                }
+            }
+
+            //Now we know which field and direction to sort by
+            if (sortField == "Location")
+            {
+                if (sortDirection == "asc")
+                {
+                    locations = locations
+                        .OrderBy(p => p.Name);
+                }
+                else
+                {
+                    locations = locations
+                        .OrderByDescending(p => p.Name);
+                }
+            }
+            
+            //Set sort for next time
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
+
+
+            return View(await locations.ToListAsync());
         }
 
         // GET: Locations/Details/5
@@ -86,34 +140,50 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Location location)
+        public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
-            if (id != location.Id)
+            //Go get the Locations to update
+            var locationToUpdate = await _context.Locations.FirstOrDefaultAsync(l => l.Id == id);
+
+            //Check that you got it or exit with a not found error
+            if (locationToUpdate == null)
             {
                 return NotFound();
+
             }
 
-            if (ModelState.IsValid)
+            //Put the original RowVersion value in the OriginalValues collection for the entity
+            _context.Entry(locationToUpdate).Property("RowVersion").OriginalValue = RowVersion;
+
+            //Try updating it with the values posted
+            if (await TryUpdateModelAsync<Location>(locationToUpdate, "",
+                l => l.Name))
             {
                 try
                 {
-                    _context.Update(location);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LocationExists(location.Id))
+                    if (!LocationExists(locationToUpdate.Id))
                     {
                         return NotFound();
                     }
                     else
                     {
-                        throw;
+                        ModelState.AddModelError(string.Empty, "The record you attempted to edit "
+                            + "was modified by another user. Please go back and refresh.");
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (DbUpdateException dex)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
+
+                }
+
             }
-            return View(location);
+            return View(locationToUpdate);
         }
 
         // GET: Locations/Delete/5

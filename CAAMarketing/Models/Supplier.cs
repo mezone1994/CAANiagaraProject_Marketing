@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CAAMarketing.Models
 {
-    public class Supplier
+    public class Supplier : Auditable
     {
         //PROPERTY FIELDS
         public int ID { get; set; }

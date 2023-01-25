@@ -20,9 +20,64 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: Suppliers
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string SearchString
+            , string actionButton, string sortDirection = "asc", string sortField = "Supplier")
         {
-              return View(await _context.Suppliers.ToListAsync());
+
+            //Toggle the Open/Closed state of the collapse depending on if we are filtering
+            ViewData["Filtering"] = ""; //Assume not filtering
+                                        //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
+
+            //List of sort options.
+            //NOTE: make sure this array has matching values to the column headings
+            string[] sortOptions = new[] { "Supplier" };
+
+            var suppliers = _context.Suppliers
+                .AsNoTracking();
+
+
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                suppliers = suppliers.Where(p => p.Name.ToUpper().Contains(SearchString.ToUpper()));
+
+                ViewData["Filtering"] = " show";
+            }
+
+            //Before we sort, see if we have called for a change of filtering or sorting
+            if (!String.IsNullOrEmpty(actionButton)) //Form Submitted!
+            {
+                if (sortOptions.Contains(actionButton))//Change of sort is requested
+                {
+                    if (actionButton == sortField) //Reverse order on same field
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;//Sort by the button clicked
+                }
+            }
+
+            //Now we know which field and direction to sort by
+            if (sortField == "Supplier")
+            {
+                if (sortDirection == "asc")
+                {
+                    suppliers = suppliers
+                        .OrderBy(p => p.Name);
+                }
+                else
+                {
+                    suppliers = suppliers
+                        .OrderByDescending(p => p.Name);
+                }
+            }
+            
+            //Set sort for next time
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
+
+
+
+            return View(await suppliers.ToListAsync());
         }
 
         // GET: Suppliers/Details/5
@@ -86,34 +141,50 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Email,Phone,Address")] Supplier supplier)
+        public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
-            if (id != supplier.ID)
+            //Go get the supplier to update
+            var supplierToUpdate = await _context.Suppliers.FirstOrDefaultAsync(s => s.ID == id);
+
+            //Check that you got it or exit with a not found error
+            if (supplierToUpdate == null)
             {
                 return NotFound();
+
             }
 
-            if (ModelState.IsValid)
+            //Put the original RowVersion value in the OriginalValues collection for the entity
+            _context.Entry(supplierToUpdate).Property("RowVersion").OriginalValue = RowVersion;
+
+            //Try updating it with the values posted
+            if (await TryUpdateModelAsync<Supplier>(supplierToUpdate, "",
+                s => s.Name, s => s.Email, s => s.Phone, s => s.Address))
             {
                 try
                 {
-                    _context.Update(supplier);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SupplierExists(supplier.ID))
+                    if (!SupplierExists(supplierToUpdate.ID))
                     {
                         return NotFound();
                     }
                     else
                     {
-                        throw;
+                        ModelState.AddModelError(string.Empty, "The record you attempted to edit "
+                            + "was modified by another user. Please go back and refresh.");
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (DbUpdateException dex)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
+
+                }
+
             }
-            return View(supplier);
+            return View(supplierToUpdate);
         }
 
         // GET: Suppliers/Delete/5

@@ -16,3 +16,17 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.navbar-blue {
+    background-color: #3C5896;
+}
+
+.logo-standard {
+    max-width: 185px;
+    max-height: 65px;
+    margin-left: 20px;
+}
+
+.navbar .navbar-nav .nav-link {
+    color: white;
+}

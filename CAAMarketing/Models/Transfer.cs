@@ -3,7 +3,7 @@ using System.Xml.Linq;
 
 namespace CAAMarketing.Models
 {
-    public class Transfer
+    public class Transfer : Auditable
     {
         public int Id { get; set; }
 
@@ -22,10 +22,6 @@ namespace CAAMarketing.Models
         [StringLength(50, ErrorMessage = " cannot be more than 50 characters long.")]
         public string NewLocation { get; set; }
 
-
-        [Display(Name = "User Name")]
-        public int userID { get; set; }
-        public User users { get; set; }
 
         [Display(Name = "Location")]
         public int LocationID { get; set; }

@@ -2,7 +2,7 @@
 
 namespace CAAMarketing.Models
 {
-    public class Item
+    public class Item : Auditable
     {
         public int ID { get; set; }
 
@@ -24,8 +24,8 @@ namespace CAAMarketing.Models
 
         [Display(Name = "Category")]
         [Required(ErrorMessage = "You cannot leave it blank.")]
-        [StringLength(50, ErrorMessage = " cannot be more than 50 characters long.")]
-        public string Category { get; set; }
+        public int CategoryID { get; set; }
+        public Category Category { get; set; }
 
         [Display(Name = "UPC")]
         [Required(ErrorMessage = "You cannot leave blank.")]
@@ -39,6 +39,8 @@ namespace CAAMarketing.Models
 
         public ItemImages ItemImages { get; set; }
 
+        public ItemThumbNail ItemThumbNail { get; set; }
+
         //Calling the Supplier to connect its table into this class
         [Display(Name = "Type of Supplier")]
         [Required(ErrorMessage = "You Must Select A Supplier Name")]
@@ -47,6 +49,7 @@ namespace CAAMarketing.Models
         [Display(Name = "Supplier Name")]
         public Supplier Supplier { get; set; }
 
+        public ICollection<InventoryTransfer> InventoryTransfers { get; set; }
 
     }
 }

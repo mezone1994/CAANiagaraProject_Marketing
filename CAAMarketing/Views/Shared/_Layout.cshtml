@@ -33,7 +33,7 @@
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" asp-area="" asp-controller="Items" asp-action="Index">Items</a></li>
-                                    @if (User.IsInRole("Supervisor") || User.IsInRole("User"))
+                                    @if (User.IsInRole("Supervisor"))
                                     {
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" asp-area="" asp-controller="Orders" asp-action="Index">Orders</a></li>
@@ -42,6 +42,16 @@
                                         <li><a class="dropdown-item" asp-area="" asp-controller="Categories" asp-action="Index">Categories</a></li>
                                         <li><a class="dropdown-item" asp-area="" asp-controller="Events" asp-action="Index">Events</a></li>
                                         <li><a class="dropdown-item" asp-area="" asp-controller="Equipments" asp-action="Index">Equipments</a></li>
+                                    }
+                                    else if (User.IsInRole("User"))
+                                    {
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Orders" asp-action="Index">Orders</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Locations" asp-action="Index">Locations</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Categories" asp-action="Index">Categories</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Events" asp-action="Index">Events</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Equipments" asp-action="Index">Equipments</a></li>
                                     }
                                     else if (User.IsInRole("Admin"))
                                     {

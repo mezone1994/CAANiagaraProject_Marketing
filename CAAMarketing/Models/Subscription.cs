@@ -3,7 +3,7 @@ using System.Xml.Linq;
 
 namespace CAAMarketing.Models
 {
-    public class Subscription
+    public class Subscription : Auditable
     {
         public int Id { get; set; }
 

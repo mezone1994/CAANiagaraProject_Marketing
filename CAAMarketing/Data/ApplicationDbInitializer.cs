@@ -20,7 +20,7 @@ namespace CAAMarketing.Data
                 //Create Roles
                 var RoleManager = applicationBuilder.ApplicationServices.CreateScope()
                     .ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                string[] roleNames = { "Admin", "Supervisor" };
+                string[] roleNames = { "Admin", "Supervisor", "User" };
                 IdentityResult roleResult;
                 foreach (var roleName in roleNames)
                 {

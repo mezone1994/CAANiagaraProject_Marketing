@@ -116,7 +116,12 @@ namespace CAAMarketing.Data.CAMigrations
                     PushEndpoint = table.Column<string>(type: "TEXT", maxLength: 512, nullable: true),
                     PushP256DH = table.Column<string>(type: "TEXT", maxLength: 512, nullable: true),
                     PushAuth = table.Column<string>(type: "TEXT", maxLength: 512, nullable: true),
-                    EmployeeID = table.Column<int>(type: "INTEGER", nullable: false)
+                    EmployeeID = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true)
                 },
                 constraints: table =>
                 {

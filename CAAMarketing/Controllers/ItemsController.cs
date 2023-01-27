@@ -21,9 +21,17 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: Items
-        public async Task<IActionResult> Index(string SearchString, int? SupplierID, int? CategoryID
-            , string actionButton, string sortDirection = "asc", string sortField = "Item")
+        public async Task<IActionResult> Index(string SearchString, int? SupplierID, int? CategoryID,
+           int? page, int? pageSizeID, string actionButton, string sortDirection = "asc", string sortField = "Item")
         {
+            //Clear the sort/filter/paging URL Cookie for Controller
+            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
+
+            //Handle Paging
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Items");
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+            var pagedData = await PaginatedList<Item>.CreateAsync(_context.Items.AsNoTracking(), page ?? 1, pageSize);
+
             //Toggle the Open/Closed state of the collapse depending on if we are filtering
             ViewData["Filtering"] = ""; //Assume not filtering
             //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
@@ -133,15 +141,15 @@ namespace CAAMarketing.Controllers
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
 
-
-            
-
-            return View(await items.ToListAsync());
+            return View(pagedData);
         }
 
         // GET: Items/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Items == null)
             {
                 return NotFound();
@@ -163,6 +171,9 @@ namespace CAAMarketing.Controllers
         // GET: Items/Create
         public IActionResult Create()
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name");
             ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name");
             return View();
@@ -175,6 +186,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Name,Description,Notes,CategoryID,UPC,DateReceived,SupplierID")] Item item, Inventory inventory, IFormFile thePicture)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (ModelState.IsValid)
             {
                 
@@ -195,7 +209,9 @@ namespace CAAMarketing.Controllers
                 catch { }
 
 
-                return RedirectToAction(nameof(Index));
+                //return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { item.ID });
+
             }
 
             //if (ModelState.IsValid)
@@ -220,6 +236,9 @@ namespace CAAMarketing.Controllers
         // GET: Items/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Items == null)
             {
                 return NotFound();
@@ -244,6 +263,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Byte[] RowVersion, string chkRemoveImage, IFormFile thePicture)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             //Go get the patient to update
             var itemToUpdate = await _context.Items
                 .Include(p => p.ItemImages)
@@ -282,7 +304,9 @@ namespace CAAMarketing.Controllers
                     }
 
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    // return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Details", new { itemToUpdate.ID });
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -316,6 +340,9 @@ namespace CAAMarketing.Controllers
         // GET: Items/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Items == null)
             {
                 return NotFound();
@@ -338,6 +365,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (_context.Items == null)
             {
                 return Problem("Entity set 'CAAContext.Items'  is null.");
@@ -352,7 +382,9 @@ namespace CAAMarketing.Controllers
                 }
 
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                // return RedirectToAction(nameof(Index));
+                return Redirect(ViewData["returnURL"].ToString());
+
             }
             catch (DbUpdateException)
             {
@@ -362,7 +394,14 @@ namespace CAAMarketing.Controllers
             return View(item);
 
         }
-
+        private string ControllerName()
+        {
+            return this.ControllerContext.RouteData.Values["controller"].ToString();
+        }
+        private void ViewDataReturnURL()
+        {
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, ControllerName());
+        }
         private bool ItemExists(int id)
         {
             return _context.Items.Any(e => e.ID == id);

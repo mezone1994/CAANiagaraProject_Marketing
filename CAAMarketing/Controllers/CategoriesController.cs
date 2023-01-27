@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
+using CAAMarketing.Utilities;
 
 namespace CAAMarketing.Controllers
 {
@@ -20,13 +21,21 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: Categories
-        public async Task<IActionResult> Index(string SearchString
+        public async Task<IActionResult> Index(string SearchString, int? page, int? pageSizeID
             , string actionButton, string sortDirection = "asc", string sortField = "Category")
         {
+            //Clear the sort/filter/paging URL Cookie for Controller
+            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
+
+            //Handle Paging
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Categories");
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+
+            var pagedData = await PaginatedList<Category>.CreateAsync(_context.Category.AsNoTracking(), page ?? 1, pageSize);
+
             //Toggle the Open/Closed state of the collapse depending on if we are filtering
             ViewData["Filtering"] = ""; //Assume not filtering
                                         //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
-
 
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
@@ -75,12 +84,16 @@ namespace CAAMarketing.Controllers
             //Set sort for next time
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
-            return View(await categories.ToListAsync());
+
+            return View(pagedData);
         }
 
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Category == null)
             {
                 return NotFound();
@@ -99,6 +112,9 @@ namespace CAAMarketing.Controllers
         // GET: Categories/Create
         public IActionResult Create()
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             return View();
         }
 
@@ -109,11 +125,16 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] Category category)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (ModelState.IsValid)
             {
                 _context.Add(category);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                //return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { category.Name });
+
             }
             return View(category);
         }
@@ -121,6 +142,9 @@ namespace CAAMarketing.Controllers
         // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Category == null)
             {
                 return NotFound();
@@ -141,6 +165,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             //Go get the category to update
             var categToUpdate = await _context.Category.FirstOrDefaultAsync(p => p.Id == id);
 
@@ -161,7 +188,9 @@ namespace CAAMarketing.Controllers
                 try
                 {
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    //return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Details", new { categToUpdate.Name });
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -188,6 +217,9 @@ namespace CAAMarketing.Controllers
         // GET: Categories/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Category == null)
             {
                 return NotFound();
@@ -208,6 +240,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (_context.Category == null)
             {
                 return Problem("Entity set 'CAAContext.Category'  is null.");
@@ -219,9 +254,18 @@ namespace CAAMarketing.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            // return RedirectToAction(nameof(Index));
+            return Redirect(ViewData["returnURL"].ToString());
 
+        }
+        private string ControllerName()
+        {
+            return this.ControllerContext.RouteData.Values["controller"].ToString();
+        }
+        private void ViewDataReturnURL()
+        {
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, ControllerName());
+        }
         private bool CategoryExists(int id)
         {
             return _context.Category.Any(e => e.Id == id);

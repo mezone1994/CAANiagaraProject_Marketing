@@ -22,6 +22,8 @@ namespace CAAMarketing.Controllers
         // GET: User
         public async Task<IActionResult> Index()
         {
+
+
             var users = await (from u in _context.Users
                                .OrderBy(u => u.UserName)
                                select new UserVM

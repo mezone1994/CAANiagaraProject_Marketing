@@ -9,6 +9,8 @@
 <p>
     <a asp-action="Create">Create New Employee</a>
 </p>
+<form asp-action="Index" method="get">
+
 <div class="text-danger">@TempData["message"]</div>
 
 <table class="table">
@@ -64,3 +66,5 @@
         }
     </tbody>
 </table>
+
+</form>

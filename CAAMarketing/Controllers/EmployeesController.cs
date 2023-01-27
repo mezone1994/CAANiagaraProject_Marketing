@@ -35,6 +35,7 @@ namespace CAAMarketing.Controllers
         // GET: Employees
         public async Task<IActionResult> Index()
         {
+
             var employees = await _context.Employees
                 .Include(e => e.Subscriptions)
                 .Select(e => new EmployeeAdminVM

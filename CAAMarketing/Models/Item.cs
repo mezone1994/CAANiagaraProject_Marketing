@@ -22,11 +22,6 @@ namespace CAAMarketing.Models
         [DataType(DataType.MultilineText)]
         public string Notes { get; set; }
 
-        [Display(Name = "Category")]
-        [Required(ErrorMessage = "You cannot leave it blank.")]
-        public int CategoryID { get; set; }
-        public Category Category { get; set; }
-
         [Display(Name = "UPC")]
         [Required(ErrorMessage = "You cannot leave blank.")]
         [StringLength(50, ErrorMessage = "cannot be more than 50 characters long.")]
@@ -49,6 +44,11 @@ namespace CAAMarketing.Models
 
         [Display(Name = "Supplier Name")]
         public Supplier Supplier { get; set; }
+
+        [Display(Name = "Category")]
+        [Required(ErrorMessage = "You cannot leave it blank.")]
+        public int CategoryID { get; set; }
+        public Category Category { get; set; }
 
         public ICollection<InventoryTransfer> InventoryTransfers { get; set; }
 

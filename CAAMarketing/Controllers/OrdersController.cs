@@ -30,7 +30,6 @@ namespace CAAMarketing.Controllers
             //Handle Paging
             int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Orders");
             ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
-
             var pagedData = await PaginatedList<Order>.CreateAsync(_context.Orders.AsNoTracking(), page ?? 1, pageSize);
 
 

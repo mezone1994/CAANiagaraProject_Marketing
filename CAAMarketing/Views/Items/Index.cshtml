@@ -61,15 +61,11 @@
                     @Html.DisplayNameFor(model => model.Description)
                 </th>
                 <th>
-                   @Html.DisplayNameFor(model => model.Notes)
+                    @Html.DisplayNameFor(model => model.Notes)
                 </th>
                 <th>
                     <input type="submit" name="actionButton" value="DateRecieved" class="btn btn-link" />
                 </th>
-
- 
-
-
                 <th></th>
             </tr>
         </thead>
@@ -83,7 +79,7 @@
                             {
                                 string imageBase64 = Convert.ToBase64String(item.ItemThumbNail.Content);
                                 string imageSrc = string.Format("data:" + item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
-                                    <img src="@imageSrc" alt="Item Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid rounded" />
+                                <img src="@imageSrc" alt="Item Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid rounded" />
                             }
                         }
                     </td>
@@ -108,8 +104,6 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.DateReceived)
                     </td>
-
-
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
                         <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
@@ -120,5 +114,4 @@
         </tbody>
     </table>
     <partial name="_PagingNavBar" />
-
 </form>

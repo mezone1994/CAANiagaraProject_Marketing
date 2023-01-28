@@ -465,7 +465,7 @@ namespace CAAMarketing.Controllers
                     }
 
                     //Set Style and backgound colour of headings
-                    using (ExcelRange headings = workSheet.Cells[3, 1, 3, 6])
+                    using (ExcelRange headings = workSheet.Cells[3, 1, 3, 8])
                     {
                         headings.Style.Font.Bold = true;
                         var fill = headings.Style.Fill;

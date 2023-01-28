@@ -27,7 +27,15 @@ namespace CAAMarketing.Controllers
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
 
+<<<<<<< HEAD
             
+=======
+            //Handle Paging
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Locations");
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+
+            var pagedData = await PaginatedList<Location>.CreateAsync(_context.Locations.AsNoTracking(), page ?? 1, pageSize);
+>>>>>>> 0c5fd6057a82587917b511e24d04ef4a864e4fb9
 
 
             //Toggle the Open/Closed state of the collapse depending on if we are filtering
@@ -85,8 +93,11 @@ namespace CAAMarketing.Controllers
             int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Locations");
             ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
 
+<<<<<<< HEAD
             var pagedData = await PaginatedList<Location>.CreateAsync(locations.AsNoTracking(), page ?? 1, pageSize);
 
+=======
+>>>>>>> 0c5fd6057a82587917b511e24d04ef4a864e4fb9
             return View(pagedData);
         }
 

@@ -4,10 +4,11 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Items Index</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
+    <a asp-action="DownloadAppointments" class="btn btn-info float-end">Download Items Report</a>
 </p>
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />

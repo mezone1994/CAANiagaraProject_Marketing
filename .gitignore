@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/CAAMarketing/Data/CAMigrations/20230126040007_Initial.cs
+/CAAMarketing/Data/CAMigrations/20230126040007_Initial.Designer.cs

@@ -123,6 +123,8 @@ namespace CAAMarketing.Controllers
 
             var pagedData = await PaginatedList<Event>.CreateAsync(events.AsNoTracking(), page ?? 1, pageSize);
 
+=======
+>>>>>>> 0c5fd6057a82587917b511e24d04ef4a864e4fb9
             return View(pagedData);
         }
 

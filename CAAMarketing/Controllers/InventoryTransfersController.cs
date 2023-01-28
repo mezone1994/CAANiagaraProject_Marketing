@@ -28,11 +28,7 @@ namespace CAAMarketing.Controllers
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
 
-            //Handle Paging
-            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "InventoryTransfers");
-            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
-
-            var pagedData = await PaginatedList<InventoryTransfer>.CreateAsync(_context.InventoryTransfers.AsNoTracking(), page ?? 1, pageSize);
+            
 
 
             //Toggle the Open/Closed state of the collapse depending on if we are filtering
@@ -157,7 +153,11 @@ namespace CAAMarketing.Controllers
 
 
 
+            //Handle Paging
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "InventoryTransfers");
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
 
+            var pagedData = await PaginatedList<InventoryTransfer>.CreateAsync(transfers.AsNoTracking(), page ?? 1, pageSize);
 
             return View(pagedData);
         }

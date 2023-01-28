@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
+using CAAMarketing.Utilities;
 
 namespace CAAMarketing.Controllers
 {
@@ -20,9 +21,13 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: Equipments
-        public async Task<IActionResult> Index(string SearchString
+        public async Task<IActionResult> Index(string SearchString, int? page, int? pageSizeID
             , string actionButton, string sortDirection = "asc", string sortField = "Equipment")
         {
+            //Clear the sort/filter/paging URL Cookie for Controller
+            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
+
+            
 
             //Toggle the Open/Closed state of the collapse depending on if we are filtering
             ViewData["Filtering"] = ""; //Assume not filtering
@@ -69,12 +74,22 @@ namespace CAAMarketing.Controllers
                         .OrderByDescending(p => p.Name);
                 }
             }
-            return View(await equipments.ToListAsync());
+
+            //Handle Paging
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Equipments");
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+
+            var pagedData = await PaginatedList<Equipment>.CreateAsync(equipments.AsNoTracking(), page ?? 1, pageSize);
+
+            return View(pagedData);
         }
 
         // GET: Equipments/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Equipments == null)
             {
                 return NotFound();
@@ -93,6 +108,9 @@ namespace CAAMarketing.Controllers
         // GET: Equipments/Create
         public IActionResult Create()
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             return View();
         }
 
@@ -103,11 +121,16 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Name,Description")] Equipment equipment)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (ModelState.IsValid)
             {
                 _context.Add(equipment);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                //return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { equipment.ID });
+
             }
             return View(equipment);
         }
@@ -115,6 +138,9 @@ namespace CAAMarketing.Controllers
         // GET: Equipments/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Equipments == null)
             {
                 return NotFound();
@@ -135,6 +161,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             //Go get the equipment to update
             var equipToUpdate = await _context.Equipments.FirstOrDefaultAsync(p => p.ID == id);
 
@@ -155,7 +184,9 @@ namespace CAAMarketing.Controllers
                 try
                 {
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    //return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Details", new { equipToUpdate.ID });
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -182,6 +213,9 @@ namespace CAAMarketing.Controllers
         // GET: Equipments/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Equipments == null)
             {
                 return NotFound();
@@ -202,6 +236,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (_context.Equipments == null)
             {
                 return Problem("Entity set 'CAAContext.Equipments'  is null.");
@@ -213,9 +250,18 @@ namespace CAAMarketing.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            //return RedirectToAction(nameof(Index));
+            return Redirect(ViewData["returnURL"].ToString());
 
+        }
+        private string ControllerName()
+        {
+            return this.ControllerContext.RouteData.Values["controller"].ToString();
+        }
+        private void ViewDataReturnURL()
+        {
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, ControllerName());
+        }
         private bool EquipmentExists(int id)
         {
             return _context.Equipments.Any(e => e.ID == id);

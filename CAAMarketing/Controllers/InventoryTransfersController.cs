@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
+using Microsoft.Extensions.Logging;
+using CAAMarketing.Utilities;
 
 namespace CAAMarketing.Controllers
 {
@@ -20,9 +22,14 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: InventoryTransfers
-        public async Task<IActionResult> Index(string SearchString, int? FromLocationID, int? ToLocationId
-            , string actionButton, string sortDirection = "asc", string sortField = "ItemTransfered")
+        public async Task<IActionResult> Index(string SearchString, int? FromLocationID, int? ToLocationId,
+           int? page, int? pageSizeID, string actionButton, string sortDirection = "asc", string sortField = "ItemTransfered")
         {
+            //Clear the sort/filter/paging URL Cookie for Controller
+            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
+
+            
+
 
             //Toggle the Open/Closed state of the collapse depending on if we are filtering
             ViewData["Filtering"] = ""; //Assume not filtering
@@ -146,14 +153,21 @@ namespace CAAMarketing.Controllers
 
 
 
+            //Handle Paging
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "InventoryTransfers");
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
 
+            var pagedData = await PaginatedList<InventoryTransfer>.CreateAsync(transfers.AsNoTracking(), page ?? 1, pageSize);
 
-            return View(await transfers.ToListAsync());
+            return View(pagedData);
         }
 
         // GET: InventoryTransfers/Create
         public IActionResult Create()
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             ViewData["FromLocationId"] = new SelectList(_context.Locations, "Id", "Name");
             ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name");
             ViewData["ToLocationId"] = new SelectList(_context.Locations, "Id", "Name");
@@ -167,6 +181,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,ItemId,FromLocationId,ToLocationId,Quantity,TransferDate")] InventoryTransfer inventoryTransfer)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (ModelState.IsValid)
             {
                 // Find the inventory record for the item being transferred from the specified location
@@ -203,7 +220,9 @@ namespace CAAMarketing.Controllers
                 // Save changes to the database
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                //return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { inventoryTransfer.ItemId });
+
             }
             ViewData["FromLocationId"] = new SelectList(_context.Locations, "Id", "Name", inventoryTransfer.FromLocationId);
             ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", inventoryTransfer.ItemId);
@@ -215,6 +234,9 @@ namespace CAAMarketing.Controllers
     // GET: InventoryTransfers/Edit/5
     public async Task<IActionResult> Edit(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.InventoryTransfers == null)
             {
                 return NotFound();
@@ -238,6 +260,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             //Go get the InventoryTransfers to update
             var transferToUpdate = await _context.InventoryTransfers.FirstOrDefaultAsync(t => t.Id == id);
 
@@ -256,7 +281,9 @@ namespace CAAMarketing.Controllers
                 try
                 {
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    //return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Details", new { transferToUpdate.ItemId });
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -285,6 +312,9 @@ namespace CAAMarketing.Controllers
         // GET: InventoryTransfers/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.InventoryTransfers == null)
             {
                 return NotFound();
@@ -308,6 +338,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (_context.InventoryTransfers == null)
             {
                 return Problem("Entity set 'CAAContext.InventoryTransfers'  is null.");
@@ -319,9 +352,18 @@ namespace CAAMarketing.Controllers
             }
             
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            //return RedirectToAction(nameof(Index));
+            return Redirect(ViewData["returnURL"].ToString());
 
+        }
+        private string ControllerName()
+        {
+            return this.ControllerContext.RouteData.Values["controller"].ToString();
+        }
+        private void ViewDataReturnURL()
+        {
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, ControllerName());
+        }
         private bool InventoryTransferExists(int id)
         {
           return _context.InventoryTransfers.Any(e => e.Id == id);

@@ -27,6 +27,27 @@ namespace CAAMarketing.Data
                         WHERE rowid = NEW.rowid;
                     END
                 ");
+            //For Employee table
+            migrationBuilder.Sql(
+                @"
+                    CREATE TRIGGER SetEmployeeTimestampOnUpdate
+                    AFTER UPDATE ON Employees
+                    BEGIN
+                        UPDATE Employees
+                        SET RowVersion = randomblob(8)
+                        WHERE rowid = NEW.rowid;
+                    END
+                ");
+            migrationBuilder.Sql(
+                @"
+                    CREATE TRIGGER SetEmployeeTimestampOnInsert
+                    AFTER INSERT ON Employees
+                    BEGIN
+                        UPDATE Employees
+                        SET RowVersion = randomblob(8)
+                        WHERE rowid = NEW.rowid;
+                    END
+                ");
             //For Equipements table
             migrationBuilder.Sql(
                 @"
@@ -174,6 +195,27 @@ namespace CAAMarketing.Data
                         WHERE rowid = NEW.rowid;
                     END
                 ");
+            //For ItemThumbNails table
+            migrationBuilder.Sql(
+                @"
+                    CREATE TRIGGER SetItemThumbNailTimestampOnUpdate
+                    AFTER UPDATE ON ItemThumbNails
+                    BEGIN
+                        UPDATE ItemThumbNails
+                        SET RowVersion = randomblob(8)
+                        WHERE rowid = NEW.rowid;
+                    END
+                ");
+            migrationBuilder.Sql(
+                @"
+                    CREATE TRIGGER SetItemThumbNailTimestampOnInsert
+                    AFTER INSERT ON ItemThumbNails
+                    BEGIN
+                        UPDATE ItemThumbNails
+                        SET RowVersion = randomblob(8)
+                        WHERE rowid = NEW.rowid;
+                    END
+                ");
             //For Locations table
             migrationBuilder.Sql(
                 @"
@@ -212,6 +254,27 @@ namespace CAAMarketing.Data
                     AFTER INSERT ON Orders
                     BEGIN
                         UPDATE Orders
+                        SET RowVersion = randomblob(8)
+                        WHERE rowid = NEW.rowid;
+                    END
+                ");
+            //For Subscription table
+            migrationBuilder.Sql(
+                @"
+                    CREATE TRIGGER SetSubscriptionTimestampOnUpdate
+                    AFTER UPDATE ON Subscriptions
+                    BEGIN
+                        UPDATE Subscriptions
+                        SET RowVersion = randomblob(8)
+                        WHERE rowid = NEW.rowid;
+                    END
+                ");
+            migrationBuilder.Sql(
+                @"
+                    CREATE TRIGGER SetSubscriptionTimestampOnInsert
+                    AFTER INSERT ON Subscriptions
+                    BEGIN
+                        UPDATE Subscriptions
                         SET RowVersion = randomblob(8)
                         WHERE rowid = NEW.rowid;
                     END

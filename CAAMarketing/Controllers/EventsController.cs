@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
 using Microsoft.Extensions.Options;
+using CAAMarketing.Utilities;
 
 namespace CAAMarketing.Controllers
 {
@@ -21,9 +22,14 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: Events
-        public async Task<IActionResult> Index(string SearchString, int? LocationID
+        public async Task<IActionResult> Index(string SearchString, int? LocationID, int? page, int? pageSizeID
             , string actionButton, string sortDirection = "asc", string sortField = "Event")
         {
+            //Clear the sort/filter/paging URL Cookie for Controller
+            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
+
+            
+
 
             //Toggle the Open/Closed state of the collapse depending on if we are filtering
             ViewData["Filtering"] = ""; //Assume not filtering
@@ -111,13 +117,21 @@ namespace CAAMarketing.Controllers
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
 
+            //Handle Paging
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Events");
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
 
-            return View(await events.ToListAsync());
+            var pagedData = await PaginatedList<Event>.CreateAsync(events.AsNoTracking(), page ?? 1, pageSize);
+
+            return View(pagedData);
         }
 
         // GET: Events/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Events == null)
             {
                 return NotFound();
@@ -137,6 +151,9 @@ namespace CAAMarketing.Controllers
         // GET: Events/Create
         public IActionResult Create()
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
             return View();
         }
@@ -148,11 +165,16 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Name,Description,Date,LocationID")] Event @event)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (ModelState.IsValid)
             {
                 _context.Add(@event);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                //return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { @event.ID });
+
             }
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", @event.LocationID);
             return View(@event);
@@ -161,6 +183,9 @@ namespace CAAMarketing.Controllers
         // GET: Events/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Events == null)
             {
                 return NotFound();
@@ -182,6 +207,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             //Go get the Event to update
             var eventToUpdate = await _context.Events.FirstOrDefaultAsync(e => e.ID == id);
 
@@ -200,7 +228,9 @@ namespace CAAMarketing.Controllers
                 try
                 {
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    //return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Details", new { eventToUpdate.ID });
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -227,6 +257,9 @@ namespace CAAMarketing.Controllers
         // GET: Events/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Events == null)
             {
                 return NotFound();
@@ -248,6 +281,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (_context.Events == null)
             {
                 return Problem("Entity set 'CAAContext.Events'  is null.");
@@ -259,9 +295,18 @@ namespace CAAMarketing.Controllers
             }
             
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            //return RedirectToAction(nameof(Index));
+            return Redirect(ViewData["returnURL"].ToString());
 
+        }
+        private string ControllerName()
+        {
+            return this.ControllerContext.RouteData.Values["controller"].ToString();
+        }
+        private void ViewDataReturnURL()
+        {
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, ControllerName());
+        }
         private bool EventExists(int id)
         {
           return _context.Events.Any(e => e.ID == id);

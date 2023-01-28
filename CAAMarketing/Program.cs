@@ -99,6 +99,4 @@ app.MapRazorPages();
 ApplicationDbInitializer.Seed(app);
 CAAInitializer.Seed(app);
 
-
-
 app.Run();

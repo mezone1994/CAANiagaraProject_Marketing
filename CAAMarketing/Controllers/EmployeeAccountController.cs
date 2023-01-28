@@ -77,10 +77,9 @@ namespace CAAMarketing.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
-            var employeeToUpdate = await _context.Employees
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var employeeToUpdate = await _context.Employees.FirstOrDefaultAsync(m => m.ID == id);
 
             //Note: Using TryUpdateModel we do not need to invoke the ViewModel
             //Only allow some properties to be updated
@@ -102,7 +101,8 @@ namespace CAAMarketing.Controllers
                     }
                     else
                     {
-                        throw;
+                        ModelState.AddModelError(string.Empty, "The record you attempted to edit "
+                            + "was modified by another user. Please go back and refresh.");
                     }
                 }
                 catch (DbUpdateException)

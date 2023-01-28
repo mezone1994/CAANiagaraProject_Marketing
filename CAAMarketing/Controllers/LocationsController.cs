@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
+using CAAMarketing.Utilities;
 
 namespace CAAMarketing.Controllers
 {
@@ -20,9 +21,14 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: Locations
-        public async Task<IActionResult> Index(string SearchString
+        public async Task<IActionResult> Index(string SearchString, int? page, int? pageSizeID
             , string actionButton, string sortDirection = "asc", string sortField = "Location")
         {
+            //Clear the sort/filter/paging URL Cookie for Controller
+            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
+
+            
+
 
             //Toggle the Open/Closed state of the collapse depending on if we are filtering
             ViewData["Filtering"] = ""; //Assume not filtering
@@ -75,13 +81,21 @@ namespace CAAMarketing.Controllers
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
 
+            //Handle Paging
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Locations");
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
 
-            return View(await locations.ToListAsync());
+            var pagedData = await PaginatedList<Location>.CreateAsync(locations.AsNoTracking(), page ?? 1, pageSize);
+
+            return View(pagedData);
         }
 
         // GET: Locations/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Locations == null)
             {
                 return NotFound();
@@ -100,6 +114,9 @@ namespace CAAMarketing.Controllers
         // GET: Locations/Create
         public IActionResult Create()
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             return View();
         }
 
@@ -110,11 +127,16 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] Location location)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (ModelState.IsValid)
             {
                 _context.Add(location);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                //return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { location.Id});
+
             }
             return View(location);
         }
@@ -122,6 +144,9 @@ namespace CAAMarketing.Controllers
         // GET: Locations/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Locations == null)
             {
                 return NotFound();
@@ -142,6 +167,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             //Go get the Locations to update
             var locationToUpdate = await _context.Locations.FirstOrDefaultAsync(l => l.Id == id);
 
@@ -162,7 +190,10 @@ namespace CAAMarketing.Controllers
                 try
                 {
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    //return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Details", new { locationToUpdate.Id });
+
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -189,6 +220,9 @@ namespace CAAMarketing.Controllers
         // GET: Locations/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Locations == null)
             {
                 return NotFound();
@@ -209,6 +243,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (_context.Locations == null)
             {
                 return Problem("Entity set 'CAAContext.Locations'  is null.");
@@ -220,9 +257,18 @@ namespace CAAMarketing.Controllers
             }
             
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            //return RedirectToAction(nameof(Index));
+            return Redirect(ViewData["returnURL"].ToString());
 
+        }
+        private string ControllerName()
+        {
+            return this.ControllerContext.RouteData.Values["controller"].ToString();
+        }
+        private void ViewDataReturnURL()
+        {
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, ControllerName());
+        }
         private bool LocationExists(int id)
         {
           return _context.Locations.Any(e => e.Id == id);

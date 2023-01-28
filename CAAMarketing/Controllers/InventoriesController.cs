@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
 using Microsoft.Extensions.Logging;
+using CAAMarketing.Utilities;
 
 namespace CAAMarketing.Controllers
 {
@@ -21,11 +22,13 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: Inventories
-        public async Task<IActionResult> Index(string SearchString, int? LocationID, bool? LowQty
-            , string actionButton, string sortDirection = "asc", string sortField = "Item")
+        public async Task<IActionResult> Index(string SearchString, int? LocationID, bool? LowQty,
+           int? page, int? pageSizeID, string actionButton, string sortDirection = "asc", string sortField = "Item")
         {
             CheckInventoryLevel();
 
+            //Clear the sort/filter/paging URL Cookie for Controller
+            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
 
             //Toggle the Open/Closed state of the collapse depending on if we are filtering
             ViewData["Filtering"] = ""; //Assume not filtering
@@ -144,13 +147,21 @@ namespace CAAMarketing.Controllers
             ViewData["sortDirection"] = sortDirection;
 
 
+            //Handle Paging
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Inventories");
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
 
-            return View(await inventories.ToListAsync());
+            var pagedData = await PaginatedList<Inventory>.CreateAsync(inventories.AsNoTracking(), page ?? 1, pageSize);
+
+            return View(pagedData);
         }
 
         // GET: Inventories/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Inventories == null)
             {
                 return NotFound();
@@ -171,6 +182,9 @@ namespace CAAMarketing.Controllers
         // GET: Inventories/Create
         public IActionResult Create()
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name");
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
             return View();
@@ -183,6 +197,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Cost,Quantity,ItemID,LocationID,IsLowInventory,LowInventoryThreshold")] Inventory inventory)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (ModelState.IsValid)
             {
                 var existingInventory = _context.Inventories.FirstOrDefault(i => i.ItemID == inventory.ItemID);
@@ -199,7 +216,9 @@ namespace CAAMarketing.Controllers
                 }
                 //Call the CheckInventoryLevel method after adding new inventory
                 CheckInventoryLevel();
-                return RedirectToAction(nameof(Index));
+                //return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { inventory.ItemID });
+
             }
             ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", inventory.ItemID);
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", inventory.LocationID);
@@ -209,6 +228,9 @@ namespace CAAMarketing.Controllers
         // GET: Inventories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Inventories == null)
             {
                 return NotFound();
@@ -231,6 +253,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             //Go get the Event to update
             var inventoryToUpdate = await _context.Inventories.FirstOrDefaultAsync(i => i.Id == id);
 
@@ -249,7 +274,9 @@ namespace CAAMarketing.Controllers
                 try
                 {
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    //return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Details", new { inventoryToUpdate.ItemID });
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -277,6 +304,9 @@ namespace CAAMarketing.Controllers
         // GET: Inventories/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (id == null || _context.Inventories == null)
             {
                 return NotFound();
@@ -299,6 +329,9 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
             if (_context.Inventories == null)
             {
                 return Problem("Entity set 'CAAContext.Inventories'  is null.");
@@ -310,7 +343,9 @@ namespace CAAMarketing.Controllers
             }
             
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            // return RedirectToAction(nameof(Index));
+            return Redirect(ViewData["returnURL"].ToString());
+
         }
 
         private void CheckInventoryLevel()
@@ -333,7 +368,14 @@ namespace CAAMarketing.Controllers
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
-
+        private string ControllerName()
+        {
+            return this.ControllerContext.RouteData.Values["controller"].ToString();
+        }
+        private void ViewDataReturnURL()
+        {
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, ControllerName());
+        }
         private bool InventoryExists(int id)
         {
           return _context.Inventories.Any(e => e.Id == id);

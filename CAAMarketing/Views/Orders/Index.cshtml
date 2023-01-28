@@ -4,7 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Orders Index</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -12,7 +12,7 @@
 
 
 <form asp-action="Index" method="get">
-        <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
+    <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
     <div class="form-horizontal">
         <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
@@ -39,54 +39,57 @@
     </div>
 
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                <input type="submit" name="actionButton" value="OrderItem" class="btn btn-link" />
-            </th>
-             <th>
-                 <input type="submit" name="actionButton" value="UPC" class="btn btn-link" />
-             </th>
-            <th>
-                <input type="submit" name="actionButton" value="Quantity" class="btn btn-link" />
-            </th>
-            <th>
-                <input type="submit" name="actionButton" value="DateMade" class="btn btn-link" />
-            </th>
-            <th>
-                <input type="submit" name="actionButton" value="DeliveryDate" class="btn btn-link" />
-            </th>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <input type="submit" name="actionButton" value="OrderItem" class="btn btn-link" />
+                </th>
+                <th>
+                    <input type="submit" name="actionButton" value="UPC" class="btn btn-link" />
+                </th>
+                <th>
+                    <input type="submit" name="actionButton" value="Quantity" class="btn btn-link" />
+                </th>
+                <th>
+                    <input type="submit" name="actionButton" value="DateMade" class="btn btn-link" />
+                </th>
+                <th>
+                    <input type="submit" name="actionButton" value="DeliveryDate" class="btn btn-link" />
+                </th>
 
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Item.Name)
-            </td>
-            <td>
-                 @Html.DisplayFor(modelItem => item.Item.UPC)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateMade)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DeliveryDate)
-            </td>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Item.UPC)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Quantity)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DateMade)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DeliveryDate)
+                    </td>
 
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <partial name="_PagingNavBar" />
+
 </form>

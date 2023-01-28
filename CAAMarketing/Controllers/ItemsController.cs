@@ -457,12 +457,21 @@ namespace CAAMarketing.Controllers
 
                     //Note: these are fine if you are only 'doing' one thing to the range of cells.
                     //Otherwise you should USE a range object for efficiency
+<<<<<<< HEAD
                     //using (ExcelRange totalfees = workSheet.Cells[numRows + 4, 4])//
                     //{
                     //    totalfees.Formula = "Sum(" + workSheet.Cells[4, 4].Address + ":" + workSheet.Cells[numRows + 3, 4].Address + ")";
                     //    totalfees.Style.Font.Bold = true;
                     //    totalfees.Style.Numberformat.Format = "$###,##0.00";
                     //}
+=======
+                    using (ExcelRange totalfees = workSheet.Cells[numRows + 4, 4])//
+                    {
+                        totalfees.Formula = "Sum(" + workSheet.Cells[4, 4].Address + ":" + workSheet.Cells[numRows + 3, 4].Address + ")";
+                        totalfees.Style.Font.Bold = true;
+                        totalfees.Style.Numberformat.Format = "$###,##0.00";
+                    }
+>>>>>>> 0c5fd6057a82587917b511e24d04ef4a864e4fb9
 
                     //Set Style and backgound colour of headings
                     using (ExcelRange headings = workSheet.Cells[3, 1, 3, 8])

@@ -86,9 +86,6 @@ namespace CAAMarketing.Controllers
             ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
 
             var pagedData = await PaginatedList<Location>.CreateAsync(locations.AsNoTracking(), page ?? 1, pageSize);
-
-=======
->>>>>>> 0c5fd6057a82587917b511e24d04ef4a864e4fb9
             return View(pagedData);
         }
 

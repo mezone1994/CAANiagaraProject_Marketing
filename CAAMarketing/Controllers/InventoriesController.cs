@@ -382,12 +382,12 @@ namespace CAAMarketing.Controllers
                         orderby i.Item.Name descending
                         select new
                         {
+                            Category = i.Item.Category.Name,
                             UPC = i.Item.UPC,
                             Item = i.Item.Name,
-                            Quantity = i.Quantity,
                             Cost = i.Cost,
-                            Category = i.Item.Category.Name,
-                            Description = i.Item.Description,
+                            Quantity = i.Quantity,
+                            Location = i.Location.Name,
                             Supplier = i.Item.Supplier.Name,
                             DateRecieved = i.Item.DateReceived,
                             Notes = i.Item.Notes
@@ -422,21 +422,29 @@ namespace CAAMarketing.Controllers
                     workSheet.Cells[3, 1].LoadFromCollection(items, true);
 
                     //Style 6th column for dates (DateRecieved)
-                    workSheet.Column(6).Style.Numberformat.Format = "yyyy-mm-dd";
+                    workSheet.Column(8).Style.Numberformat.Format = "yyyy-mm-dd";
 
                     //Style fee column for currency
                     workSheet.Column(4).Style.Numberformat.Format = "$###,##0.00";
 
                     //Note: You can define a BLOCK of cells: Cells[startRow, startColumn, endRow, endColumn]
-                    //Make Date and Patient Bold
-                    workSheet.Cells[4, 1, numRows + 3, 2].Style.Font.Bold = true;
+                    //Make Item Category Bold
+                    workSheet.Cells[4, 1, numRows + 3, 1].Style.Font.Bold = true;
+                    //Make Item Names Bold
+                    workSheet.Cells[4, 3, numRows + 3, 3].Style.Font.Bold = true;
+                    //Make Item Locations Bold
+                    workSheet.Cells[4, 6, numRows + 3, 6].Style.Font.Bold = true;
 
                     //Note: these are fine if you are only 'doing' one thing to the range of cells.
                     //Otherwise you should USE a range object for efficiency
+                    //Total Cost for all Items in Inventory
                     using (ExcelRange totalfees = workSheet.Cells[numRows + 4, 4])//
                     {
                         totalfees.Formula = "Sum(" + workSheet.Cells[4, 4].Address + ":" + workSheet.Cells[numRows + 3, 4].Address + ")";
                         totalfees.Style.Font.Bold = true;
+                        workSheet.Cells[numRows + 4, 3].Value = "Total Cost:";
+                        workSheet.Cells[numRows + 4, 3].Style.Font.Bold = true;
+                        workSheet.Cells[numRows + 4, 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                         totalfees.Style.Numberformat.Format = "$###,##0.00";
                     }
 

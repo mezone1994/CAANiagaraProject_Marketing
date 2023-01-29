@@ -304,12 +304,7 @@ namespace CAAMarketing.Data.CAMigrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Content = table.Column<byte[]>(type: "BLOB", nullable: true),
                     MimeType = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
-                    ItemID = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true)
+                    ItemID = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -352,6 +347,7 @@ namespace CAAMarketing.Data.CAMigrations
                     Quantity = table.Column<int>(type: "INTEGER", nullable: false),
                     DateMade = table.Column<DateTime>(type: "TEXT", nullable: false),
                     DeliveryDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Cost = table.Column<decimal>(type: "TEXT", nullable: false),
                     ItemID = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),

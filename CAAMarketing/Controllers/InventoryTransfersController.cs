@@ -220,8 +220,7 @@ namespace CAAMarketing.Controllers
                 // Save changes to the database
                 await _context.SaveChangesAsync();
 
-                //return RedirectToAction(nameof(Index));
-                return RedirectToAction("Details", new { inventoryTransfer.ItemId });
+                return RedirectToAction(nameof(Index));
 
             }
             ViewData["FromLocationId"] = new SelectList(_context.Locations, "Id", "Name", inventoryTransfer.FromLocationId);

@@ -2,7 +2,7 @@
 
 namespace CAAMarketing.Models
 {
-    public class ItemImages : Auditable
+    public class ItemImages
     {
         public int Id { get; set; }
 

@@ -171,7 +171,7 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Quantity,DateMade,DeliveryDate,ItemID")] Order order)
+        public async Task<IActionResult> Create([Bind("ID,Quantity,DateMade,DeliveryDate,Cost,ItemID")] Order order)
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
@@ -194,13 +194,14 @@ namespace CAAMarketing.Controllers
                 if (inventory != null)
                 {
                     inventory.Quantity += order.Quantity;
+                    inventory.Cost = order.Cost;
                     _context.Update(inventory);
                     await _context.SaveChangesAsync();
                 }
                 else
                 {
                     // If inventory for the item doesn't exist, create a new inventory
-                    inventory = new Inventory { ItemID = order.ItemID, Quantity = order.Quantity };
+                    inventory = new Inventory { ItemID = order.ItemID, Quantity = order.Quantity, Cost = order.Cost };
                     _context.Add(inventory);
                     await _context.SaveChangesAsync();
                 }
@@ -257,7 +258,7 @@ namespace CAAMarketing.Controllers
 
             //Try updating it with the values posted
             if (await TryUpdateModelAsync<Order>(orderToUpdate, "",
-                o => o.Quantity, o => o.DateMade, o => o.DeliveryDate, o => o.ItemID))
+                o => o.Quantity, o => o.DateMade, o => o.DeliveryDate, o => o.Cost, o => o.ItemID))
             {
                 try
                 {
@@ -328,12 +329,12 @@ namespace CAAMarketing.Controllers
             {
                 _context.Orders.Remove(order);
             }
-            
+
             await _context.SaveChangesAsync();
             //return RedirectToAction(nameof(Index));
             return Redirect(ViewData["returnURL"].ToString());
-
         }
+
         private string ControllerName()
         {
             return this.ControllerContext.RouteData.Values["controller"].ToString();
@@ -342,9 +343,10 @@ namespace CAAMarketing.Controllers
         {
             ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, ControllerName());
         }
+
         private bool OrderExists(int id)
         {
-          return _context.Orders.Any(e => e.ID == id);
+            return _context.Orders.Any(e => e.ID == id);
         }
     }
 }

@@ -24,6 +24,11 @@ namespace CAAMarketing.Models
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime? DeliveryDate { get; set; }
 
+        [Display(Name = "Cost")]
+        [Required(ErrorMessage = "You must enter a cost.")]
+        [DataType(DataType.Currency)]
+        public decimal Cost { get; set; }
+
 
         //Calling the Item to connect its table into this class
         [Display(Name = "Type of Item")]

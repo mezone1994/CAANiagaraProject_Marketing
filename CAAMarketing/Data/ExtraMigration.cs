@@ -153,27 +153,7 @@ namespace CAAMarketing.Data
                         WHERE rowid = NEW.rowid;
                     END
                 ");
-            //For ItemImages table
-            migrationBuilder.Sql(
-                @"
-                    CREATE TRIGGER SetItemImageTimestampOnUpdate
-                    AFTER UPDATE ON itemImages
-                    BEGIN
-                        UPDATE itemImages
-                        SET RowVersion = randomblob(8)
-                        WHERE rowid = NEW.rowid;
-                    END
-                ");
-            migrationBuilder.Sql(
-                @"
-                    CREATE TRIGGER SetItemImageTimestampOnInsert
-                    AFTER INSERT ON itemImages
-                    BEGIN
-                        UPDATE itemImages
-                        SET RowVersion = randomblob(8)
-                        WHERE rowid = NEW.rowid;
-                    END
-                ");
+
             //For Items table
             migrationBuilder.Sql(
                 @"
@@ -191,27 +171,6 @@ namespace CAAMarketing.Data
                     AFTER INSERT ON Items
                     BEGIN
                         UPDATE Items
-                        SET RowVersion = randomblob(8)
-                        WHERE rowid = NEW.rowid;
-                    END
-                ");
-            //For ItemThumbNails table
-            migrationBuilder.Sql(
-                @"
-                    CREATE TRIGGER SetItemThumbNailTimestampOnUpdate
-                    AFTER UPDATE ON ItemThumbNails
-                    BEGIN
-                        UPDATE ItemThumbNails
-                        SET RowVersion = randomblob(8)
-                        WHERE rowid = NEW.rowid;
-                    END
-                ");
-            migrationBuilder.Sql(
-                @"
-                    CREATE TRIGGER SetItemThumbNailTimestampOnInsert
-                    AFTER INSERT ON ItemThumbNails
-                    BEGIN
-                        UPDATE ItemThumbNails
                         SET RowVersion = randomblob(8)
                         WHERE rowid = NEW.rowid;
                     END

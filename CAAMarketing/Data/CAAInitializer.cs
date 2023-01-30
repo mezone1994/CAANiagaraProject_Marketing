@@ -61,7 +61,6 @@ public static class CAAInitializer
                     Email = "bic@gmail.com",
                     Phone = "289-111-1212",
                     Address = "1234 Parker St."
-
                 },
                 new Supplier
                 {
@@ -85,6 +84,30 @@ public static class CAAInitializer
                     Email = "nike@gmail.com",
                     Phone = "289-656-3432",
                     Address = "8768 Hillery St."
+
+                },
+                new Supplier
+                {
+                    Name = "Canadian Tire",
+                    Email = "canadiantire@gmail.com",
+                    Phone = "905-262-4365",
+                    Address = "829 Tire Rd."
+
+                },
+                new Supplier
+                {
+                    Name = "The Source",
+                    Email = "thesource@gmail.com",
+                    Phone = "905-735-0887",
+                    Address = "800 Niagara St."
+
+                },
+                new Supplier
+                {
+                    Name = "Dollar Store",
+                    Email = "dollarstore@gmail.com",
+                    Phone = "905-264-1266",
+                    Address = "800 Niagara St."
 
                 });
                 context.SaveChanges();
@@ -120,6 +143,24 @@ public static class CAAInitializer
                 new Category
                 {
                     Name = "Sunglasses",
+
+
+                },
+                new Category
+                {
+                    Name = "Seasonal",
+
+
+                },
+                new Category
+                {
+                    Name = "Accessories",
+
+
+                },
+                new Category
+                {
+                    Name = "Apparel",
 
 
                 });
@@ -172,13 +213,73 @@ public static class CAAInitializer
                 },
                 new Item
                 {
+                    Name = "Car Winter Scrapper",
+                    Description = "Scrapper for snow/ice remove on vehicles",
+                    Notes = "Black, Grey, Blue",
+                    CategoryID = 6,
+                    UPC = "" + rd.Next(10000000, 99999999),
+                    DateReceived = DateTime.Parse("2022/01/20"),
+                    SupplierID = 4,
+                },
+                new Item
+                {
                     Name = "Stainless-Steel Water Bottles",
                     Description = "Used for storing Water",
                     Notes = "Comes in Black Only",
                     CategoryID = 4,
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
-                    SupplierID = 3,
+                    SupplierID = 5,
+                },
+                new Item
+                {
+                    Name = "Laptop Bag",
+                    Description = "Used for storing Laptops",
+                    Notes = "Comes in Grey Only",
+                    CategoryID = 1,
+                    UPC = "" + rd.Next(10000000, 99999999),
+                    DateReceived = DateTime.Parse("2022/01/20"),
+                    SupplierID = 4,
+                },
+                new Item
+                {
+                    Name = "Stick on Phone Wallet",
+                    Description = "Wallet that sticks to the back of your phone.",
+                    Notes = "Comes in Black, Blue and Red",
+                    CategoryID = 7,
+                    UPC = "" + rd.Next(10000000, 99999999),
+                    DateReceived = DateTime.Parse("2022/01/20"),
+                    SupplierID = 6,
+                },
+                new Item
+                {
+                    Name = "Shirt",
+                    Description = "Shirt with CAA Logo, Address, Phone Number and more.",
+                    Notes = "Comes in Blue, Grey, Black.",
+                    CategoryID = 8,
+                    UPC = "" + rd.Next(10000000, 99999999),
+                    DateReceived = DateTime.Parse("2022/01/20"),
+                    SupplierID = 4,
+                },
+                new Item
+                {
+                    Name = "Sticker",
+                    Description = "CAA Sticker that can be applied to any surface.",
+                    Notes = "Comes in CAA colours.",
+                    CategoryID = 7,
+                    UPC = "" + rd.Next(10000000, 99999999),
+                    DateReceived = DateTime.Parse("2022/01/20"),
+                    SupplierID = 7,
+                },
+                new Item
+                {
+                    Name = "Key Chain",
+                    Description = "Key Chain with CAA logo to attached to someones Car Keys.",
+                    Notes = "Comes in CAA colours.",
+                    CategoryID = 7,
+                    UPC = "" + rd.Next(10000000, 99999999),
+                    DateReceived = DateTime.Parse("2022/01/20"),
+                    SupplierID = 7,
                 });
                 context.SaveChanges();
             }

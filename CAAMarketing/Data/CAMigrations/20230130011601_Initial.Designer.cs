@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CAAMarketing.Data.CAMigrations
 {
     [DbContext(typeof(CAAContext))]
-    [Migration("20230129052544_Initial")]
+    [Migration("20230130011601_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -74,6 +74,9 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<string>("FirstName")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("ItemID")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("LastName")
                         .HasColumnType("TEXT");
 
@@ -96,6 +99,8 @@ namespace CAAMarketing.Data.CAMigrations
 
                     b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("ItemID");
 
                     b.ToTable("Employees");
                 });
@@ -598,6 +603,13 @@ namespace CAAMarketing.Data.CAMigrations
                     b.ToTable("Suppliers");
                 });
 
+            modelBuilder.Entity("CAAMarketing.Models.Employee", b =>
+                {
+                    b.HasOne("CAAMarketing.Models.Item", null)
+                        .WithMany("Employees")
+                        .HasForeignKey("ItemID");
+                });
+
             modelBuilder.Entity("CAAMarketing.Models.Event", b =>
                 {
                     b.HasOne("CAAMarketing.Models.Location", "Location")
@@ -744,6 +756,8 @@ namespace CAAMarketing.Data.CAMigrations
 
             modelBuilder.Entity("CAAMarketing.Models.Item", b =>
                 {
+                    b.Navigation("Employees");
+
                     b.Navigation("InventoryTransfers");
 
                     b.Navigation("ItemImages");

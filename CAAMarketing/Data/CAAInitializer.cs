@@ -257,6 +257,7 @@ public static class CAAInitializer
                     Quantity = 45,
                     DateMade = DateTime.Now,
                     DeliveryDate = DateTime.Parse("2022/03/20"),
+                    Cost= 45,
                     ItemID = context.Items.FirstOrDefault(d => d.Name == "Carry-on Bag Nike").ID
                 },
                 new Order
@@ -271,6 +272,7 @@ public static class CAAInitializer
                     Quantity = 200,
                     DateMade = DateTime.Now,
                     DeliveryDate = DateTime.Parse("2022/02/20"),
+                    Cost = 55,
                     ItemID = context.Items.FirstOrDefault(d => d.Name == "Stainless-Steel Water Bottles").ID
                 },
                 new Order
@@ -278,6 +280,7 @@ public static class CAAInitializer
                     Quantity = 45,
                     DateMade = DateTime.Now,
                     DeliveryDate = DateTime.Parse("2022/03/20"),
+                    Cost = 35,
                     ItemID = context.Items.FirstOrDefault(d => d.Name == "Studio Pens").ID
                 });
                 context.SaveChanges();

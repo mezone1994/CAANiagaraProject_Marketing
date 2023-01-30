@@ -38,6 +38,7 @@ namespace CAAMarketing.Controllers
             //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
             var inventories = _context.Inventories
                 .Include(i => i.Item)
+                .Include(i=>i.Item.ItemThumbNail)
                 .Include(i => i.Location)
                 .AsNoTracking();
 
@@ -172,6 +173,7 @@ namespace CAAMarketing.Controllers
 
             var inventory = await _context.Inventories
                 .Include(i => i.Item)
+                .Include(i=>i.Item.ItemImages)
                 .Include(i => i.Location)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (inventory == null)
@@ -356,7 +358,8 @@ namespace CAAMarketing.Controllers
             var lowInventoryItems = _context.Inventories.Where(i => i.Quantity <= i.LowInventoryThreshold);
             if (lowInventoryItems.Any())
             {
-                TempData["InventoryLow"] = "Inventory is low for some items. Please check your inventory and reorder soon.";
+                var itemNames = string.Join(", ", lowInventoryItems.Select(i => i.Item.Name));
+                TempData["InventoryLow"] = $"Inventory is low for the following items: {itemNames}. Please check your inventory and reorder soon.";
             }
         }
 

@@ -21,6 +21,8 @@ namespace CAAMarketing.Models
         [Display(Name = "Items")]
         public Item Item { get; set; }
 
+
+
         [Display(Name = "Location")]
         public int LocationID { get; set; }
         public Location Location { get; set; }

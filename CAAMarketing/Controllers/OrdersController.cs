@@ -256,12 +256,41 @@ namespace CAAMarketing.Controllers
             //Put the original RowVersion value in the OriginalValues collection for the entity
             _context.Entry(orderToUpdate).Property("RowVersion").OriginalValue = RowVersion;
 
-            //Try updating it with the values posted
+            var oldOrderQuantity = orderToUpdate.Quantity;
             if (await TryUpdateModelAsync<Order>(orderToUpdate, "",
                 o => o.Quantity, o => o.DateMade, o => o.DeliveryDate, o => o.Cost, o => o.ItemID))
             {
                 try
                 {
+                    var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == orderToUpdate.ItemID);
+                    if (inventory != null)
+                    {
+                        var newInventoryQuantity = inventory.Quantity + (orderToUpdate.Quantity - oldOrderQuantity);
+                        if (newInventoryQuantity > 0)
+                        {
+                            inventory.Quantity = newInventoryQuantity;
+                        }
+                        else
+                        {
+                            _context.Inventories.Remove(inventory);
+                        }
+                        _context.Update(inventory);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        if (orderToUpdate.Quantity > 0)
+                        {
+                            inventory = new Inventory
+                            {
+                                ItemID = orderToUpdate.ItemID,
+                                Quantity = orderToUpdate.Quantity,
+                                Cost = orderToUpdate.Cost
+                            };
+                            _context.Inventories.Add(inventory);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
                     await _context.SaveChangesAsync();
                     //return RedirectToAction(nameof(Index));
                     return RedirectToAction("Details", new { orderToUpdate.ID });

@@ -28,28 +28,6 @@ namespace CAAMarketing.Data.CAMigrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Employees",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    FirstName = table.Column<string>(type: "TEXT", nullable: true),
-                    LastName = table.Column<string>(type: "TEXT", nullable: true),
-                    Phone = table.Column<string>(type: "TEXT", nullable: true),
-                    Email = table.Column<string>(type: "TEXT", nullable: true),
-                    Active = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Employees", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Equipments",
                 columns: table => new
                 {
@@ -105,33 +83,6 @@ namespace CAAMarketing.Data.CAMigrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Suppliers", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Subscriptions",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    PushEndpoint = table.Column<string>(type: "TEXT", maxLength: 512, nullable: true),
-                    PushP256DH = table.Column<string>(type: "TEXT", maxLength: 512, nullable: true),
-                    PushAuth = table.Column<string>(type: "TEXT", maxLength: 512, nullable: true),
-                    EmployeeID = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Subscriptions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Subscriptions_Employees_EmployeeID",
-                        column: x => x.EmployeeID,
-                        principalTable: "Employees",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -195,6 +146,34 @@ namespace CAAMarketing.Data.CAMigrations
                         principalTable: "Suppliers",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Employees",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    FirstName = table.Column<string>(type: "TEXT", nullable: true),
+                    LastName = table.Column<string>(type: "TEXT", nullable: true),
+                    Phone = table.Column<string>(type: "TEXT", nullable: true),
+                    Email = table.Column<string>(type: "TEXT", nullable: true),
+                    Active = table.Column<bool>(type: "INTEGER", nullable: false),
+                    ItemID = table.Column<int>(type: "INTEGER", nullable: true),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Employees", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Employees_Items_ItemID",
+                        column: x => x.ItemID,
+                        principalTable: "Items",
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
@@ -366,11 +345,43 @@ namespace CAAMarketing.Data.CAMigrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Subscriptions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    PushEndpoint = table.Column<string>(type: "TEXT", maxLength: 512, nullable: true),
+                    PushP256DH = table.Column<string>(type: "TEXT", maxLength: 512, nullable: true),
+                    PushAuth = table.Column<string>(type: "TEXT", maxLength: 512, nullable: true),
+                    EmployeeID = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Subscriptions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Subscriptions_Employees_EmployeeID",
+                        column: x => x.EmployeeID,
+                        principalTable: "Employees",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Employees_Email",
                 table: "Employees",
                 column: "Email",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_ItemID",
+                table: "Employees",
+                column: "ItemID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Events_LocationID",
@@ -472,13 +483,13 @@ namespace CAAMarketing.Data.CAMigrations
                 name: "Events");
 
             migrationBuilder.DropTable(
-                name: "Items");
-
-            migrationBuilder.DropTable(
                 name: "Employees");
 
             migrationBuilder.DropTable(
                 name: "Locations");
+
+            migrationBuilder.DropTable(
+                name: "Items");
 
             migrationBuilder.DropTable(
                 name: "Category");

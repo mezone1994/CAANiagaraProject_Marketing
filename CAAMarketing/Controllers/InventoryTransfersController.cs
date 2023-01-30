@@ -190,38 +190,49 @@ namespace CAAMarketing.Controllers
                 var fromInventory = await _context.Inventories
                     .FirstOrDefaultAsync(i => i.ItemID == inventoryTransfer.ItemId && i.LocationID == inventoryTransfer.FromLocationId);
 
-                // Deduct the transferred quantity from the inventory record
-                fromInventory.Quantity -= inventoryTransfer.Quantity;
-
-                // Find the inventory record for the item being transferred to the specified location
-                var toInventory = await _context.Inventories
-                    .FirstOrDefaultAsync(i => i.ItemID == inventoryTransfer.ItemId && i.LocationID == inventoryTransfer.ToLocationId);
-
-                // If the inventory record for the destination location does not exist, create a new one
-                if (toInventory == null)
+                if (fromInventory.Quantity < inventoryTransfer.Quantity)
                 {
-                    toInventory = new Inventory
-                    {
-                        ItemID = inventoryTransfer.ItemId,
-                        LocationID = inventoryTransfer.ToLocationId,
-                        Quantity = inventoryTransfer.Quantity
-                    };
-                    _context.Add(toInventory);
+                    // Display an error message if the inventory does not have sufficient quantity
+                    ModelState.AddModelError("Quantity", "There are not enough items in the inventory to complete this transfer.");
+                    ViewData["FromLocationId"] = new SelectList(_context.Locations, "Id", "Name", inventoryTransfer.FromLocationId);
+                    ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", inventoryTransfer.ItemId);
+                    ViewData["ToLocationId"] = new SelectList(_context.Locations, "Id", "Name", inventoryTransfer.ToLocationId);
+                    return View(inventoryTransfer);
                 }
                 else
                 {
-                    // Else, add the transferred quantity to the existing inventory record
-                    toInventory.Quantity += inventoryTransfer.Quantity;
+                    // Deduct the transferred quantity from the inventory record
+                    fromInventory.Quantity -= inventoryTransfer.Quantity;
+
+                    // Find the inventory record for the item being transferred to the specified location
+                    var toInventory = await _context.Inventories
+                        .FirstOrDefaultAsync(i => i.ItemID == inventoryTransfer.ItemId && i.LocationID == inventoryTransfer.ToLocationId);
+
+                    // If the inventory record for the destination location does not exist, create a new one
+                    if (toInventory == null)
+                    {
+                        toInventory = new Inventory
+                        {
+                            ItemID = inventoryTransfer.ItemId,
+                            LocationID = inventoryTransfer.ToLocationId,
+                            Quantity = inventoryTransfer.Quantity
+                        };
+                        _context.Add(toInventory);
+                    }
+                    else
+                    {
+                        // Else, add the transferred quantity to the existing inventory record
+                        toInventory.Quantity += inventoryTransfer.Quantity;
+                    }
+
+                    // Add the inventory transfer record to the database
+                    _context.Add(inventoryTransfer);
+
+                    // Save changes to the database
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Index));
                 }
-
-                // Add the inventory transfer record to the database
-                _context.Add(inventoryTransfer);
-
-                // Save changes to the database
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
-
             }
             ViewData["FromLocationId"] = new SelectList(_context.Locations, "Id", "Name", inventoryTransfer.FromLocationId);
             ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", inventoryTransfer.ItemId);

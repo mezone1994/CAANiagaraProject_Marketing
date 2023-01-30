@@ -82,6 +82,7 @@ namespace CAAMarketing.Data
             .WithMany(i => i.InventoryTransfers)
             .HasForeignKey(t => t.ItemId);
 
+
             modelBuilder.Entity<InventoryTransfer>()
                 .HasOne(t => t.FromLocation)
                 .WithMany(l => l.InventoryTransfersFrom)

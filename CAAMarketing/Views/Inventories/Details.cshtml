@@ -9,6 +9,17 @@
 <div>
     <h4>Inventory</h4>
     <hr />
+    @{
+    var hasPicture = (Model.Item.ItemImages?.Content != null);
+    if (hasPicture)
+        {
+            @:<div>
+                string imageBase64 = Convert.ToBase64String(Model.Item.ItemImages.Content);
+                string imageSrc = string.Format("data:" + Model.Item.ItemImages.MimeType + ";base64,{0}", imageBase64);
+                <img src="@imageSrc" alt="Item Picture of @Model.Item.Name" title="Item Picture of @Model.Item.Name" class="img-fluid rounded" />
+            @:</div><hr />
+        }
+    }
     <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Item)

@@ -54,6 +54,7 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Item Image :</th>
             <th>
                 <input type="submit" name="actionButton" value="Item" class="btn btn-link" />
             </th>
@@ -69,6 +70,9 @@
             <th>
                 <input type="submit" name="actionButton" value="Cost" class="btn btn-link" />
             </th>
+            <th>
+                <input type="submit" name="actionButton" value="Employee" class="btn btn-link" />
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -76,6 +80,16 @@
         @foreach (var inventory in Model)
         {
             <tr>
+                    <td>
+                        @{
+                            if (inventory.Item.ItemThumbNail?.Content != null)
+                            {
+                                string imageBase64 = Convert.ToBase64String(inventory.Item.ItemThumbNail.Content);
+                                string imageSrc = string.Format("data:" + inventory.Item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
+                                        <img src="@imageSrc" alt="Item Picture of @inventory.Item.Name" title="Item Picture of @inventory.Item.Name" class="img-fluid rounded" />
+                            }
+                        }
+                    </td>
                 <td>
                     @Html.DisplayFor(modelItem => inventory.Item.Name)
                 </td>
@@ -91,6 +105,11 @@
                 <td>
                     @Html.DisplayFor(modelItem => inventory.Cost)
                 </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => inventory.Item.CreatedBy)
+                    </td>
+                       
+                    
                 <td>
                     
                     <a asp-action="Details" asp-route-id="@inventory.Id">Details</a>

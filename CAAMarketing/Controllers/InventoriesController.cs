@@ -441,14 +441,21 @@ namespace CAAMarketing.Controllers
                     //Note: these are fine if you are only 'doing' one thing to the range of cells.
                     //Otherwise you should USE a range object for efficiency
                     //Total Cost for all Items in Inventory
+                    //workSheet.Cells[4, 4, numRows + 3, 5].Calculate();
                     using (ExcelRange totalfees = workSheet.Cells[numRows + 4, 4])//
                     {
-                        totalfees.Formula = "Sum(" + workSheet.Cells[4, 4].Address + ":" + workSheet.Cells[numRows + 3, 4].Address + ")";
-                        totalfees.Style.Font.Bold = true;
+                        //Total Cost Text
                         workSheet.Cells[numRows + 4, 3].Value = "Total Cost:";
                         workSheet.Cells[numRows + 4, 3].Style.Font.Bold = true;
                         workSheet.Cells[numRows + 4, 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
-                        totalfees.Style.Numberformat.Format = "$###,##0.00";
+                        //Total Cost Sum - get cost * qty for each row
+                        totalfees.Formula = "Sum(" + (workSheet.Cells[4, 4].Address) + ":" + workSheet.Cells[numRows + 3, 4].Address + ")" + "*" + "Sum(" +
+                            (workSheet.Cells[4, 5].Address) + ":" + workSheet.Cells[numRows + 3, 5].Address + ")";
+                        totalfees.Style.Font.Bold = true;   
+                        totalfees.Style.Numberformat.Format = "$###,###,##0.00";
+                        var range = workSheet.Cells[numRows + 4, 4, numRows + 4, 5];
+                        range.Merge = true;
+                        range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     }
 
                     //Set Style and backgound colour of headings

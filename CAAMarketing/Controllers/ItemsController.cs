@@ -47,6 +47,7 @@ namespace CAAMarketing.Controllers
             var items = _context.Items
                 .Include(i => i.Category)
                 .Include(i => i.Supplier)
+                .Include(i=>i.Employee)
                 .Include(p => p.ItemThumbNail)
                 .AsNoTracking();
 
@@ -160,6 +161,7 @@ namespace CAAMarketing.Controllers
             var item = await _context.Items
                 .Include(i => i.Category)
                 .Include(i => i.Supplier)
+                .Include(i => i.Employee)
                 .Include(p => p.ItemImages)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (item == null)
@@ -190,10 +192,15 @@ namespace CAAMarketing.Controllers
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
+            var email = User.Identity.Name;
+
+            var employee = _context.Employees.FirstOrDefault(e => e.Email == email);
 
             if (ModelState.IsValid)
             {
-                
+                item.EmployeeID = employee.ID;
+
+                //item.EmployeeID = 1;
                 _context.Add(item);
                 await AddPicture(item, thePicture);
                 await _context.SaveChangesAsync();
@@ -353,6 +360,7 @@ namespace CAAMarketing.Controllers
             var item = await _context.Items
                 .Include(i => i.Category)
                 .Include(i => i.Supplier)
+                .Include(i=>i.Employee)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (item == null)
             {

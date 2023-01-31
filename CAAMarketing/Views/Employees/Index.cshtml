@@ -3,68 +3,88 @@
 @{
     ViewData["Title"] = "Employee Index";
 }
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
 
-<h2>Employee Index</h2>
 
-<p>
-    <a asp-action="Create">Create New Employee</a>
-</p>
 <form asp-action="Index" method="get">
+    <div class="text-danger">@TempData["message"]</div>
+    <div class="container col-md-12 col-lg-10">
+        <div class="table-responsive">
+            <div class="table-wrapper">
+                <div class="table-title">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h2>User <b>Management</b></h2>
+                        </div>
+                        <div class="col-xs-7">
+                            <a asp-action="Create" class="btn btn-primary">
+                                <i class="material-icons">&#xE147;</i>
+                                <span>Create New Employee</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
-<div class="text-danger">@TempData["message"]</div>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Phone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserRoles)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Active)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FullName)<br />
-                    Email: @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PhoneNumber)
-                </td>
-                <td>
-                    @{
-                        foreach (var r in item.UserRoles)
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.FullName)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Phone)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.UserRoles)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Active)
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
                         {
-                            @:  @r <br />
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.FullName)<br />
+                                    Email: @Html.DisplayFor(modelItem => item.Email)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.PhoneNumber)
+                                </td>
+                                <td>
+                                    @{
+                                        foreach (var r in item.UserRoles)
+                                        {
+                                            @:  @r <br />
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @(item.Active ? "Active" : "Inactive")
+                                    <span class="status text-success @(!item.Active ? "hide" : "")">&bull;</span>
+                                    <span class="status text-danger @(item.Active ? "hide" : "")">&bull;</span>
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.ID">Edit</a>
+                                    @if (item.NumberOfPushSubscriptions > 0)
+                                    {
+                                        @:| @{
+                                            <a asp-controller="WebPush" asp-action="Send" asp-route-id="@item.ID">Send Notification</a>
+                                        }
+                                    }
+                                </td>
+                            </tr>
                         }
-                    }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Active)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ID">Edit</a>
-                    @if (item.NumberOfPushSubscriptions > 0)
-                    {
-                        @:| @{
-                            <a asp-controller="WebPush" asp-action="Send" asp-route-id="@item.ID">Send Notification</a>
-                        }
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </form>

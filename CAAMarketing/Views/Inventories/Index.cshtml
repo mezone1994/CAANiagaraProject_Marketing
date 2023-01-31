@@ -4,45 +4,48 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Inventory Index</h1>
-
-<p>
-    <a asp-action="DownloadInventory" class="btn btn-info float-end">Download Inventory Report</a>
-</p>
-
 <form asp-action="Index" method="get">
-        <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
+    <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
 
     <div class="form-horizontal">
-        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" style="display: none;">
             Filter/Search
         </button>
-        <div class="collapse @(ViewData["Filtering"])" id="collapseFilter">
-            <div class="card card-body bg-light">
+        <div class="card-header d-flex justify-content-between">
+            Filter/Search
+            <h1>Inventory</h1>
+            <a asp-action="DownloadInventory" class="btn btn-primary btn-color-Create">Download Inventory Report</a>
+        </div>
+        </div>
+             <div class="container-fluid">
                 <div class="row">
-                    <div class="form-group col-md-4">
+                        <div class="col-md-12 col-lg-2 filter-sidebar">
+                            <div class="card">
+                                 <div class="card-body filter-content">
+                                     <form>
+                    <div class="form-group">
                         <label class="control-label">Filter by Location:</label>
                         @Html.DropDownList("LocationID", null, "All Locations", htmlAttributes: new { @class = "form-control" })
                     </div>
-                    <div class="form-group col-md-4">
+                    <div class="form-group">
                         <label class="control-label">Check Low Quantity Items:</label>
                         @Html.CheckBox("LowQty", null)
                     </div>
 
-                    <div class="form-group col-md-4">
+                    <div class="form-group">
                         <label class="control-label">Search Item Name OR UPC:</label>
                         @Html.TextBox("SearchString", null, new { @class = "form-control" })
                     </div>
-                    <div class="form-group col-md-4 align-self-end">
-                        <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" />
+                    <div class="form-group align-self-end">
+                                        <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary btn-color" />
                         <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
 
 @if (ViewBag.InventoryLow != null)
 {
@@ -50,9 +53,9 @@
                 alert("@ViewBag.InventoryLow");
             </script>
 }
-
-<table class="table">
-    <thead>
+<div class="col-md-12 col-lg-10 d-flex align-items-center">
+<table class="table table-hover">
+<thead class="thead-light">
         <tr>
             <th>Item Image :</th>
             <th>
@@ -86,7 +89,7 @@
                             {
                                 string imageBase64 = Convert.ToBase64String(inventory.Item.ItemThumbNail.Content);
                                 string imageSrc = string.Format("data:" + inventory.Item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
-                                        <img src="@imageSrc" alt="Item Picture of @inventory.Item.Name" title="Item Picture of @inventory.Item.Name" class="img-fluid rounded" />
+                                        <img src="@imageSrc" alt="Item Picture of @inventory.Item.Name" title="Item Picture of @inventory.Item.Name" class="img-fluid avatar" />
                             }
                         }
                     </td>
@@ -106,20 +109,23 @@
                     @Html.DisplayFor(modelItem => inventory.Cost)
                 </td>
                     <td>
-                        @Html.DisplayFor(modelItem => inventory.Item.CreatedBy)
+                        @Html.DisplayFor(modelItem => inventory.Item.Employee.FullName)
                     </td>
                        
                     
                 <td>
                     
-                    <a asp-action="Details" asp-route-id="@inventory.Id">Details</a>
+                     <a asp-action="Details" asp-route-id="@inventory.Id"><img src="~/images/icons8-more-details-24.png" alt="Details Icon" /></a>
                     
                 </td>
             </tr>
         }
     </tbody>
 </table>
-<partial name="_PagingNavBar" />
+ </div>
+        </div>
+        <partial name="_PagingNavBar" />
+        </div>
 
 </form>
 

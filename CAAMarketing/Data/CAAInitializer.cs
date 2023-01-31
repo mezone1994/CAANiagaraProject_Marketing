@@ -31,21 +31,24 @@ public static class CAAInitializer
                 context.Employees.AddRange(
                  new Employee
                  {
-                     FirstName = "Gregory",
-                     LastName = "House",
-                     Email = "admin@caaniagara.ca"
+                     FirstName = "Mahmoud",
+                     LastName = "Hachem",
+                     Phone = "2891231231",
+                     Email = "mhachem12@outlook.com"
                  },
                  new Employee
                  {
                      FirstName = "Fred",
                      LastName = "Flintstone",
+                     Phone = "2891231231",
                      Email = "super@caaniagara.ca"
                  },
                  new Employee
                  {
                      FirstName = "Betty",
                      LastName = "Rubble",
-                     Email = "user@caaniagara.ca"
+                     Phone = "2891231231",
+                     Email = "Employee@caaniagara.ca"
                  });
 
                 context.SaveChanges();
@@ -180,6 +183,7 @@ public static class CAAInitializer
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 1,
+                    EmployeeID = 1
                 },
                 new Item
                 {
@@ -190,6 +194,7 @@ public static class CAAInitializer
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 2,
+                    EmployeeID = 3
                 },
                 new Item
                 {
@@ -200,6 +205,7 @@ public static class CAAInitializer
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 4,
+                    EmployeeID = 2
                 },
                 new Item
                 {
@@ -210,6 +216,7 @@ public static class CAAInitializer
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 4,
+                    EmployeeID = 1
                 },
                 new Item
                 {
@@ -220,6 +227,7 @@ public static class CAAInitializer
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 4,
+                    EmployeeID = 2
                 },
                 new Item
                 {
@@ -230,6 +238,7 @@ public static class CAAInitializer
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 5,
+                    EmployeeID = 3
                 },
                 new Item
                 {
@@ -240,6 +249,7 @@ public static class CAAInitializer
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 4,
+                    EmployeeID = 1
                 },
                 new Item
                 {
@@ -250,6 +260,7 @@ public static class CAAInitializer
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 6,
+                    EmployeeID = 2
                 },
                 new Item
                 {
@@ -260,6 +271,7 @@ public static class CAAInitializer
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 4,
+                    EmployeeID = 3
                 },
                 new Item
                 {
@@ -270,6 +282,7 @@ public static class CAAInitializer
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 7,
+                    EmployeeID = 3
                 },
                 new Item
                 {
@@ -280,6 +293,7 @@ public static class CAAInitializer
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 7,
+                    EmployeeID = 1
                 });
                 context.SaveChanges();
             }

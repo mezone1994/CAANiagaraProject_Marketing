@@ -3,41 +3,52 @@
 @{
     ViewBag.Title = "User Roles";
 }
-
-<h2>User Role Assignments</h2>
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
 <form asp-action="Index" method="get">
+    <div class="container-fluid">
+        <div class="table-responsive">
+            <div class="table-wrapper">
+                <div class="table-title d-flex justify-content-between align-items-center">
+                    <h2>User Role Assignments</h2>
+                </div>
+                <table class="table table-hover">
+                    <tr>
+                        <th class="col-lg-3">
+                            @Html.DisplayNameFor(model => model.UserName)
+                        </th>
+                        <th class="col-lg-9">
+                            @Html.DisplayNameFor(model => model.UserRoles)
+                        </th>
+                        <th></th>
+                    </tr>
 
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.UserName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.UserRoles)
-        </th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserName)
-            </td>
-            <td>
-                @{
-                    foreach (var r in item.UserRoles)
+                    @foreach (var item in Model)
                     {
-                        @:  @r <br />
+                        <tr>
+                            <td class="col-lg-3">
+                                @Html.DisplayFor(modelItem => item.UserName)
+                            </td>
+                            <td class="col-lg-9">
+                                @{
+                                    foreach (var r in item.UserRoles)
+                                    {
+                                        @:  @r <br />
+                                    }
+                                }
+                            </td>
+                            <td class="col-lg-2">
+                               <div class="tooltip"> <a asp-action="Edit" asp-route-id="@item.Id" > <img src="~/images/icons8-edit-24.png" alt="Edit Icon"/> <span class="tooltiptext">Edit</span></a> </div>
+
+                            </td>
+                        </tr>
                     }
-                }
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.Id })
-            </td>
-        </tr>
-    }
 
-</table>
-
+                </table>
+            </div>
+        </div>
+    </div>
 </form>

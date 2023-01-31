@@ -11,4 +11,3 @@ Add this one line at the end of the Up in your migration for Triggers:
 
 -----
 
-The entity type 'List<string>' requires a primary key to be defined. If you intended to use a keyless entity type, call 'HasNoKey' in 'OnModelCreating'. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.

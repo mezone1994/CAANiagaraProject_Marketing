@@ -20,7 +20,7 @@ namespace CAAMarketing.Data
                 //Create Roles
                 var RoleManager = applicationBuilder.ApplicationServices.CreateScope()
                     .ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                string[] roleNames = { "Admin", "Supervisor", "User" };
+                string[] roleNames = { "Admin", "Supervisor", "Employee" };
                 IdentityResult roleResult;
                 foreach (var roleName in roleNames)
                 {
@@ -33,12 +33,12 @@ namespace CAAMarketing.Data
                 //Create Users
                 var userManager = applicationBuilder.ApplicationServices.CreateScope()
                     .ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-                if (userManager.FindByEmailAsync("admin@caaniagara.ca").Result == null)
+                if (userManager.FindByEmailAsync("mhachem12@outlook.com").Result == null)
                 {
                     IdentityUser user = new IdentityUser
                     {
-                        UserName = "admin@caaniagara.ca",
-                        Email = "admin@caaniagara.ca"
+                        UserName = "mhachem12@outlook.com",
+                        Email = "mhachem12@outlook.com"
                     };
 
                     IdentityResult result = userManager.CreateAsync(user, "Admins@123").Result;
@@ -63,15 +63,15 @@ namespace CAAMarketing.Data
                         userManager.AddToRoleAsync(user, "Supervisor").Wait();
                     }
                 }
-                if (userManager.FindByEmailAsync("user@caaniagara.ca").Result == null)
+                if (userManager.FindByEmailAsync("employee@caaniagara.ca").Result == null)
                 {
                     IdentityUser user = new IdentityUser
                     {
-                        UserName = "user@caaniagara.ca",
-                        Email = "user@caaniagara.ca"
+                        UserName = "employee@caaniagara.ca",
+                        Email = "employee@caaniagara.ca"
                     };
 
-                    IdentityResult result = userManager.CreateAsync(user, "Users@123").Result;
+                    IdentityResult result = userManager.CreateAsync(user, "Emp@123").Result;
                     //Not in any role
                 }
             }

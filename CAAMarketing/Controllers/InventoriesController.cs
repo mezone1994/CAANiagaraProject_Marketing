@@ -39,6 +39,7 @@ namespace CAAMarketing.Controllers
             var inventories = _context.Inventories
                 .Include(i => i.Item)
                 .Include(i=>i.Item.ItemThumbNail)
+                .Include(i => i.Item.Employee)
                 .Include(i => i.Location)
                 .AsNoTracking();
 
@@ -175,6 +176,7 @@ namespace CAAMarketing.Controllers
                 .Include(i => i.Item)
                 .Include(i=>i.Item.ItemImages)
                 .Include(i => i.Location)
+                .Include(i => i.Item.Employee)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (inventory == null)
             {
@@ -320,6 +322,7 @@ namespace CAAMarketing.Controllers
             var inventory = await _context.Inventories
                 .Include(i => i.Item)
                 .Include(i => i.Location)
+                .Include(i => i.Item.Employee)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (inventory == null)
             {
@@ -382,6 +385,7 @@ namespace CAAMarketing.Controllers
             var items = from i in _context.Inventories
                         .Include(i => i.Item.Supplier)
                         .Include(i => i.Item.Category)
+                        .Include(i => i.Item.Employee)
                         orderby i.Item.Name descending
                         select new
                         {

@@ -52,7 +52,8 @@ namespace CAAMarketing.Models
 
         public ICollection<InventoryTransfer> InventoryTransfers { get; set; }
 
-        public ICollection<Employee> Employees { get; set; }
+        public int EmployeeID { get; set; }
+        public Employee Employee { get; set; }
 
 
     }

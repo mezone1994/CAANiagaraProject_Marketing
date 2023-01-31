@@ -3,9 +3,10 @@
 @{
     ViewData["Title"] = "Edit Account";
 }
-
-<h4>Account Details for @Model.FullName (@Model.Email)</h4>
-<hr />
+<h4 class="h4-class">Account Details for @Model.FullName (@Model.Email)</h4>
+<div class="cont">
+<div class="roe">
+        <div class="col-md-12">
 <form asp-action="Edit">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="row">
@@ -85,11 +86,13 @@
         </div>
     <div class="form-group">
         <input type="submit" value="Save" class="btn btn-primary" />
+         <div class="tooltip"> <a href="~/Employees" > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
     </div>
 </form>
 
-<div>
-    <a asp-action="Index">Back to Employee Account List</a>
+
+    </div>
+    </div>
 </div>
 
 @section Scripts {

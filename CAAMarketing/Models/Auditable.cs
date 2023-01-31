@@ -21,5 +21,9 @@ namespace CAAMarketing.Models
         [ScaffoldColumn(false)]
         [Timestamp]
         public Byte[] RowVersion { get; set; }//Added for concurrency
+
+        [ScaffoldColumn(false)]
+        [StringLength(256)]
+        public string EmployeeNameUser { get; set; }
     }
 }

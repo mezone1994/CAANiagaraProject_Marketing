@@ -342,7 +342,7 @@ namespace CAAMarketing.Controllers
                     EmailConfirmed = true //since we are creating it!
                 };
                 //Create a random password with a default 8 characters
-                string password = MakePassword.Generate();
+                string password = "Emp@123";
                 IdentityResult result = _userManager.CreateAsync(user, password).Result;
 
                 if (result.Succeeded)

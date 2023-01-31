@@ -93,6 +93,11 @@ namespace CAAMarketing.Data
                 .WithMany(l => l.InventoryTransfersTo)
                 .HasForeignKey(t => t.ToLocationId);
 
+            modelBuilder.Entity<Item>()
+            .HasOne(t => t.Employee)
+            .WithMany(l => l.Items)
+            .HasForeignKey(t => t.EmployeeID);
+
             //Add a unique index to the Employee Email
             modelBuilder.Entity<Employee>()
             .HasIndex(a => new {

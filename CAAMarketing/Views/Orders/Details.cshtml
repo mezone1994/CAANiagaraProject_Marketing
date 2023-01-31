@@ -4,8 +4,8 @@
     ViewData["Title"] = "Details";
 }
 
+  <div class="detext">
 <h1>Details</h1>
-
 <div>
     <h4>Order</h4>
     <hr />
@@ -43,6 +43,7 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.ID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+            <div class="tooltip"> <a asp-action="Edit" asp-route-id="@Model.ID" > <img src="~/images/icons8-edit-24.png" alt="Edit Icon"/> <span class="tooltiptext">Edit</span></a> </div> |
+     <div class="tooltip"> <a asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
+</div>
 </div>

@@ -4,22 +4,31 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
 
-<div>
-    <h4>Inventory</h4>
-    <hr />
-    @{
-    var hasPicture = (Model.Item.ItemImages?.Content != null);
-    if (hasPicture)
-        {
-            @:<div>
-                string imageBase64 = Convert.ToBase64String(Model.Item.ItemImages.Content);
-                string imageSrc = string.Format("data:" + Model.Item.ItemImages.MimeType + ";base64,{0}", imageBase64);
-                <img src="@imageSrc" alt="Item Picture of @Model.Item.Name" title="Item Picture of @Model.Item.Name" class="img-fluid rounded" />
-            @:</div><hr />
-        }
-    }
+<div class="cont">
+        <div class="deimage">
+            @{
+                var hasPicture = (Model.Item.ItemImages?.Content != null);
+                if (hasPicture)
+                    {
+                        @:<div><br/>
+                            string imageBase64 = Convert.ToBase64String(Model.Item.ItemImages.Content);
+                            string imageSrc = string.Format("data:" + Model.Item.ItemImages.MimeType + ";base64,{0}", imageBase64);
+                            <img src="@imageSrc" alt="Item Picture of @Model.Item.Name" title="Item Picture of @Model.Item.Name" class="img-fluid rounded" />
+                        @:</div><br/>
+                    }
+                else
+                    { 
+                        @:<div><br/>
+                            <img src="~/images/image-not-found .png" alt="Image not found" title="Image not found" class="img-fluid rounded" />
+                        @:</div><br/>
+                    }
+            }
+        </div>
+
+
+    <div class="detext">
+    <h1 >Details</h1>
     <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Item)
@@ -45,11 +54,14 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Cost)
         </dd>
-        
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Item.Employee)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Item.Employee.FullName)
+        </dd>
         
     </dl>
-</div>
-<div>
-    
-    <a href='@ViewData["returnURL"]'>Back to List</a>
+        <div class="tooltip"> <a asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
+    </div>
 </div>

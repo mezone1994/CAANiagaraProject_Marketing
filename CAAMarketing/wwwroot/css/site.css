@@ -647,3 +647,22 @@ ul {
 .btn-color-logout:hover {
     background-color:#eaeaea;
 }
+
+
+
+/*FOR STATUS */
+
+.boxed {
+    border: 1px solid green;
+}
+#StatusDiv {
+    float:right;
+}
+#statusbarcss {
+    border-radius: 25px;
+    border: 2px solid #73AD21;
+    padding: 20px;
+    width: 400px;
+    height: 150px;
+    float: right;
+}

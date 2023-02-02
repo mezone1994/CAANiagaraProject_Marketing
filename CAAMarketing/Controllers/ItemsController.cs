@@ -27,6 +27,10 @@ namespace CAAMarketing.Controllers
         public async Task<IActionResult> Index(string SearchString, int? SupplierID, int? CategoryID,
            int? page, int? pageSizeID, string actionButton, string sortDirection = "asc", string sortField = "Item")
         {
+            //For Status
+            ViewBag.StatusPage = "Item";
+            ViewBag.MessageStatus += "Hello World!";
+
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
 
@@ -50,6 +54,17 @@ namespace CAAMarketing.Controllers
                 .Include(i=>i.Employee)
                 .Include(p => p.ItemThumbNail)
                 .AsNoTracking();
+
+
+            //foreach (Employee emp in _context.Employees)
+            //{
+            //    if ()
+            //    {
+
+            //    }
+            //}
+
+
 
             //Add as many filters as needed
             //Add as many filters as needed
@@ -297,6 +312,20 @@ namespace CAAMarketing.Controllers
             {
                 try
                 {
+
+                    var email = User.Identity.Name;
+
+                    var employee = _context.Employees.FirstOrDefault(e => e.Email == email);
+
+                    itemToUpdate.EmployeeNameUser = employee.FullName;
+                    //foreach (Employee emp in _context.Employees)
+                    //{
+                    //    if (itemToUpdate.UpdatedBy == emp.Email)
+                    //    {
+                    //        itemToUpdate.EmployeeNameUser = emp.FullName;
+                    //    }
+                    //}
+
                     //For the image
                     if (chkRemoveImage != null)
                     {

@@ -194,7 +194,8 @@ public static class CAAInitializer
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 2,
-                    EmployeeID = 3
+                    EmployeeID = 3,
+                    
                 },
                 new Item
                 {

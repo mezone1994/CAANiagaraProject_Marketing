@@ -1,4 +1,5 @@
-﻿@model IEnumerable<CAAMarketing.Models.Item>
+﻿@using CAAMarketing.Data
+@model IEnumerable<CAAMarketing.Models.Item>
 
 @{
     ViewData["Title"] = "Index";
@@ -17,114 +18,143 @@
         </div>
     </div>
     <div class="container-fluid">
-         <div class="row">
+        <div class="row">
             <div class="col-md-12 col-lg-2 filter-sidebar">
                 <div class="card">
                     <div class="card-body filter-content">
                         <form>
-                    <div class="form-group">
-                        <label class="control-label">Select by Supplier:</label>
-                        @Html.DropDownList("SupplierID", null, "All Suppliers", htmlAttributes: new { @class = "form-control" })
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Filter by Category:</label>
-                        @Html.DropDownList("CategoryID", null, "All Categories", htmlAttributes: new { @class = "form-control" })
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Search Item Name OR UPC:</label>
-                        @Html.TextBox("SearchString", null, new { @class = "form-control" })
-                    </div>
-                    <div class="form-group align-self-end">
+                            <div class="form-group">
+                                <label class="control-label">Select by Supplier:</label>
+                                @Html.DropDownList("SupplierID", null, "All Suppliers", htmlAttributes: new { @class = "form-control" })
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">Filter by Category:</label>
+                                @Html.DropDownList("CategoryID", null, "All Categories", htmlAttributes: new { @class = "form-control" })
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">Search Item Name OR UPC:</label>
+                                @Html.TextBox("SearchString", null, new { @class = "form-control" })
+                            </div>
+                            <div class="form-group align-self-end">
                                 <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary btn-color" />
-                        <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
+                                <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
+                            </div>
+                        </form>
                     </div>
-                    </form>
                 </div>
             </div>
-        </div>
 
-<div class="col-md-12 col-lg-10 d-flex align-items-center">
-    <table class="table table-hover">
-    <thead class="thead-light">
-            <tr>
-                <th></th>
-                <th>
-                    <input type="submit" name="actionButton" value="Item" class="btn btn-link" />
-                </th>
-                <th>
-                    <input type="submit" name="actionButton" value="Supplier" class="btn btn-link" />
-                </th>
-                <th>
-                    <input type="submit" name="actionButton" value="Category" class="btn btn-link" />
-                </th>
+            <div class="col-md-12 col-lg-10 d-flex align-items-center">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th></th>
+                            <th>
+                                <input type="submit" name="actionButton" value="Item" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" value="Supplier" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" value="Category" class="btn btn-link" />
+                            </th>
 
-                <th>
-                    @Html.DisplayNameFor(model => model.UPC)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Description)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Notes)
-                </th>
-                <th>
-                    <input type="submit" name="actionButton" value="DateRecieved" class="btn btn-link" />
-                </th>
-                <th>
-                    <input type="submit" name="actionButton" value="Employee" class="btn btn-link" />
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        @{
-                            if (item.ItemThumbNail?.Content != null)
-                            {
-                                string imageBase64 = Convert.ToBase64String(item.ItemThumbNail.Content);
-                                string imageSrc = string.Format("data:" + item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
-                                <img src="@imageSrc" alt="Item Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid avatar" />
-                            }
+                            <th>
+                                @Html.DisplayNameFor(model => model.UPC)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Description)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Notes)
+                            </th>
+                            <th>
+                                Employee
+                            </th>
+                            <th>
+                                Last Modified By
+                                
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @{
+                                        if (item.ItemThumbNail?.Content != null)
+                                        {
+                                            string imageBase64 = Convert.ToBase64String(item.ItemThumbNail.Content);
+                                            string imageSrc = string.Format("data:" + item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
+                                                        <img src="@imageSrc" alt="Item Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid avatar" />
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Supplier.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Category.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.UPC)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Description)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Notes)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Employee.FullName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.EmployeeNameUser)
+                                    @{
+
+                                        //using (var context = new CAAContext())
+                                        //{
+                                        //    var employees = context.Employees.ToList();
+                                        //    @Html.Raw(employees)
+                                        //}
+
+                                        //string Name = "";
+                                        //foreach (var emp in Model)
+                                        //{
+                                        //    Name += emp.Employee.FullName + " ";
+                                        ////if(emp.UpdatedBy != "Seed Data") {
+                                        //    //    if (item.UpdatedBy == emp.UpdatedBy)
+                                        //    //    {
+
+                                        //    //        Name = emp.Employee.FullName; 
+                                        //    //    }
+                                        //    //}
+
+                                        //}
+                                        //if(Name == ""){
+                                        //    Name = "None!";
+                                        //}
+                                        //@Html.Raw(Name)
+
+                                 }
+
+                                </td>
+                                <td>
+                                    <div class="tooltip"> <a asp-action="Edit" asp-route-id="@item.ID"> <img src="~/images/icons8-edit-24.png" alt="Edit Icon" /> <span class="tooltiptext">Edit</span></a> </div>
+                                    <div class="tooltip"> <a asp-action="Details" asp-route-id="@item.ID"> <img src="~/images/icons8-more-details-24.png" alt="Details Icon" /> <span class="tooltiptext">Details</span></a> </div>
+                                    <div class="tooltip"> <a asp-action="Delete" asp-route-id="@item.ID"> <img src="~/images/icons8-trash-24.png" alt="Trash Can Icon" /> <span class="tooltiptext">Delete</span></a> </div>
+                                </td>
+                            </tr>
                         }
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Supplier.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Category.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UPC)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Description)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Notes)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.DateReceived)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Employee.FullName)
-                    </td>
-                    <td>
-                        <div class="tooltip"> <a asp-action="Edit" asp-route-id="@item.ID" > <img src="~/images/icons8-edit-24.png" alt="Edit Icon"/> <span class="tooltiptext">Edit</span></a> </div>
-                        <div class="tooltip"> <a asp-action="Details" asp-route-id="@item.ID" > <img src="~/images/icons8-more-details-24.png" alt="Details Icon"/> <span class="tooltiptext">Details</span></a> </div>
-                        <div class="tooltip"> <a asp-action="Delete" asp-route-id="@item.ID" > <img src="~/images/icons8-trash-24.png" alt="Trash Can Icon"/> <span class="tooltiptext">Delete</span></a> </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-      </div>
-         </div>
-    <partial name="_PagingNavBar" />
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <partial name="_PagingNavBar" />
     </div>
 </form>

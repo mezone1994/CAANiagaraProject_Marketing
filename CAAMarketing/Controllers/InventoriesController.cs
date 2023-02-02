@@ -12,23 +12,26 @@ using CAAMarketing.Utilities;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.Drawing;
+using NToastNotify;
 
 namespace CAAMarketing.Controllers
 {
     public class InventoriesController : Controller
     {
         private readonly CAAContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public InventoriesController(CAAContext context)
+        public InventoriesController(CAAContext context, IToastNotification toastNotification)
         {
             _context = context;
+            _toastNotification = toastNotification;
         }
 
         // GET: Inventories
         public async Task<IActionResult> Index(string SearchString, int? LocationID, bool? LowQty,
            int? page, int? pageSizeID, string actionButton, string sortDirection = "asc", string sortField = "Item")
         {
-            CheckInventoryLevel();
+            
 
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
@@ -42,6 +45,8 @@ namespace CAAMarketing.Controllers
                 .Include(i => i.Item.Employee)
                 .Include(i => i.Location)
                 .AsNoTracking();
+
+            CheckInventoryLevel(inventories.ToList());
 
             //Populating the DropDownLists for the Search/Filtering criteria, which are the Location
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
@@ -222,7 +227,7 @@ namespace CAAMarketing.Controllers
                     await _context.SaveChangesAsync();
                 }
                 //Call the CheckInventoryLevel method after adding new inventory
-                CheckInventoryLevel();
+                CheckInventoryLevel(_context.Inventories.ToList());
                 //return RedirectToAction(nameof(Index));
                 return RedirectToAction("Details", new { inventory.ItemID });
 
@@ -356,13 +361,20 @@ namespace CAAMarketing.Controllers
 
         }
 
-        private void CheckInventoryLevel()
+        private void CheckInventoryLevel(List<Inventory> inventories)
         {
-            var lowInventoryItems = _context.Inventories.Where(i => i.Quantity <= i.LowInventoryThreshold);
-            if (lowInventoryItems.Any())
+            foreach (var inventory in inventories)
             {
-                var itemNames = string.Join(", ", lowInventoryItems.Select(i => i.Item.Name));
-                TempData["InventoryLow"] = $"Inventory is low for the following items: {itemNames}. Please check your inventory and reorder soon.";
+                if (inventory.Quantity <= inventory.LowInventoryThreshold)
+                {
+                    inventory.IsLowInventory = true;
+                    _toastNotification.AddWarningToastMessage(
+                        $"Inventory for {inventory.Item.Name} at location {inventory.Location.Name} is running low. Current quantity: {inventory.Quantity}");
+                }
+                else
+                {
+                    inventory.IsLowInventory = false;
+                }
             }
         }
 

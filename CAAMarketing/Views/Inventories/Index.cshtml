@@ -17,115 +17,124 @@
             <h1>Inventory</h1>
             <a asp-action="DownloadInventory" class="btn btn-primary btn-color-Create">Download Inventory Report</a>
         </div>
-        </div>
-             <div class="container-fluid">
-                <div class="row">
-                        <div class="col-md-12 col-lg-2 filter-sidebar">
-                            <div class="card">
-                                 <div class="card-body filter-content">
-                                     <form>
-                    <div class="form-group">
-                        <label class="control-label">Filter by Location:</label>
-                        @Html.DropDownList("LocationID", null, "All Locations", htmlAttributes: new { @class = "form-control" })
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Check Low Quantity Items:</label>
-                        @Html.CheckBox("LowQty", null)
-                    </div>
-
-                    <div class="form-group">
-                        <label class="control-label">Search Item Name OR UPC:</label>
-                        @Html.TextBox("SearchString", null, new { @class = "form-control" })
-                    </div>
-                    <div class="form-group align-self-end">
-                                        <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary btn-color" />
-                        <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
-                    </div>
-                                </form>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12 col-lg-2 filter-sidebar">
+                <div class="card">
+                    <div class="card-body filter-content">
+                        <form>
+                            <div class="form-group">
+                                <label class="control-label">Filter by Location:</label>
+                                @Html.DropDownList("LocationID", null, "All Locations", htmlAttributes: new { @class = "form-control" })
                             </div>
-                        </div>
-                    </div>
-                    
+@*                            <div class="form-group">
+                                <label class="control-label">Check Low Quantity Items:</label>
+                                @Html.CheckBox("LowQty", null)
+                            </div>*@
 
-@if (ViewBag.InventoryLow != null)
-{
-            <script>
-                alert("@ViewBag.InventoryLow");
-            </script>
-}
-<div class="col-md-12 col-lg-10 d-flex align-items-center">
-<table class="table table-hover">
-<thead class="thead-light">
-        <tr>
-            <th>Item Image :</th>
-            <th>
-                <input type="submit" name="actionButton" value="Item" class="btn btn-link" />
-            </th>
-            <th>
-                <input type="submit" name="actionButton" value="UPC" class="btn btn-link" />
-            </th>
-            <th>
-                <input type="submit" name="Location" value="Location" class="btn btn-link" />
-            </th>
-            <th>
-                <input type="submit" name="actionButton" value="Quantity" class="btn btn-link" />
-            </th>
-            <th>
-                <input type="submit" name="actionButton" value="Cost" class="btn btn-link" />
-            </th>
-            <th>
-                <input type="submit" name="actionButton" value="Employee" class="btn btn-link" />
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var inventory in Model)
-        {
-            <tr>
-                    <td>
-                        @{
-                            if (inventory.Item.ItemThumbNail?.Content != null)
-                            {
-                                string imageBase64 = Convert.ToBase64String(inventory.Item.ItemThumbNail.Content);
-                                string imageSrc = string.Format("data:" + inventory.Item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
-                                        <img src="@imageSrc" alt="Item Picture of @inventory.Item.Name" title="Item Picture of @inventory.Item.Name" class="img-fluid avatar" />
-                            }
+                            <div class="form-group">
+                                <label class="control-label">Search Item Name OR UPC:</label>
+                                @Html.TextBox("SearchString", null, new { @class = "form-control" })
+                            </div>
+                            <div class="form-group align-self-end">
+                                <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary btn-color" />
+                                <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+            @*@if (ViewBag.InventoryLow != null)
+            {
+                <script>
+                    alert("@ViewBag.InventoryLow");
+                </script>
+            }*@
+
+
+            <div class="col-md-12 col-lg-10 d-flex align-items-center">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Item Image :</th>
+                            <th>
+                                <input type="submit" name="actionButton" value="Item" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" value="UPC" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="Location" value="Location" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" value="Quantity" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" value="Cost" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" value="DateRecieved" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" value="Employee" class="btn btn-link" />
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var inventory in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @{
+                                        if (inventory.Item.ItemThumbNail?.Content != null)
+                                        {
+                                            string imageBase64 = Convert.ToBase64String(inventory.Item.ItemThumbNail.Content);
+                                            string imageSrc = string.Format("data:" + inventory.Item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
+                                            <img src="@imageSrc" alt="Item Picture of @inventory.Item.Name" title="Item Picture of @inventory.Item.Name" class="img-fluid avatar" />
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => inventory.Item.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => inventory.Item.UPC)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => inventory.Location.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => inventory.Quantity)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => inventory.Cost)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => inventory.Item.DateReceived)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => inventory.Item.Employee.FullName)
+                                </td>
+
+
+
+                                <td>
+
+                                    <a asp-action="Details" asp-route-id="@inventory.Id"><img src="~/images/icons8-more-details-24.png" alt="Details Icon" /></a>
+
+                                </td>
+                            </tr>
                         }
-                    </td>
-                <td>
-                    @Html.DisplayFor(modelItem => inventory.Item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => inventory.Item.UPC)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => inventory.Location.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => inventory.Quantity)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => inventory.Cost)
-                </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => inventory.Item.Employee.FullName)
-                    </td>
-                       
-                    
-                <td>
-                    
-                     <a asp-action="Details" asp-route-id="@inventory.Id"><img src="~/images/icons8-more-details-24.png" alt="Details Icon" /></a>
-                    
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
- </div>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <partial name="_PagingNavBar" />
-        </div>
+    </div>
 
 </form>
 

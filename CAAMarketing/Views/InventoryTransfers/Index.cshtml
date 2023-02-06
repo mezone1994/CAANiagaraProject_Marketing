@@ -1,0 +1,105 @@
+﻿@model IEnumerable<CAAMarketing.Models.InventoryTransfer>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+<form asp-action="Index" method="get">
+
+    <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
+    <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
+    <div class="form-horizontal">
+        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" style="display: none;">
+            Filter/Search
+        </button>
+        <div class="card-header d-flex justify-content-between">
+            Filter/Search
+            <h1>Inventory Transfers</h1>
+            <a asp-action="Create" class="btn btn-primary btn-color-Create">Create New</a>
+        </div>
+    </div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12 col-lg-2 filter-sidebar">
+                    <div class="card">
+                        <form>
+                            <div class="card-body filter-content">
+                                <div class="form-group">
+                                    <label class="control-label">Filter by From-Location:</label>
+                                    @Html.DropDownList("FromLocationID", null, "All From-Locations", htmlAttributes: new { @class = "form-control" })
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Filter by To-Location:</label>
+                                    @Html.DropDownList("ToLocationId", null, "All To-Locations", htmlAttributes: new { @class = "form-control" })
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Search Item Name OR UPC:</label>
+                                    @Html.TextBox("SearchString", null, new { @class = "form-control" })
+                                </div>
+                                <div class="form-group col-md-4 align-self-end">
+                                    <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" />
+                                    <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
+                                </div>
+                                </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12 col-lg-10 d-flex align-items-center">
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <td>
+                                <input type="submit" name="actionButton" value="ItemTransfered" class="btn btn-link" />
+                            </td>
+                            <td>
+                                <input type="submit" name="actionButton" value="FromLocation" class="btn btn-link" />
+                            </td>
+                            <td>
+                                <input type="submit" name="actionButton" value="ToLocation" class="btn btn-link" />
+                            </td>
+                            <td>
+                                <input type="submit" name="actionButton" value="Quantity" class="btn btn-link" />
+                            </td>
+                            <td>
+                                <input type="submit" name="actionButton" value="TransferDate" class="btn btn-link" />
+                            </td>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Item.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.FromLocation.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ToLocation.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Quantity)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TransferDate)
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id"> <img src="~/images/icons8-edit-24.png" alt="Edit Icon" /></a>
+                                    <a asp-action="Details" asp-route-id="@item.Id"><img src="~/images/icons8-more-details-24.png" alt="Details Icon" /></a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id"><img src="~/images/icons8-trash-24.png" alt="Trash Can Icon" /></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+    </div>
+
+            <partial name="_PagingNavBar" />
+</form>

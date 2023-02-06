@@ -17,22 +17,22 @@ using Org.BouncyCastle.Utilities;
 
 namespace CAAMarketing.Controllers
 {
-    public class InventoriesController : Controller
+    public class ArchivesController : Controller
     {
         private readonly CAAContext _context;
         private readonly IToastNotification _toastNotification;
 
-        public InventoriesController(CAAContext context, IToastNotification toastNotification)
+        public ArchivesController(CAAContext context, IToastNotification toastNotification)
         {
             _context = context;
             _toastNotification = toastNotification;
         }
 
-        // GET: Inventories
+        // GET: Archives
         public async Task<IActionResult> Index(string SearchString, int? LocationID, bool? LowQty,
            int? page, int? pageSizeID, string actionButton, string sortDirection = "asc", string sortField = "Item")
         {
-            
+
 
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
@@ -42,13 +42,13 @@ namespace CAAMarketing.Controllers
             //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
             var inventories = _context.Inventories
                 .Include(i => i.Item)
-                .Include(i=>i.Item.ItemThumbNail)
+                .Include(i => i.Item.ItemThumbNail)
                 .Include(i => i.Item.Employee)
                 .Include(i => i.Location)
             .AsNoTracking();
 
 
-            inventories = inventories.Where(p => p.Item.Archived == false);
+            inventories = inventories.Where(p => p.Item.Archived == true);
             CheckInventoryLevel(inventories.ToList());
 
             //Populating the DropDownLists for the Search/Filtering criteria, which are the Location
@@ -81,7 +81,7 @@ namespace CAAMarketing.Controllers
                                        || p.Item.UPC.Contains(SearchString.ToUpper()));
                 ViewData["Filtering"] = " show";
             }
-            
+
 
             if (TempData["InventoryLow"] != null)
             {
@@ -182,7 +182,7 @@ namespace CAAMarketing.Controllers
 
             var inventory = await _context.Inventories
                 .Include(i => i.Item)
-                .Include(i=>i.Item.ItemImages)
+                .Include(i => i.Item.ItemImages)
                 .Include(i => i.Location)
                 .Include(i => i.Item.Employee)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -258,6 +258,7 @@ namespace CAAMarketing.Controllers
             }
             ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", inventory.ItemID);
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", inventory.LocationID);
+
             return View(inventory);
         }
 
@@ -332,23 +333,14 @@ namespace CAAMarketing.Controllers
                 .Include(i => i.Location)
                 .Include(i => i.Item.Employee)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
+
             if (inventory == null)
             {
                 return NotFound();
             }
 
-                var item = await _context.Items
-                    .Include(i => i.Category)
-                    .Include(i => i.Supplier)
-                    .Include(i => i.Employee)
-                    .FirstOrDefaultAsync(m => m.ID == inventory.ItemID);
-
-                if (item == null)
-                {
-                    return NotFound();
-                }
-
-            return View(item);
+            return View(inventory);
         }
 
         // POST: Inventories/Delete/5
@@ -363,12 +355,13 @@ namespace CAAMarketing.Controllers
             {
                 return Problem("Entity set 'CAAContext.Inventories'  is null.");
             }
-            var inventory = await _context.Inventories.FindAsync(id);
-            if (inventory != null)
+            var item = await _context.Items.FindAsync(id);
+            if (item != null)
             {
-                _context.Inventories.Remove(inventory);
+                //_context.Inventories.Remove(inventory);
+                item.Archived = false;
             }
-            
+
             await _context.SaveChangesAsync();
             // return RedirectToAction(nameof(Index));
             return Redirect(ViewData["returnURL"].ToString());
@@ -481,7 +474,7 @@ namespace CAAMarketing.Controllers
                         //Total Cost Sum - get cost * qty for each row
                         totalfees.Formula = "Sum(" + (workSheet.Cells[4, 4].Address) + ":" + workSheet.Cells[numRows + 3, 4].Address + ")" + "*" + "Sum(" +
                             (workSheet.Cells[4, 5].Address) + ":" + workSheet.Cells[numRows + 3, 5].Address + ")";
-                        totalfees.Style.Font.Bold = true;   
+                        totalfees.Style.Font.Bold = true;
                         totalfees.Style.Numberformat.Format = "$###,###,##0.00";
                         var range = workSheet.Cells[numRows + 4, 4, numRows + 4, 5];
                         range.Merge = true;
@@ -570,8 +563,10 @@ namespace CAAMarketing.Controllers
         }
         private bool InventoryExists(int id)
         {
-          return _context.Inventories.Any(e => e.Id == id);
+            return _context.Inventories.Any(e => e.Id == id);
         }
 
+
+        
     }
 }

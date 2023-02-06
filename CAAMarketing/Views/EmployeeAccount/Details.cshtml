@@ -4,12 +4,10 @@
     ViewData["Title"] = "Account";
 }
 
-<div class="detext">
-
+<h2>Account for: @Model.FullName</h2>
 
 
 <div>
-    <h2>Account for: @Model.FullName</h2>
     <hr />
     <div class="alert alert-danger" style="display: none;">
         <strong>Note:</strong>
@@ -43,6 +41,5 @@
     </dl>
 </div>
 <div>
-    <div class="tooltip"> <a asp-action="Edit" asp-route-id="@Model.ID" > <img src="~/images/icons8-edit-24.png" alt="Edit Icon"/> <span class="tooltiptext">Edit</span></a> </div> 
-</div>
+    <a asp-action="Edit" asp-route-id="@Model.ID">Edit Account Details</a> 
 </div>

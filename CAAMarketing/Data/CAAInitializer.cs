@@ -171,10 +171,10 @@ public static class CAAInitializer
             }
 
             // Look for any Doctors.  Since we can't have patients without Doctors.
-            if (!context.Inventories.Any())
+            if (!context.Items.Any())
             {
-                context.Inventories.AddRange(
-                new Inventory
+                context.Items.AddRange(
+                new Item
                 {
                     Name = "Studio Pens",
                     Description = "Pens For CAA",
@@ -185,7 +185,7 @@ public static class CAAInitializer
                     SupplierID = 1,
                     EmployeeID = 1
                 },
-                new Inventory
+                new Item
                 {
                     Name = "Swag Sunglasses",
                     Description = "Sunglasses for CAA",
@@ -197,7 +197,7 @@ public static class CAAInitializer
                     EmployeeID = 3,
                     
                 },
-                new Inventory
+                new Item
                 {
                     Name = "Nike Solo Backpack",
                     Description = "Backpacks that comes in many different colors",
@@ -208,7 +208,7 @@ public static class CAAInitializer
                     SupplierID = 4,
                     EmployeeID = 2
                 },
-                new Inventory
+                new Item
                 {
                     Name = "Carry-on Bag Nike",
                     Description = "Bags that comes in many different colors",
@@ -219,7 +219,7 @@ public static class CAAInitializer
                     SupplierID = 4,
                     EmployeeID = 1
                 },
-                new Inventory
+                new Item
                 {
                     Name = "Car Winter Scrapper",
                     Description = "Scrapper for snow/ice remove on vehicles",
@@ -230,7 +230,7 @@ public static class CAAInitializer
                     SupplierID = 4,
                     EmployeeID = 2
                 },
-                new Inventory
+                new Item
                 {
                     Name = "Stainless-Steel Water Bottles",
                     Description = "Used for storing Water",
@@ -241,7 +241,7 @@ public static class CAAInitializer
                     SupplierID = 5,
                     EmployeeID = 3
                 },
-                new Inventory
+                new Item
                 {
                     Name = "Laptop Bag",
                     Description = "Used for storing Laptops",
@@ -252,7 +252,7 @@ public static class CAAInitializer
                     SupplierID = 4,
                     EmployeeID = 1
                 },
-                new Inventory
+                new Item
                 {
                     Name = "Stick on Phone Wallet",
                     Description = "Wallet that sticks to the back of your phone.",
@@ -263,7 +263,7 @@ public static class CAAInitializer
                     SupplierID = 6,
                     EmployeeID = 2
                 },
-                new Inventory
+                new Item
                 {
                     Name = "Shirt",
                     Description = "Shirt with CAA Logo, Address, Phone Number and more.",
@@ -274,7 +274,7 @@ public static class CAAInitializer
                     SupplierID = 4,
                     EmployeeID = 3
                 },
-                new Inventory
+                new Item
                 {
                     Name = "Sticker",
                     Description = "CAA Sticker that can be applied to any surface.",
@@ -285,7 +285,7 @@ public static class CAAInitializer
                     SupplierID = 7,
                     EmployeeID = 3
                 },
-                new Inventory
+                new Item
                 {
                     Name = "Key Chain",
                     Description = "Key Chain with CAA logo to attached to someones Car Keys.",
@@ -294,7 +294,9 @@ public static class CAAInitializer
                     UPC = "" + rd.Next(10000000, 99999999),
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 7,
-                    EmployeeID = 1
+                    EmployeeID = 1,
+                    Archived = true
+                    
                 });
                 context.SaveChanges();
             }
@@ -374,14 +376,14 @@ public static class CAAInitializer
                     DateMade = DateTime.Now,
                     DeliveryDate = DateTime.Parse("2022/03/20"),
                     Cost= 45,
-                    InventoryID = context.Inventories.FirstOrDefault(d => d.Name == "Carry-on Bag Nike").Id
+                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Carry-on Bag Nike").ID
                 },
                 new Order
                 {
                     Quantity = 70,
                     DateMade = DateTime.Now,
                     DeliveryDate = DateTime.Parse("2022/01/20"),
-                    InventoryID = context.Inventories.FirstOrDefault(d => d.Name == "Nike Solo Backpack").Id
+                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Nike Solo Backpack").ID
                 },
                 new Order
                 {
@@ -389,7 +391,7 @@ public static class CAAInitializer
                     DateMade = DateTime.Now,
                     DeliveryDate = DateTime.Parse("2022/02/20"),
                     Cost = 55,
-                    InventoryID = context.Inventories.FirstOrDefault(d => d.Name == "Stainless-Steel Water Bottles").Id
+                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Stainless-Steel Water Bottles").ID
                 },
                 new Order
                 {
@@ -397,8 +399,25 @@ public static class CAAInitializer
                     DateMade = DateTime.Now,
                     DeliveryDate = DateTime.Parse("2022/03/20"),
                     Cost = 35,
-                    InventoryID = context.Inventories.FirstOrDefault(d => d.Name == "Studio Pens").Id
+                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Studio Pens").ID
                 });
+                context.SaveChanges();
+            }
+            if (!context.Inventories.Any())
+            {
+
+                for (int i = 0; i < context.Set<Item>().Count(); i++)
+                {
+                    context.Inventories.AddRange(
+                        new Inventory
+                        {
+                            Cost = rd.Next(10, 99),
+                            Quantity = rd.Next(10, 999),
+                            LocationID = context.Locations.FirstOrDefault(d => d.Name == "Thorold").Id,
+                            ItemID = (i + 1)
+                        });
+                }
+
                 context.SaveChanges();
             }
         }

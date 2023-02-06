@@ -55,6 +55,6 @@ namespace CAAMarketing.Models
         public int EmployeeID { get; set; }
         public Employee Employee { get; set; }
 
-
+        public bool Archived { get; set; } = false;
     }
 }

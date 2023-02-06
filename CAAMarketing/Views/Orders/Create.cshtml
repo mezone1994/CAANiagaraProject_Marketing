@@ -3,6 +3,22 @@
 @{
     ViewData["Title"] = "Create";
 }
+
+<div class="container">
+    <ul class="progressbar">
+        <li class="active">
+            <p>Create Item</p>
+        </li>
+        <li class="active">
+            <p>Receive Inventory</p>
+        </li>
+        <li>
+            <p>OverView</p>
+        </li>
+    </ul>
+</div>
+
+
 <div class="cont">
     <div class="edtext">
         <h1>Create</h1>
@@ -13,41 +29,105 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-group">
                         <label asp-for="Quantity" class="control-label"></label>
-                        <input title="add the quantity received" asp-for="Quantity" class="form-control" />
+                        <input asp-for="Quantity" class="form-control" />
                         <span asp-validation-for="Quantity" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="DateMade" class="control-label"></label>
-                        <input title="select a date" asp-for="DateMade" class="form-control" />
+                        <input asp-for="DateMade" class="form-control" />
                         <span asp-validation-for="DateMade" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="DeliveryDate" class="control-label"></label>
-                        <input asp-for="DeliveryDate" title="select a date" class="form-control" />
+                        <input asp-for="DeliveryDate" class="form-control" />
                         <span asp-validation-for="DeliveryDate" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="Cost" class="control-label"></label>
-                        <input asp-for="Cost" title="add the receiving cost" class="form-control" />
+                        <input asp-for="Cost" class="form-control" />
                         <span asp-validation-for="Cost" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="InventoryID" class="control-label"></label>
-                        <select asp-for="InventoryID" title="select the item received" class="form-control" asp-items="ViewBag.InventoryID"></select>
+                        <label asp-for="ItemID" class="control-label"></label>
+                        <select asp-for="ItemID" class="form-control" asp-items="ViewBag.ItemID"></select>
                     </div>
                     <div class="form-group">
-                        <input type="submit" value="Create" title="click to create" class="btn btn-primary" />
-                        <div class="tooltip"> <a asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back</span></a> </div>
+                        <input type="submit" value="Create" class="btn btn-primary" />
+                        <div class="tooltip"> <a asp-action="Index" > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
                     </div>
-
+                    
 
                 </form>
             </div>
         </div>
     </div>
-</div>
+</div> 
 
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
+
+
+    <style>
+        .container {
+            width: 100%;
+        }
+
+        .progressbar {
+            counter-reset: step;
+        }
+
+            .progressbar li {
+                list-style: none;
+                display: inline-block;
+                width: 30.33%;
+                position: relative;
+                text-align: center;
+                cursor: pointer;
+            }
+
+                .progressbar li:before {
+                    content: counter(step);
+                    counter-increment: step;
+                    width: 30px;
+                    height: 30px;
+                    line-height: 30px;
+                    border: 1px solid #ddd;
+                    border-radius: 100%;
+                    display: block;
+                    text-align: center;
+                    margin: 0 auto 10px auto;
+                    background-color: #fff;
+                }
+
+                .progressbar li:after {
+                    content: "";
+                    position: absolute;
+                    width: 100%;
+                    height: 1px;
+                    background-color: #ddd;
+                    top: 15px;
+                    left: -50%;
+                    z-index: -1;
+                }
+
+                .progressbar li:first-child:after {
+                    content: none;
+                }
+
+                .progressbar li.active {
+                    color: green;
+                }
+
+                    .progressbar li.active:before {
+                        border-color: green;
+                    }
+
+                    .progressbar li.active + li:after {
+                        background-color: green;
+                    }
+
+        }</style>

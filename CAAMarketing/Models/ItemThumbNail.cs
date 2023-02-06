@@ -12,7 +12,7 @@ namespace CAAMarketing.Models
         [StringLength(255)]
         public string MimeType { get; set; }
 
-        public int InventoryID { get; set; }
-        public Inventory Inventory { get; set; }
+        public int ItemID { get; set; }
+        public Item Item { get; set; }
     }
 }

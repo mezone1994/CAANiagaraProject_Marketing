@@ -67,6 +67,8 @@ namespace CAAMarketing.Data
 
         public DbSet<InventoryTransfer> InventoryTransfers { get; set; }
 
+        public DbSet<Archive> Archives { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

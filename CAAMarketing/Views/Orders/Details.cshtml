@@ -4,53 +4,46 @@
     ViewData["Title"] = "Details";
 }
 
-<div class="detext">
-    <h1>Details</h1>
-    <div>
-        <h4>Received order</h4>
-        <hr />
-        <dl class="row">
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Inventory)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Inventory.Name)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Inventory.UPC)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Inventory.UPC)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Quantity)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Quantity)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Cost)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Cost)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.DateMade)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.DateMade)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.DeliveryDate)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.DeliveryDate)
-            </dd>
-        </dl>
-    </div>
-    <div>
-        <div class="tooltip"> <a asp-action="Edit" asp-route-id="@Model.ID"> <img src="~/images/icons8-edit-24.png" alt="Edit Icon" /> <span class="tooltiptext">Edit</span></a> </div> |
-        <div class="tooltip"> <a asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back</span></a> </div>
-    </div>
+  <div class="detext">
+<h1>Details</h1>
+<div>
+    <h4>Order</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Quantity)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Quantity)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DateMade)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DateMade)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DeliveryDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DeliveryDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Cost)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Cost)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Item)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Item.Name)
+        </dd>
+    </dl>
 </div>
-
+<div>
+            <div class="tooltip"> <a asp-action="Edit" asp-route-id="@Model.ID" > <img src="~/images/icons8-edit-24.png" alt="Edit Icon"/> <span class="tooltiptext">Edit</span></a> </div> |
+     <div class="tooltip"> <a asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
+</div>
+</div>

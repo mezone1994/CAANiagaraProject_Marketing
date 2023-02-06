@@ -155,26 +155,26 @@ namespace CAAMarketing.Data
                 ");
 
             //For Items table
-            //migrationBuilder.Sql(
-            //    @"
-            //        CREATE TRIGGER SetItemTimestampOnUpdate
-            //        AFTER UPDATE ON Items
-            //        BEGIN
-            //            UPDATE Items
-            //            SET RowVersion = randomblob(8)
-            //            WHERE rowid = NEW.rowid;
-            //        END
-            //    ");
-            //migrationBuilder.Sql(
-            //    @"
-            //        CREATE TRIGGER SetItemTimestampOnInsert
-            //        AFTER INSERT ON Items
-            //        BEGIN
-            //            UPDATE Items
-            //            SET RowVersion = randomblob(8)
-            //            WHERE rowid = NEW.rowid;
-            //        END
-            //    ");
+            migrationBuilder.Sql(
+                @"
+                    CREATE TRIGGER SetItemTimestampOnUpdate
+                    AFTER UPDATE ON Items
+                    BEGIN
+                        UPDATE Items
+                        SET RowVersion = randomblob(8)
+                        WHERE rowid = NEW.rowid;
+                    END
+                ");
+            migrationBuilder.Sql(
+                @"
+                    CREATE TRIGGER SetItemTimestampOnInsert
+                    AFTER INSERT ON Items
+                    BEGIN
+                        UPDATE Items
+                        SET RowVersion = randomblob(8)
+                        WHERE rowid = NEW.rowid;
+                    END
+                ");
             //For Locations table
             migrationBuilder.Sql(
                 @"

@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Create";
 }
-
 <div class="cont">
     <div class="edtext">
         <h1>Create</h1>
@@ -14,43 +13,41 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-group">
                         <label asp-for="Quantity" class="control-label"></label>
-                        <input asp-for="Quantity" class="form-control" />
+                        <input title="add the quantity received" asp-for="Quantity" class="form-control" />
                         <span asp-validation-for="Quantity" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="DateMade" class="control-label"></label>
-                        <input asp-for="DateMade" class="form-control" />
+                        <input title="select a date" asp-for="DateMade" class="form-control" />
                         <span asp-validation-for="DateMade" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="DeliveryDate" class="control-label"></label>
-                        <input asp-for="DeliveryDate" class="form-control" />
+                        <input asp-for="DeliveryDate" title="select a date" class="form-control" />
                         <span asp-validation-for="DeliveryDate" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="Cost" class="control-label"></label>
-                        <input asp-for="Cost" class="form-control" />
+                        <input asp-for="Cost" title="add the receiving cost" class="form-control" />
                         <span asp-validation-for="Cost" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ItemID" class="control-label"></label>
-                        <select asp-for="ItemID" class="form-control" asp-items="ViewBag.ItemID"></select>
+                        <label asp-for="InventoryID" class="control-label"></label>
+                        <select asp-for="InventoryID" title="select the item received" class="form-control" asp-items="ViewBag.InventoryID"></select>
                     </div>
                     <div class="form-group">
-                        <input type="submit" value="Create" class="btn btn-primary" />
-                        <div class="tooltip"> <a asp-action="Index" > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
+                        <input type="submit" value="Create" title="click to create" class="btn btn-primary" />
+                        <div class="tooltip"> <a asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back</span></a> </div>
                     </div>
-                    
+
 
                 </form>
             </div>
         </div>
     </div>
-</div> 
+</div>
 
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

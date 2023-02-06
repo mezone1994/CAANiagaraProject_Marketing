@@ -21,7 +21,7 @@
                             <h2>User <b>Management</b></h2>
                         </div>
                         <div class="col-xs-7">
-                            <a asp-action="Create" class="btn btn-primary">
+                            <a asp-action="Create" title="Click this to create an employee" class="btn btn-primary">
                                 <i class="material-icons">&#xE147;</i>
                                 <span>Create New Employee</span>
                             </a>
@@ -72,7 +72,7 @@
                                     <span class="status text-danger @(item.Active ? "hide" : "")">&bull;</span>
                                 </td>
                                 <td>
-                                    <a asp-action="Edit" asp-route-id="@item.ID">Edit</a>
+                                    <a asp-action="Edit" title="Click this to edit" asp-route-id="@item.ID">Edit</a>
                                     @if (item.NumberOfPushSubscriptions > 0)
                                     {
                                         @:| @{

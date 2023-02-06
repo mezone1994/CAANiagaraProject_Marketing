@@ -7,6 +7,27 @@ namespace CAAMarketing.Models
     {
         public int Id { get; set; }
 
+        [Display(Name = "Item Name")]
+        [Required(ErrorMessage = "You cannot leave the item name blank.")]
+        [StringLength(150, ErrorMessage = "name cannot be more than 150 characters long.")]
+        public string Name { get; set; }
+
+        [Display(Name = "Description")]
+        [Required(ErrorMessage = "You cannot leave it blank.")]
+        [StringLength(50, ErrorMessage = " cannot be more than 50 characters long.")]
+        public string Description { get; set; }
+
+        [Required(ErrorMessage = "You cannot leave the notes blank.")]
+        [MinLength(10, ErrorMessage = "notes must be at least 10 characters.")]
+        [MaxLength(4000, ErrorMessage = "notes cannot be more than 4,000 characters.")]
+        [DataType(DataType.MultilineText)]
+        public string Notes { get; set; }
+
+        [Display(Name = "UPC")]
+        [Required(ErrorMessage = "You cannot leave blank.")]
+        [StringLength(50, ErrorMessage = "cannot be more than 50 characters long.")]
+        public string UPC { get; set; }
+
         [Display(Name = "Cost")]
         [Required(ErrorMessage = "You must enter a cost.")]
         [DataType(DataType.Currency)]
@@ -16,16 +37,40 @@ namespace CAAMarketing.Models
         [Required(ErrorMessage = "You must enter a quantity.")]
         public int Quantity { get; set; }
 
-        public int ItemID { get; set; }
-        //Making a collection of play objects in this class
-        [Display(Name = "Items")]
-        public Item Item { get; set; }
-
-
 
         [Display(Name = "Location")]
         public int LocationID { get; set; }
-        public Location Location { get; set; }
+        public ICollection<Location> Locations { get; set; }
+
+        [Display(Name = "Date Received")]
+        [Required(ErrorMessage = "You cannot leave blank.")]
+        [DataType(DataType.Date)]
+        public DateTime DateReceived { get; set; }
+
+        public ItemImages ItemImages { get; set; }
+
+        public ItemThumbNail ItemThumbNail { get; set; }
+
+        //Calling the Supplier to connect its table into this class
+        [Display(Name = "Supplier")]
+        [Required(ErrorMessage = "You Must Select A Supplier Name")]
+        public int SupplierID { get; set; }
+
+        [Display(Name = "Supplier Name")]
+        public Supplier Supplier { get; set; }
+
+        [Display(Name = "Category")]
+        [Required(ErrorMessage = "You cannot leave it blank.")]
+        public int CategoryID { get; set; }
+        public Category Category { get; set; }
+
+
+        public int EmployeeID { get; set; }
+        public Employee Employee { get; set; }
+
+        
+
+        public ICollection<InventoryTransfer> InventoryTransfers { get; set; }
 
         public bool IsLowInventory { get; set; }
         public int LowInventoryThreshold { get; set; } = 10;

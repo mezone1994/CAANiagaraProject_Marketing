@@ -1,102 +1,100 @@
 ﻿@model IEnumerable<CAAMarketing.Models.Order>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Receiving";
 }
 
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
+
     <div class="form-horizontal">
-        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" style="display: none;">
-            Filter/Search
+     
+        <button class="btn btn-filter" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
+            <i class="material-icons">Filter/Search</i>
         </button>
-        <div class="card-header d-flex justify-content-between">
-            Filter/Search
-            <h1>Orders</h1>
-            <a asp-action="Create" class="btn btn-primary btn-color-Create">Create New Order</a>
-        </div>
-        <div>
-        <div class="container-fluid">
-         <div class="row">
-            <div class="col-md-12 col-lg-2 filter-sidebar">
-                <div class="card">
-                    <div class="card-body filter-content">
-                    <div class="form-group">
-                        <label class="control-label">Select by Supplier:</label>
-                        @Html.DropDownList("SupplierID", null, "All Suppliers", htmlAttributes: new { @class = "form-control" })
+       
+        <div class="collapse @(ViewData["Filtering"])" id="collapseFilter">
+            <div class="card card-body">
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        <label class="control-label">Select by item:</label>
+                        @Html.DropDownList("InventoryID", null, "All Items", htmlAttributes: new { @class = "form-control" })
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-md-4">
                         <label class="control-label">Search Item Name OR UPC:</label>
                         @Html.TextBox("SearchString", null, new { @class = "form-control" })
                     </div>
-                    <div class="form-group align-self-end">
-                        <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary btn-color" />
+                    <div class="form-group col-md-4 align-self-end">
+                        <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" />
                         <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-<div class="col-md-12 col-lg-10 d-flex align-items-center">
-     <table class="table table-hover">
-        <thead class="thead-light">
-            <tr>
-                <th>
-                    <input type="submit" name="actionButton" value="OrderItem" class="btn btn-link" />
-                </th>
-                <th>
-                    <input type="submit" name="actionButton" value="UPC" class="btn btn-link" />
-                </th>
-                <th>
-                    <input type="submit" name="actionButton" value="Quantity" class="btn btn-link" />
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Cost)
-                </th>
-                <th>
-                    <input type="submit" name="actionButton" value="DateMade" class="btn btn-link" />
-                </th>
-                <th>
-                    <input type="submit" name="actionButton" value="DeliveryDate" class="btn btn-link" />
-                </th>
+    <div class="container-fluid">
+            <div class="table-responsive">
+                <div class="table-wrapper">
+                    <div class="table-title d-flex justify-content-between align-items-center">
+                        <h2>Receive</h2>
+                        <div class="col-xs-7">
+                            <a asp-action="Create" title="Click this to create new receive" class="btn btn-primary">
+                                    <i class="material-icons">&#xE147;</i>
+                                    <span>Create a Receive</span>
+                                </a>
+                            </div>
+                    </div>
+                    <table class="table table-hover">  
+                        <thead>
+        <tr>
+            <th>
+                <input type="submit" name="actionButton" value="item" class="btn btn-link" title="Click this to sort" />
+            </th>
+            <th>
+                                <input type="submit" name="actionButton" value="UPC" class="btn btn-link" title="Click this to sort" />
+            </th>
+            <th>
+                                <input type="submit" name="actionButton" value="Quantity" class="btn btn-link" title="Click this to sort" />
+            </th>
 
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Item.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Item.UPC)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Quantity)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Cost)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.DateMade)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.DeliveryDate)
-                    </td>
-
-                    <td>
-                        <div class="tooltip"> <a asp-action="Edit" asp-route-id="@item.ID" > <img src="~/images/icons8-edit-24.png" alt="Edit Icon"/> <span class="tooltiptext">Edit</span></a> </div>
-                        <div class="tooltip"> <a asp-action="Details" asp-route-id="@item.ID" > <img src="~/images/icons8-more-details-24.png" alt="Details Icon"/> <span class="tooltiptext">Details</span></a> </div>
-                        <div class="tooltip"> <a asp-action="Delete" asp-route-id="@item.ID" > <img src="~/images/icons8-trash-24.png" alt="Trash Can Icon"/> <span class="tooltiptext">Delete</span></a> </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-     </div>
-         </div>
-        <partial name="_PagingNavBar" />
+            <th>
+                @Html.DisplayNameFor(model => model.Cost)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Inventory.Name)
+            </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Inventory.UPC)
+                                </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Quantity)
+            </td>
+            
+            @*<td>
+                @Html.DisplayFor(modelItem => item.DeliveryDate)
+            </td>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.Cost)
+            </td>
+                                 <td>
+                                                        <a asp-action="Edit" title="Click this to edit" class="padding-for-actions" asp-route-id="@item.ID">Edit </a>
+                                                        <a asp-action="Details" title="Click this to go to details" class="padding-for-actions" asp-route-id="@item.ID">Details</a>
+                                                        <a asp-action="Delete" title="Click this to delete" class="padding-for-actions" asp-route-id="@item.ID">Delete</a>
+                                        </td>
+        </tr>
+}
+    </tbody>
+</table>
+            </div>
+        </div>
+    </div>
+    <partial name="_PagingNavBar" />
 </form>

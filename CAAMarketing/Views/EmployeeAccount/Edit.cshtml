@@ -4,10 +4,12 @@
     ViewData["Title"] = "Edit Account";
 }
 
-
+<div class="cont">
+    <div class="edtext">
 <h4>Edit Account for @User.Identity.Name</h4>
 <div class="text-danger">@TempData["message"]</div>
 <hr />
+        <div class="col-md-12">
 <form asp-action="Edit">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="row">
@@ -31,14 +33,17 @@
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
+                            <div class="tooltip"> <a asp-action="Details"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back to Account Details</span></a> </div>
             </div>
+                       
         </div>
     </div>
 </form>
-
-<div>
-    <a asp-action="Details">Back to Account Details</a>
+   </div>
+    </div>
 </div>
+
+
 
 @section Scripts {
     @{

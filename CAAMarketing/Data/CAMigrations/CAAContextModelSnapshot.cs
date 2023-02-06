@@ -208,6 +208,9 @@ namespace CAAMarketing.Data.CAMigrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("CategoryID")
+                        .HasColumnType("INTEGER");
+
                     b.Property<decimal>("Cost")
                         .HasColumnType("TEXT");
 
@@ -218,14 +221,22 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<DateTime?>("CreatedOn")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("DateReceived")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("EmployeeID")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("EmployeeNameUser")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsLowInventory")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ItemID")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("LocationID")
@@ -234,6 +245,16 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<int>("LowInventoryThreshold")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("INTEGER");
 
@@ -241,6 +262,14 @@ namespace CAAMarketing.Data.CAMigrations
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("BLOB");
+
+                    b.Property<int>("SupplierID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UPC")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(256)
@@ -251,9 +280,11 @@ namespace CAAMarketing.Data.CAMigrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ItemID");
+                    b.HasIndex("CategoryID");
 
-                    b.HasIndex("LocationID");
+                    b.HasIndex("EmployeeID");
+
+                    b.HasIndex("SupplierID");
 
                     b.ToTable("Inventories");
                 });
@@ -276,6 +307,9 @@ namespace CAAMarketing.Data.CAMigrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("FromLocationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("InventoryId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ItemId")
@@ -305,6 +339,8 @@ namespace CAAMarketing.Data.CAMigrations
                     b.HasKey("Id");
 
                     b.HasIndex("FromLocationId");
+
+                    b.HasIndex("InventoryId");
 
                     b.HasIndex("ItemId");
 
@@ -344,6 +380,12 @@ namespace CAAMarketing.Data.CAMigrations
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("ItemImagesId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ItemThumbNailID")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -380,6 +422,10 @@ namespace CAAMarketing.Data.CAMigrations
 
                     b.HasIndex("EmployeeID");
 
+                    b.HasIndex("ItemImagesId");
+
+                    b.HasIndex("ItemThumbNailID");
+
                     b.HasIndex("SupplierID");
 
                     b.ToTable("Items");
@@ -409,7 +455,7 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<byte[]>("Content")
                         .HasColumnType("BLOB");
 
-                    b.Property<int>("ItemID")
+                    b.Property<int>("InventoryID")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("MimeType")
@@ -418,7 +464,7 @@ namespace CAAMarketing.Data.CAMigrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ItemID")
+                    b.HasIndex("InventoryID")
                         .IsUnique();
 
                     b.ToTable("itemImages");
@@ -433,7 +479,7 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<byte[]>("Content")
                         .HasColumnType("BLOB");
 
-                    b.Property<int>("ItemID")
+                    b.Property<int>("InventoryID")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("MimeType")
@@ -442,7 +488,7 @@ namespace CAAMarketing.Data.CAMigrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("ItemID")
+                    b.HasIndex("InventoryID")
                         .IsUnique();
 
                     b.ToTable("ItemThumbNails");
@@ -465,6 +511,9 @@ namespace CAAMarketing.Data.CAMigrations
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("InventoryId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -483,6 +532,8 @@ namespace CAAMarketing.Data.CAMigrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("InventoryId");
 
                     b.ToTable("Locations");
                 });
@@ -515,7 +566,7 @@ namespace CAAMarketing.Data.CAMigrations
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ItemID")
+                    b.Property<int>("InventoryID")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Quantity")
@@ -535,7 +586,7 @@ namespace CAAMarketing.Data.CAMigrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("ItemID");
+                    b.HasIndex("InventoryID");
 
                     b.ToTable("Orders");
                 });
@@ -658,21 +709,29 @@ namespace CAAMarketing.Data.CAMigrations
 
             modelBuilder.Entity("CAAMarketing.Models.Inventory", b =>
                 {
-                    b.HasOne("CAAMarketing.Models.Item", "Item")
+                    b.HasOne("CAAMarketing.Models.Category", "Category")
                         .WithMany()
-                        .HasForeignKey("ItemID")
+                        .HasForeignKey("CategoryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CAAMarketing.Models.Location", "Location")
+                    b.HasOne("CAAMarketing.Models.Employee", "Employee")
                         .WithMany()
-                        .HasForeignKey("LocationID")
+                        .HasForeignKey("EmployeeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Item");
+                    b.HasOne("CAAMarketing.Models.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Location");
+                    b.Navigation("Category");
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("CAAMarketing.Models.InventoryTransfer", b =>
@@ -682,6 +741,10 @@ namespace CAAMarketing.Data.CAMigrations
                         .HasForeignKey("FromLocationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("CAAMarketing.Models.Inventory", null)
+                        .WithMany("InventoryTransfers")
+                        .HasForeignKey("InventoryId");
 
                     b.HasOne("CAAMarketing.Models.Item", "Item")
                         .WithMany("InventoryTransfers")
@@ -716,6 +779,14 @@ namespace CAAMarketing.Data.CAMigrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CAAMarketing.Models.ItemImages", "ItemImages")
+                        .WithMany()
+                        .HasForeignKey("ItemImagesId");
+
+                    b.HasOne("CAAMarketing.Models.ItemThumbNail", "ItemThumbNail")
+                        .WithMany()
+                        .HasForeignKey("ItemThumbNailID");
+
                     b.HasOne("CAAMarketing.Models.Supplier", "Supplier")
                         .WithMany()
                         .HasForeignKey("SupplierID")
@@ -725,6 +796,10 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Navigation("Category");
 
                     b.Navigation("Employee");
+
+                    b.Navigation("ItemImages");
+
+                    b.Navigation("ItemThumbNail");
 
                     b.Navigation("Supplier");
                 });
@@ -750,35 +825,42 @@ namespace CAAMarketing.Data.CAMigrations
 
             modelBuilder.Entity("CAAMarketing.Models.ItemImages", b =>
                 {
-                    b.HasOne("CAAMarketing.Models.Item", "Item")
+                    b.HasOne("CAAMarketing.Models.Inventory", "Inventory")
                         .WithOne("ItemImages")
-                        .HasForeignKey("CAAMarketing.Models.ItemImages", "ItemID")
+                        .HasForeignKey("CAAMarketing.Models.ItemImages", "InventoryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Item");
+                    b.Navigation("Inventory");
                 });
 
             modelBuilder.Entity("CAAMarketing.Models.ItemThumbNail", b =>
                 {
-                    b.HasOne("CAAMarketing.Models.Item", "Item")
+                    b.HasOne("CAAMarketing.Models.Inventory", "Inventory")
                         .WithOne("ItemThumbNail")
-                        .HasForeignKey("CAAMarketing.Models.ItemThumbNail", "ItemID")
+                        .HasForeignKey("CAAMarketing.Models.ItemThumbNail", "InventoryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Item");
+                    b.Navigation("Inventory");
+                });
+
+            modelBuilder.Entity("CAAMarketing.Models.Location", b =>
+                {
+                    b.HasOne("CAAMarketing.Models.Inventory", null)
+                        .WithMany("Locations")
+                        .HasForeignKey("InventoryId");
                 });
 
             modelBuilder.Entity("CAAMarketing.Models.Order", b =>
                 {
-                    b.HasOne("CAAMarketing.Models.Item", "Item")
+                    b.HasOne("CAAMarketing.Models.Inventory", "Inventory")
                         .WithMany()
-                        .HasForeignKey("ItemID")
+                        .HasForeignKey("InventoryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Item");
+                    b.Navigation("Inventory");
                 });
 
             modelBuilder.Entity("CAAMarketing.Models.Subscription", b =>
@@ -799,13 +881,20 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Navigation("Subscriptions");
                 });
 
-            modelBuilder.Entity("CAAMarketing.Models.Item", b =>
+            modelBuilder.Entity("CAAMarketing.Models.Inventory", b =>
                 {
                     b.Navigation("InventoryTransfers");
 
                     b.Navigation("ItemImages");
 
                     b.Navigation("ItemThumbNail");
+
+                    b.Navigation("Locations");
+                });
+
+            modelBuilder.Entity("CAAMarketing.Models.Item", b =>
+                {
+                    b.Navigation("InventoryTransfers");
                 });
 
             modelBuilder.Entity("CAAMarketing.Models.Location", b =>

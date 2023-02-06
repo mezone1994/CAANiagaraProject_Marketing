@@ -33,10 +33,10 @@ namespace CAAMarketing.Models
         //Calling the Item to connect its table into this class
         [Display(Name = "Type of Item")]
         [Required(ErrorMessage = "You Must Select A Item")]
-        public int ItemID { get; set; }
+        public int InventoryID { get; set; }
 
         [Display(Name = "Item Name")]
-        public Item Item { get; set; }
+        public Inventory Inventory { get; set; }
 
     }
 }

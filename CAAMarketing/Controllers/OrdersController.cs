@@ -22,7 +22,7 @@ namespace CAAMarketing.Controllers
 
         // GET: Orders
         public async Task<IActionResult> Index(string SearchString, int? SupplierID, int? page, int? pageSizeID
-            , string actionButton, string sortDirection = "asc", string sortField = "OrderItem")
+            , string actionButton, string sortDirection = "asc", string sortField = "item")
         {
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
@@ -33,27 +33,27 @@ namespace CAAMarketing.Controllers
 
 
             //Populating the DropDownLists for the Search/Filtering criteria, which are the Category and Supplier DDL
-            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name");
+            ViewData["InventoryID"] = new SelectList(_context.Inventories, "Id", "Name");
 
 
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
-            string[] sortOptions = new[] { "OrderItem", "Quantity", "DateMade", "DeliveryDate" };
+            string[] sortOptions = new[] { "item", "Quantity", "DateMade", "DeliveryDate" , "UPC" };
 
             var orders = _context.Orders
-                .Include(o => o.Item)
+                .Include(o => o.Inventory)
                 .AsNoTracking();
 
             //Add as many filters as needed
             if (SupplierID.HasValue)
             {
-                orders = orders.Where(p => p.Item.SupplierID == SupplierID);
+                orders = orders.Where(p => p.Inventory.SupplierID == SupplierID);
                 ViewData["Filtering"] = " show";
             }
             if (!String.IsNullOrEmpty(SearchString))
             {
-                orders = orders.Where(p => p.Item.Name.ToUpper().Contains(SearchString.ToUpper())
-                                       || p.Item.UPC.Contains(SearchString.ToUpper()));
+                orders = orders.Where(p => p.Inventory.Name.ToUpper().Contains(SearchString.ToUpper())
+                                       || p.Inventory.UPC.Contains(SearchString.ToUpper()));
                 ViewData["Filtering"] = " show";
             }
 
@@ -71,17 +71,17 @@ namespace CAAMarketing.Controllers
             }
 
             //Now we know which field and direction to sort by
-            if (sortField == "DeliveryDate")
+            if (sortField == "UPC")
             {
                 if (sortDirection == "asc")
                 {
                     orders = orders
-                        .OrderBy(p => p.DeliveryDate);
+                        .OrderBy(p => p.Inventory.UPC);
                 }
                 else
                 {
                     orders = orders
-                        .OrderByDescending(p => p.DeliveryDate);
+                        .OrderByDescending(p => p.Inventory.UPC);
                 }
             }
             else if (sortField == "DateMade")
@@ -115,12 +115,12 @@ namespace CAAMarketing.Controllers
                 if (sortDirection == "asc")
                 {
                     orders = orders
-                        .OrderBy(p => p.Item.Name);
+                        .OrderBy(p => p.Inventory.Name);
                 }
                 else
                 {
                     orders = orders
-                        .OrderByDescending(p => p.Item.Name);
+                        .OrderByDescending(p => p.Inventory.Name);
                 }
             }
             //Set sort for next time
@@ -137,16 +137,13 @@ namespace CAAMarketing.Controllers
         // GET: Orders/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            //URL with the last filter, sort and page parameters for this controller
-            ViewDataReturnURL();
-
             if (id == null || _context.Orders == null)
             {
                 return NotFound();
             }
 
             var order = await _context.Orders
-                .Include(o => o.Item)
+                .Include(o => o.Inventory)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (order == null)
             {
@@ -159,10 +156,7 @@ namespace CAAMarketing.Controllers
         // GET: Orders/Create
         public IActionResult Create()
         {
-            //URL with the last filter, sort and page parameters for this controller
-            ViewDataReturnURL();
-
-            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name");
+            ViewData["InventoryID"] = new SelectList(_context.Inventories, "Id", "Name");
             return View();
         }
 
@@ -171,54 +165,49 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Quantity,DateMade,DeliveryDate,Cost,ItemID")] Order order)
+        public async Task<IActionResult> Create([Bind("ID,Quantity,DateMade,DeliveryDate,Cost,InventoryID")] Order order)
         {
-            //URL with the last filter, sort and page parameters for this controller
-            ViewDataReturnURL();
-
             if (ModelState.IsValid)
             {
-                // Check if item already exists in items table
-                var item = await _context.Items.FirstOrDefaultAsync(i => i.ID == order.ItemID);
-                if (item == null)
+                // Check if item exists in items table
+                var existinginventory = await _context.Inventories.FirstOrDefaultAsync(i => i.Id == order.InventoryID);
+                if (existinginventory == null)
                 {
-                    // If item doesn't exist, create a new item
-                    item = new Item { ID = order.ItemID };
-                    _context.Add(item);
+                    ModelState.AddModelError("", "Item not found");
+                    ViewData["InventoryID"] = new SelectList(_context.Inventories, "Id", "Name", order.InventoryID);
+                    return View(order);
                 }
+
                 // Add order to orders table
                 _context.Add(order);
                 await _context.SaveChangesAsync();
 
-                var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == order.ItemID);
+                var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.Id == order.InventoryID);
                 if (inventory != null)
                 {
                     inventory.Quantity += order.Quantity;
                     inventory.Cost = order.Cost;
+                    inventory.DateReceived = order.DeliveryDate.Value;
                     _context.Update(inventory);
                     await _context.SaveChangesAsync();
                 }
                 else
                 {
                     // If inventory for the item doesn't exist, create a new inventory
-                    inventory = new Inventory { ItemID = order.ItemID, Quantity = order.Quantity, Cost = order.Cost };
-                    _context.Add(inventory);
-                    await _context.SaveChangesAsync();
+                    ModelState.AddModelError("", "Inventory not found");
+                    ViewData["InventoryID"] = new SelectList(_context.Inventories, "Id", "Name", order.InventoryID);
+                    return View(order);
                 }
-                // return RedirectToAction(nameof(Index));
-                return RedirectToAction("Details", new { order.ID });
 
+                return RedirectToAction("Details", new { order.ID });
             }
-            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", order.ItemID);
+            ViewData["InventoryID"] = new SelectList(_context.Inventories, "Id", "Name", order.InventoryID);
             return View(order);
         }
 
         // GET: Orders/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            //URL with the last filter, sort and page parameters for this controller
-            ViewDataReturnURL();
-
             if (id == null || _context.Orders == null)
             {
                 return NotFound();
@@ -229,7 +218,7 @@ namespace CAAMarketing.Controllers
             {
                 return NotFound();
             }
-            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", order.ItemID);
+            ViewData["InventoryID"] = new SelectList(_context.Inventories, "Id", "Name", order.InventoryID);
             return View(order);
         }
 
@@ -258,11 +247,11 @@ namespace CAAMarketing.Controllers
 
             var oldOrderQuantity = orderToUpdate.Quantity;
             if (await TryUpdateModelAsync<Order>(orderToUpdate, "",
-                o => o.Quantity, o => o.DateMade, o => o.DeliveryDate, o => o.Cost, o => o.ItemID))
+                o => o.Quantity, o => o.DateMade, o => o.DeliveryDate, o => o.Cost, o => o.InventoryID))
             {
                 try
                 {
-                    var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == orderToUpdate.ItemID);
+                    var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.Id == orderToUpdate.InventoryID);
                     if (inventory != null)
                     {
                         var newInventoryQuantity = inventory.Quantity + (orderToUpdate.Quantity - oldOrderQuantity);
@@ -283,7 +272,7 @@ namespace CAAMarketing.Controllers
                         {
                             inventory = new Inventory
                             {
-                                ItemID = orderToUpdate.ItemID,
+                                Id = orderToUpdate.InventoryID,
                                 Quantity = orderToUpdate.Quantity,
                                 Cost = orderToUpdate.Cost
                             };
@@ -315,23 +304,20 @@ namespace CAAMarketing.Controllers
                 }
 
             }
-            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", orderToUpdate.ItemID);
+            ViewData["InventoryID"] = new SelectList(_context.Inventories, "ID", "Name", orderToUpdate.InventoryID);
             return View(orderToUpdate);
         }
 
         // GET: Orders/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            //URL with the last filter, sort and page parameters for this controller
-            ViewDataReturnURL();
-
             if (id == null || _context.Orders == null)
             {
                 return NotFound();
             }
 
             var order = await _context.Orders
-                .Include(o => o.Item)
+                .Include(o => o.Inventory)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (order == null)
             {
@@ -346,9 +332,6 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            //URL with the last filter, sort and page parameters for this controller
-            ViewDataReturnURL();
-
             if (_context.Orders == null)
             {
                 return Problem("Entity set 'CAAContext.Orders'  is null.");
@@ -358,7 +341,7 @@ namespace CAAMarketing.Controllers
             {
                 _context.Orders.Remove(order);
             }
-
+            
             await _context.SaveChangesAsync();
             //return RedirectToAction(nameof(Index));
             return Redirect(ViewData["returnURL"].ToString());
@@ -375,7 +358,7 @@ namespace CAAMarketing.Controllers
 
         private bool OrderExists(int id)
         {
-            return _context.Orders.Any(e => e.ID == id);
+          return _context.Orders.Any(e => e.ID == id);
         }
     }
 }

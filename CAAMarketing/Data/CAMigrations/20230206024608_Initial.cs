@@ -72,25 +72,6 @@ namespace CAAMarketing.Data.CAMigrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Locations",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true),
-                    EmployeeNameUser = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Locations", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Suppliers",
                 columns: table => new
                 {
@@ -141,6 +122,207 @@ namespace CAAMarketing.Data.CAMigrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Inventories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
+                    Description = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Notes = table.Column<string>(type: "TEXT", maxLength: 4000, nullable: false),
+                    UPC = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Cost = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Quantity = table.Column<int>(type: "INTEGER", nullable: false),
+                    LocationID = table.Column<int>(type: "INTEGER", nullable: false),
+                    DateReceived = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    SupplierID = table.Column<int>(type: "INTEGER", nullable: false),
+                    CategoryID = table.Column<int>(type: "INTEGER", nullable: false),
+                    EmployeeID = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsLowInventory = table.Column<bool>(type: "INTEGER", nullable: false),
+                    LowInventoryThreshold = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true),
+                    EmployeeNameUser = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Inventories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Inventories_Category_CategoryID",
+                        column: x => x.CategoryID,
+                        principalTable: "Category",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Inventories_Employees_EmployeeID",
+                        column: x => x.EmployeeID,
+                        principalTable: "Employees",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Inventories_Suppliers_SupplierID",
+                        column: x => x.SupplierID,
+                        principalTable: "Suppliers",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "itemImages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Content = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    MimeType = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    InventoryID = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_itemImages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_itemImages_Inventories_InventoryID",
+                        column: x => x.InventoryID,
+                        principalTable: "Inventories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ItemThumbNails",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Content = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    MimeType = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    InventoryID = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ItemThumbNails", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_ItemThumbNails_Inventories_InventoryID",
+                        column: x => x.InventoryID,
+                        principalTable: "Inventories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Locations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
+                    InventoryId = table.Column<int>(type: "INTEGER", nullable: true),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true),
+                    EmployeeNameUser = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Locations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Locations_Inventories_InventoryId",
+                        column: x => x.InventoryId,
+                        principalTable: "Inventories",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Quantity = table.Column<int>(type: "INTEGER", nullable: false),
+                    DateMade = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    DeliveryDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Cost = table.Column<decimal>(type: "TEXT", nullable: false),
+                    InventoryID = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true),
+                    EmployeeNameUser = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Orders_Inventories_InventoryID",
+                        column: x => x.InventoryID,
+                        principalTable: "Inventories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Items",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
+                    Description = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Notes = table.Column<string>(type: "TEXT", maxLength: 4000, nullable: false),
+                    UPC = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    DateReceived = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ItemImagesId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ItemThumbNailID = table.Column<int>(type: "INTEGER", nullable: true),
+                    SupplierID = table.Column<int>(type: "INTEGER", nullable: false),
+                    CategoryID = table.Column<int>(type: "INTEGER", nullable: false),
+                    EmployeeID = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true),
+                    EmployeeNameUser = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Items", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Items_Category_CategoryID",
+                        column: x => x.CategoryID,
+                        principalTable: "Category",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Items_Employees_EmployeeID",
+                        column: x => x.EmployeeID,
+                        principalTable: "Employees",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Items_itemImages_ItemImagesId",
+                        column: x => x.ItemImagesId,
+                        principalTable: "itemImages",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Items_ItemThumbNails_ItemThumbNailID",
+                        column: x => x.ItemThumbNailID,
+                        principalTable: "ItemThumbNails",
+                        principalColumn: "ID");
+                    table.ForeignKey(
+                        name: "FK_Items_Suppliers_SupplierID",
+                        column: x => x.SupplierID,
+                        principalTable: "Suppliers",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Events",
                 columns: table => new
                 {
@@ -169,86 +351,6 @@ namespace CAAMarketing.Data.CAMigrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Items",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    Notes = table.Column<string>(type: "TEXT", maxLength: 4000, nullable: false),
-                    UPC = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    DateReceived = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    SupplierID = table.Column<int>(type: "INTEGER", nullable: false),
-                    CategoryID = table.Column<int>(type: "INTEGER", nullable: false),
-                    EmployeeID = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true),
-                    EmployeeNameUser = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Items", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_Items_Category_CategoryID",
-                        column: x => x.CategoryID,
-                        principalTable: "Category",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Items_Employees_EmployeeID",
-                        column: x => x.EmployeeID,
-                        principalTable: "Employees",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Items_Suppliers_SupplierID",
-                        column: x => x.SupplierID,
-                        principalTable: "Suppliers",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Inventories",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Cost = table.Column<decimal>(type: "TEXT", nullable: false),
-                    Quantity = table.Column<int>(type: "INTEGER", nullable: false),
-                    ItemID = table.Column<int>(type: "INTEGER", nullable: false),
-                    LocationID = table.Column<int>(type: "INTEGER", nullable: false),
-                    IsLowInventory = table.Column<bool>(type: "INTEGER", nullable: false),
-                    LowInventoryThreshold = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true),
-                    EmployeeNameUser = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Inventories", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Inventories_Items_ItemID",
-                        column: x => x.ItemID,
-                        principalTable: "Items",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Inventories_Locations_LocationID",
-                        column: x => x.LocationID,
-                        principalTable: "Locations",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "InventoryTransfers",
                 columns: table => new
                 {
@@ -259,6 +361,7 @@ namespace CAAMarketing.Data.CAMigrations
                     ToLocationId = table.Column<int>(type: "INTEGER", nullable: false),
                     Quantity = table.Column<int>(type: "INTEGER", nullable: false),
                     TransferDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    InventoryId = table.Column<int>(type: "INTEGER", nullable: true),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -269,6 +372,11 @@ namespace CAAMarketing.Data.CAMigrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_InventoryTransfers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_InventoryTransfers_Inventories_InventoryId",
+                        column: x => x.InventoryId,
+                        principalTable: "Inventories",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_InventoryTransfers_Items_ItemId",
                         column: x => x.ItemId,
@@ -313,77 +421,6 @@ namespace CAAMarketing.Data.CAMigrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "itemImages",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Content = table.Column<byte[]>(type: "BLOB", nullable: true),
-                    MimeType = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
-                    ItemID = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_itemImages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_itemImages_Items_ItemID",
-                        column: x => x.ItemID,
-                        principalTable: "Items",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ItemThumbNails",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Content = table.Column<byte[]>(type: "BLOB", nullable: true),
-                    MimeType = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
-                    ItemID = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ItemThumbNails", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_ItemThumbNails_Items_ItemID",
-                        column: x => x.ItemID,
-                        principalTable: "Items",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Orders",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Quantity = table.Column<int>(type: "INTEGER", nullable: false),
-                    DateMade = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    DeliveryDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Cost = table.Column<decimal>(type: "TEXT", nullable: false),
-                    ItemID = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true),
-                    EmployeeNameUser = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Orders", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_Orders_Items_ItemID",
-                        column: x => x.ItemID,
-                        principalTable: "Items",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_Employees_Email",
                 table: "Employees",
@@ -396,19 +433,29 @@ namespace CAAMarketing.Data.CAMigrations
                 column: "LocationID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Inventories_ItemID",
+                name: "IX_Inventories_CategoryID",
                 table: "Inventories",
-                column: "ItemID");
+                column: "CategoryID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Inventories_LocationID",
+                name: "IX_Inventories_EmployeeID",
                 table: "Inventories",
-                column: "LocationID");
+                column: "EmployeeID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Inventories_SupplierID",
+                table: "Inventories",
+                column: "SupplierID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InventoryTransfers_FromLocationId",
                 table: "InventoryTransfers",
                 column: "FromLocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryTransfers_InventoryId",
+                table: "InventoryTransfers",
+                column: "InventoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InventoryTransfers_ItemId",
@@ -426,9 +473,9 @@ namespace CAAMarketing.Data.CAMigrations
                 column: "EventID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_itemImages_ItemID",
+                name: "IX_itemImages_InventoryID",
                 table: "itemImages",
-                column: "ItemID",
+                column: "InventoryID",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -442,20 +489,35 @@ namespace CAAMarketing.Data.CAMigrations
                 column: "EmployeeID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Items_ItemImagesId",
+                table: "Items",
+                column: "ItemImagesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Items_ItemThumbNailID",
+                table: "Items",
+                column: "ItemThumbNailID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Items_SupplierID",
                 table: "Items",
                 column: "SupplierID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ItemThumbNails_ItemID",
+                name: "IX_ItemThumbNails_InventoryID",
                 table: "ItemThumbNails",
-                column: "ItemID",
+                column: "InventoryID",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_ItemID",
+                name: "IX_Locations_InventoryId",
+                table: "Locations",
+                column: "InventoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_InventoryID",
                 table: "Orders",
-                column: "ItemID");
+                column: "InventoryID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Subscriptions_EmployeeID",
@@ -471,19 +533,10 @@ namespace CAAMarketing.Data.CAMigrations
                 name: "Equipments");
 
             migrationBuilder.DropTable(
-                name: "Inventories");
-
-            migrationBuilder.DropTable(
                 name: "InventoryTransfers");
 
             migrationBuilder.DropTable(
                 name: "ItemEvents");
-
-            migrationBuilder.DropTable(
-                name: "itemImages");
-
-            migrationBuilder.DropTable(
-                name: "ItemThumbNails");
 
             migrationBuilder.DropTable(
                 name: "Orders");
@@ -499,6 +552,15 @@ namespace CAAMarketing.Data.CAMigrations
 
             migrationBuilder.DropTable(
                 name: "Locations");
+
+            migrationBuilder.DropTable(
+                name: "itemImages");
+
+            migrationBuilder.DropTable(
+                name: "ItemThumbNails");
+
+            migrationBuilder.DropTable(
+                name: "Inventories");
 
             migrationBuilder.DropTable(
                 name: "Category");

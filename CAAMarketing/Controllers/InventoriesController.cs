@@ -416,7 +416,7 @@ namespace CAAMarketing.Controllers
                    ID = grp.Key.ItemID,
                    Category = grp.Select(grp => grp.Item.Category.Name).ToString(),
                    UPC = grp.Select(grp => grp.Item.UPC).ToString(),
-                   ItemName = grp.Select(grp => grp.Item.UPC).ToString(),
+                   ItemName = grp.Select(grp => grp.Item.Name).ToString(),
                    Cost = Convert.ToDecimal(grp.Select(grp => grp.Cost)),
                    Quantity = Convert.ToInt32(grp.Select(grp => grp.Quantity)),
                    Location = grp.Select(grp => grp.Location.Name).ToString(),

@@ -8,6 +8,7 @@
         $('[data-toggle="tooltip"]').tooltip();
     });
 </script>
+
 <form asp-action="Index" method="get">
     <div class="container-fluid">
         <div class="table-responsive">
@@ -20,7 +21,7 @@
                         <th class="col-lg-3">
                             @Html.DisplayNameFor(model => model.UserName)
                         </th>
-                        <th class="col-lg-9">
+                        <th class="col-lg-8">
                             @Html.DisplayNameFor(model => model.UserRoles)
                         </th>
                         <th></th>
@@ -32,7 +33,7 @@
                             <td class="col-lg-3">
                                 @Html.DisplayFor(modelItem => item.UserName)
                             </td>
-                            <td class="col-lg-9">
+                            <td class="col-lg-8">
                                 @{
                                     foreach (var r in item.UserRoles)
                                     {

@@ -5,7 +5,7 @@
     CAAMarketing.Models.Item item = (CAAMarketing.Models.Item)ViewBag.Item;
 }
 
-
+<div class="detext-orderitem">
 @*Note: Instead of figure, you can also use Cards for this layout
 https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
 <figure class="row">
@@ -19,55 +19,56 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
             }
             else
             {
-                <img src="~/images/blankProfile.jpg" style="max-height: 80px; max-width: 96px" class="img-fluid rounded" />
+                <img src="~/images/image-not-found.png" style="max-height: 80px; max-width: 96px" class="img-fluid rounded" />
             }
         }
     </p>
-    <figcaption class="col mt-3"><h3><text class="d-none d-sm-inline">Patient: </text>@item.Name</h3></figcaption>
+    <figcaption class="col mt-3"><h3><text class="d-none d-sm-inline">Item: </text>@item.Name</h3></figcaption>
 </figure>
+
 <div class="row">
     <div class="col-6">
         <dl class="row">
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => item.Name)
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => item.Name):
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-9">
                 @Html.DisplayFor(model => item.Name)
             </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => item.Description)
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => item.Description):
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-9">
                 @Html.DisplayFor(model => item.Description)
             </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => item.Notes)
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => item.Notes):
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-9">
                 @Html.DisplayFor(model => item.Notes)
             </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => item.Category)
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => item.Category):
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-9">
                 @Html.DisplayFor(model => item.Category.Name)
             </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => item.UPC)
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => item.UPC):
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-9">
                 @Html.DisplayFor(model => item.UPC)
             </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => item.DateReceived)
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => item.DateReceived):
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-9">
                 @Html.DisplayFor(model => item.DateReceived)
             </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => item.Supplier)
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => item.Supplier):
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-9">
                 @Html.DisplayFor(model => item.Supplier.Name)
             </dd>
 
@@ -75,19 +76,19 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
     </div>
     <div class="col-6">
         <dl class="row">
-            <dt class="col-sm-2">
-                Employee
+            <dt class="col-sm-3">
+                Employee:
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-9">
                 @Html.DisplayFor(model => item.Employee.FullName)
             </dd>
-            <dt class="col-sm-2">
-                Last Modified By
+            <dt class="col-sm-3">
+                Last Modified By:
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-9">
                 @Html.DisplayFor(model => item.EmployeeNameUser)
             </dd>
-            <dt class="col-md-4">
+            <dt class="col-md-3">
                 @Html.DisplayNameFor(model => item.Archived)?
             </dt>
             <dd class="col-md-8">
@@ -105,6 +106,9 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
         </dl>
     </div>
 </div>
+    <a asp-action="Edit" title="Click this to edit" asp-controller="Items" asp-route-id="@item.ID" class="padding-for-actions div-back">Edit </a> |
+    <a href='@ViewData["returnURL"]' title="Click this to go to the Inventory List" class="padding-for-actions div-back">Back to Inventory List</a>
+</div>
 
 
 <form asp-action="Index" method="get">
@@ -114,7 +118,20 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
     <div class="form-horizontal">
         <div class="form-horizontal">
         <div>
-            <table class="table">
+            
+    <div class="container-fluid">
+        <div class="table-responsive">
+            <div class="table-wrapper">
+                <div class="table-title d-flex justify-content-between align-items-center">
+                    <h2>Receive item</h2>
+                    <div class="col-xs-7">
+                        @*<a asp-action="Create" title="Click this to create new receive" class="btn btn-primary">
+                            <i class="material-icons">&#xE147;</i>
+                            <span>Create a Receive</span>*@
+                        </a>
+                    </div>
+                </div>
+                <table class="table table-hover">
                 <colgroup>
                     <col span="1" />
                     <col span="1" />
@@ -143,7 +160,7 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
                             <a asp-controller="OrderItems" asp-action="Add" asp-route-ItemID="@item.ID"
                                 asp-route-PatientName="@item.Name">
                             <span class="btn btn-success" data-bs-toggle="tooltip"
-                                  title="Add Order"><strong>&#x271A; Add</strong></span>
+                                  title="Add a receive"><strong>&#x271A; Add</strong></span>
                         </a>
                     </th>
                 </tr>
@@ -168,10 +185,10 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
                             </td>
                         <td>
                             <a asp-controller="OrderItems" asp-action="Update" asp-route-id="@order.ID">
-                                <span class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit Order">&#x270D;</span>
+                                <span class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit a receive">&#x270D;</span>
                             </a>
                                 <a asp-controller="OrderItems" asp-action="Remove" asp-route-id="@order.ID">
-                                <span class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Delete Order">&#x274C;</span>
+                                <span class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Delete a receive">&#x274C;</span>
                             </a>
                         </td>
                     </tr>
@@ -184,10 +201,9 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
             </table>
         </div>
     </div>
+     </div>
+        </div>
+    </div>
     <partial name="_PagingNavBar" />
 </form>
 
-<div>
-    <a asp-action="Edit" asp-controller="Items" asp-route-id="@item.ID">Edit</a> |
-    <a href='@ViewData["returnURL"]'>Back to Inventory List</a>
-</div>

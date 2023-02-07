@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Delete";
 }
+<div class="delete">
 <h2>Remove Order for: @Model.Item.Name</h2>
 
 <h3>Are you sure you want to delete this?</h3>
@@ -45,6 +46,8 @@
     <form asp-action="Remove">
         <input type="hidden" asp-for="ID" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a href='@ViewData["returnURL"]'>Back to Inventory</a>
+        <div class="tooltip"> <a href='@ViewData["returnURL"]' > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
+
     </form>
+</div>
 </div>

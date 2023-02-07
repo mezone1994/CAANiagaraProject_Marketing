@@ -4,11 +4,19 @@
     ViewData["Title"] = "InventoryReport";
 }
 
-<h1>Inventory Report</h1>
-
 <form asp-controller="Inventories" asp-action="InventoryReport" method="get">
-    <a asp-action="DownloadInventory" class="btn btn-primary btn-color-Create">Download Inventory Report</a>
-    <table class="table">
+    <div class="container-fluid">
+        <div class="table-responsive">
+            <div class="table-wrapper">
+                <div class="table-title d-flex justify-content-between align-items-center">
+                    <h2>Inventory Report</h2>
+                    <div class="col-xs-7">
+                       <a asp-action="DownloadInventory" title="Click this to downloead the inventory report" class="btn btn-primary btn-color-Create">Download Inventory Report
+                                @*<i class="material-icons">&#xE147;</i>*@
+                            </a>
+                        </div>
+                    </div>
+     <table class="table table-hover">
         <thead>
             <tr>
                 <th>
@@ -76,5 +84,8 @@
             }
         </tbody>
     </table>
+    </div>
+           </div>
+    </div>
     <partial name="_PagingNavBar" />
 </form>

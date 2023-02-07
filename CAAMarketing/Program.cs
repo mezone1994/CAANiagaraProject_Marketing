@@ -72,7 +72,8 @@ builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddControllersWithViews().AddNToastNotifyToastr(new ToastrOptions()
 {
     PositionClass = ToastPositions.BottomRight,
-    TimeOut = 20000,
+    TimeOut = 5000,
+    CloseButton = true
 
 });
 

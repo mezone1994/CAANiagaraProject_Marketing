@@ -14,6 +14,7 @@ using OfficeOpenXml.Style;
 using System.Drawing;
 using NToastNotify;
 using Org.BouncyCastle.Utilities;
+using CAAMarketing.ViewModels;
 
 namespace CAAMarketing.Controllers
 {
@@ -289,8 +290,8 @@ namespace CAAMarketing.Controllers
                 try
                 {
                     await _context.SaveChangesAsync();
-                    //return RedirectToAction(nameof(Index));
-                    return RedirectToAction("Details", new { inventoryToUpdate.ItemID });
+                    return RedirectToAction(nameof(Index));
+                    //return RedirectToAction("Details", new { inventoryToUpdate.ItemID });
 
                 }
                 catch (DbUpdateConcurrencyException)
@@ -402,6 +403,35 @@ namespace CAAMarketing.Controllers
             inventory.Location = _context.Locations.Find(inventoryTransfer.ToLocationId);
             _context.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+
+        public async Task<IActionResult> InventoryReport(int? page, int? pageSizeID)
+        {
+            //For the Report View, I will demo using LINQ without the BONUS showing all musicians
+            var sumQ = _context.Inventories.Include(a => a.Item).Include(p => p.Location)
+               .GroupBy(a => new { a.ItemID, a.Item.Name })
+               .Select(grp => new InventoryReportVM
+               {
+                   ID = grp.Key.ItemID,
+                   Category = grp.Select(grp => grp.Item.Category.Name).ToString(),
+                   UPC = grp.Select(grp => grp.Item.UPC).ToString(),
+                   ItemName = grp.Select(grp => grp.Item.UPC).ToString(),
+                   Cost = Convert.ToDecimal(grp.Select(grp => grp.Cost)),
+                   quantity = Convert.ToInt32(grp.Select(grp => grp.Quantity)),
+                   location = grp.Select(grp => grp.Location.Name).ToString(),
+                   supplier = grp.Select(grp => grp.Item.Supplier.Name).ToString(),
+                   DateReceived = Convert.ToDateTime(grp.Select(grp => grp.Item.DateReceived)),
+                   Notes = grp.Select(grp => grp.Item.Notes).ToString()
+
+
+               }).OrderBy(s => s.ItemName);
+
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "InventoryReport");//Remember for this View
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+            var pagedData = await PaginatedList<InventoryReportVM>.CreateAsync(sumQ.AsNoTracking(), page ?? 1, pageSize);
+
+            return View(pagedData);
         }
 
         //Method for Excel Report

@@ -56,5 +56,7 @@ namespace CAAMarketing.Models
         public Employee Employee { get; set; }
 
         public bool Archived { get; set; } = false;
+
+        public ICollection<Order> Orders { get; set; }
     }
 }

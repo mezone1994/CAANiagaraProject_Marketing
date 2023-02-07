@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CAAMarketing.Data.CAMigrations
 {
     [DbContext(typeof(CAAContext))]
-    [Migration("20230206210124_Initial")]
+    [Migration("20230207030448_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -828,7 +828,7 @@ namespace CAAMarketing.Data.CAMigrations
             modelBuilder.Entity("CAAMarketing.Models.Order", b =>
                 {
                     b.HasOne("CAAMarketing.Models.Item", "Item")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("ItemID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -861,6 +861,8 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Navigation("ItemImages");
 
                     b.Navigation("ItemThumbNail");
+
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("CAAMarketing.Models.Location", b =>

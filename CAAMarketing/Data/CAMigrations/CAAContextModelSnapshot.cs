@@ -826,7 +826,7 @@ namespace CAAMarketing.Data.CAMigrations
             modelBuilder.Entity("CAAMarketing.Models.Order", b =>
                 {
                     b.HasOne("CAAMarketing.Models.Item", "Item")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("ItemID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -859,6 +859,8 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Navigation("ItemImages");
 
                     b.Navigation("ItemThumbNail");
+
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("CAAMarketing.Models.Location", b =>

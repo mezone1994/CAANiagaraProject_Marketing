@@ -157,12 +157,20 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: Orders/Create
-        public IActionResult Create()
+        
+        public IActionResult Create(int? id)
         {
-            //URL with the last filter, sort and page parameters for this controller
-            ViewDataReturnURL();
+            // existing code...
 
-            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name");
+            if (id != null)
+            {
+                ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", id);
+            }
+            else
+            {
+                ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name");
+            }
+
             return View();
         }
 
@@ -195,6 +203,7 @@ namespace CAAMarketing.Controllers
                 {
                     inventory.Quantity += order.Quantity;
                     inventory.Cost = order.Cost;
+                    inventory.Item.DateReceived = order.DeliveryDate.Value;
                     _context.Update(inventory);
                     await _context.SaveChangesAsync();
                 }
@@ -206,8 +215,10 @@ namespace CAAMarketing.Controllers
                     await _context.SaveChangesAsync();
                 }
                 // return RedirectToAction(nameof(Index));
+
+                //Send on to add orders
+                return RedirectToAction("Index", "OrderItems", new { ItemID = order.ItemID });
                 //return RedirectToAction("Details", new { order.ID });
-                return RedirectToAction("Details", "Inventories", new { id = item.ID });
 
             }
             ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", order.ItemID);

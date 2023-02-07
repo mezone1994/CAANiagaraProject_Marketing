@@ -42,7 +42,11 @@
     </div>
 
     <div>
-        <a asp-action="Index">Back to List</a>
+        <a asp-controller="OrderItems" asp-action="Index">Back to List</a>
+        @* <a href='~/OrderItems'>Back to List</a>*@
+        <br />
+        @*<a asp-controller="Inventories" asp-action="Index">Back to Inventory</a>*@
+        @*<a href='@ViewData["returnURL"]'>Back to List</a>*@
     </div>
 </form>
 @section Scripts {
@@ -50,6 +54,3 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     }
-    <div>
-        <a href='@ViewData["returnURL"]'>Back to Inventory</a>
-    </div>

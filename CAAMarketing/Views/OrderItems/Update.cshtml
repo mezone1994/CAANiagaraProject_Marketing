@@ -8,10 +8,9 @@
 <hr />
 <form asp-action="Update">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-<div class="row">
-    <div class="col-md-4">
-
-            <input type="hidden" asp-for="ID" />
+    <input type="hidden" asp-for="ID" />
+    <div class="row">
+        <div class="col-md-4">
             <input type="hidden" name="ItemID" value="@Model.ItemID" />
             <div class="form-group">
                 <label asp-for="Quantity" class="control-label"></label>
@@ -41,9 +40,9 @@
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
-        </form>
+        </div>
     </div>
-</div>
+</form>
 
 <div>
     <a asp-action="Index">Back to List</a>

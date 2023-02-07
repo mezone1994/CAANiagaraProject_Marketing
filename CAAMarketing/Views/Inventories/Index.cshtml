@@ -125,8 +125,8 @@
 
                                 <td>
 
-                                    
-                                    <div class="tooltip"> <a asp-action="Edit" asp-route-id="@inventory.Id"> <img src="~/images/icons8-edit-24.png" alt="Edit Icon" /> <span class="tooltiptext">Edit</span></a> </div>
+
+                                    <div class="tooltip"> <a asp-controller="Items" asp-action="Edit" asp-route-id="@inventory.Id"> <img src="~/images/icons8-edit-24.png" alt="Edit Icon" /> <span class="tooltiptext">Edit</span></a> </div>
                                     <div class="tooltip"> <a asp-action="Index" asp-controller="OrderItems" asp-route-ItemID="@inventory.Item.ID"> <img src="~/images/icons8-more-details-24.png" alt="Details Icon" /> <span class="tooltiptext">Details</span></a> </div>
                                     <div class="tooltip"><a asp-controller="Items" asp-action="Delete" asp-route-id="@inventory.Item.ID"><img src="~/images/icons-archive-24.png" alt="Archive Icon" /> <span class="tooltiptext">Archive</span></a></div>
                                     @*<div class="tooltip"> <a asp-action="Delete" asp-route-id="@inventory.Id"> <img src="~/images/icons8-trash-24.png" alt="Trash Can Icon" /> <span class="tooltiptext">Delete</span></a> </div>*@

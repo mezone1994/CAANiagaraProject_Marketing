@@ -52,7 +52,7 @@
                 </div>
                 <div class="cols">
                     <label asp-for="Description" class="control-label"></label>
-                    <input asp-for="Description" class="form-control" />
+                    <textarea asp-for="Description" class="form-control"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
                 <div class="cols">
@@ -91,7 +91,7 @@
                 <div class="cols">
                     <label for="sub" >Buttons </label><br/>
                     <input type="submit" value="Save" class="btn btn-primary" id="sub"/>
-                    <div class="tooltip"> <a asp-action="Index" asp-route-id="@Model.ID" > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
+                    <div class="tooltip"> <a asp-controller="Inventories" asp-action="Index" asp-route-id="@Model.ID" > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
 
                 </div>
 

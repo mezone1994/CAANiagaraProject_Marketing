@@ -57,7 +57,7 @@
         <form asp-action="Delete">
             <input type="hidden" asp-for="ID" />
             <input type="submit" value="Archive" class="btn btn-danger" /> |
-            <div class="tooltip"> <a href="~/Items" > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
+            <div class="tooltip"> <a asp-controller="Inventories" asp-action="Index" > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
         </form>
     </div>
 </div>

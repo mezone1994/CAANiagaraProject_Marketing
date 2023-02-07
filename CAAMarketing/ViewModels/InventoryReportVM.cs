@@ -21,13 +21,13 @@ namespace CAAMarketing.ViewModels
         public decimal Cost { get; set; }
 
         [Display(Name = "Quantity")]
-        public int quantity { get; set; }
+        public int Quantity { get; set; }
 
         [Display(Name = "Location")]
-        public string location { get; set; }
+        public string Location { get; set; }
 
         [Display(Name = "Type of Supplier")]
-        public string supplier { get; set; }
+        public string Supplier { get; set; }
 
         [Display(Name = "Date Received")]
         [DataType(DataType.Date)]

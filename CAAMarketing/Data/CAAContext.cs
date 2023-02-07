@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CAAMarketing.ViewModels;
 
 namespace CAAMarketing.Data
 {
@@ -174,6 +175,8 @@ namespace CAAMarketing.Data
         }
 
         public DbSet<CAAMarketing.Models.Category> Category { get; set; }
+
+        public DbSet<CAAMarketing.ViewModels.InventoryReportVM> InventoryReportVM { get; set; }
 
         //public override int SaveChanges(bool acceptAllChangesOnSuccess)
         //{

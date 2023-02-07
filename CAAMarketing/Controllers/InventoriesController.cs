@@ -409,21 +409,40 @@ namespace CAAMarketing.Controllers
         public async Task<IActionResult> InventoryReport(int? page, int? pageSizeID)
         {
             //For the Report View
-            var sumQ = _context.Inventories.Include(a => a.Item).Include(p => p.Location)
-               .GroupBy(a => new { a.ItemID, a.Item.Name })
-               .Select(grp => new InventoryReportVM
-               {
-                   ID = grp.Key.ItemID,
-                   Category = grp.Select(grp => grp.Item.Category.Name).ToString(),
-                   UPC = grp.Select(grp => grp.Item.UPC).ToString(),
-                   ItemName = grp.Select(grp => grp.Item.Name).ToString(),
-                   Cost = Convert.ToDecimal(grp.Select(grp => grp.Cost)),
-                   Quantity = Convert.ToInt32(grp.Select(grp => grp.Quantity)),
-                   Location = grp.Select(grp => grp.Location.Name).ToString(),
-                   Supplier = grp.Select(grp => grp.Item.Supplier.Name).ToString(),
-                   DateReceived = Convert.ToDateTime(grp.Select(grp => grp.Item.DateReceived)),
-                   Notes = grp.Select(grp => grp.Item.Notes).ToString()
-               }).OrderBy(s => s.ItemName);
+            //var sumQ = _context.Inventories.Include(a => a.Item).Include(p => p.Location)
+            //   .GroupBy(a => new { a.ItemID, a.Item.Name })
+            //   .Select(grp => new InventoryReportVM
+            //   {
+            //       ID = grp.Key.ItemID,
+            //       Category = grp.Select(grp => grp.Item.Category.Name).ToString(),
+            //       UPC = grp.Select(grp => grp.Item.UPC).ToString(),
+            //       ItemName = grp.Select(grp => grp.Item.Name).ToString(),
+            //       Cost = Convert.ToDecimal(grp.Select(grp => grp.Cost)),
+            //       Quantity = Convert.ToInt32(grp.Select(grp => grp.Quantity)),
+            //       Location = grp.Select(grp => grp.Location.Name).ToString(),
+            //       Supplier = grp.Select(grp => grp.Item.Supplier.Name).ToString(),
+            //       DateReceived = Convert.ToDateTime(grp.Select(grp => grp.Item.DateReceived)),
+            //       Notes = grp.Select(grp => grp.Item.Notes).ToString()
+            //   }).OrderBy(s => s.ItemName);
+
+            var sumQ = from i in _context.Inventories
+                        .Include(i => i.Item.Supplier)
+                        .Include(i => i.Item.Category)
+                        .Include(i => i.Item.Employee)
+                        orderby i.Item.Name descending
+                        select new InventoryReportVM
+                        {
+                            ID = i.ItemID,
+                            Category = i.Item.Category.Name,
+                            UPC = i.Item.UPC,
+                            ItemName = i.Item.Name,
+                            Cost = i.Cost,
+                            Quantity = i.Quantity,
+                            Location = i.Location.Name,
+                            Supplier = i.Item.Supplier.Name,
+                            DateReceived = i.Item.DateReceived,
+                            Notes = i.Item.Notes
+                        };
 
             int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "InventoryReport");//Remember for this View
             ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
@@ -435,7 +454,7 @@ namespace CAAMarketing.Controllers
         //Method for Excel Report
         public IActionResult DownloadInventory()
         {
-            //Get the appointments
+            //Get the inventory
             var items = from i in _context.Inventories
                         .Include(i => i.Item.Supplier)
                         .Include(i => i.Item.Category)

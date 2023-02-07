@@ -70,6 +70,8 @@ namespace CAAMarketing.Data
 
         public DbSet<Archive> Archives { get; set; }
 
+        public DbSet<InventoryReportVM> InventoryReports { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -107,6 +109,13 @@ namespace CAAMarketing.Data
                 a.Email
             })
             .IsUnique();
+
+            //For the InventoryReport ViewModel
+            //Note: The Database View name is InventoryReports
+            modelBuilder
+                .Entity<InventoryReportVM>()
+                .ToView(nameof(InventoryReports))
+                .HasKey(a => a.ID);
 
             //Prevent Cascade Delete from Location to Inventory
             //so we are prevented from deleting a location with Inventory

@@ -17,10 +17,9 @@ namespace CAAMarketing.Models
         public int Quantity { get; set; }
 
         public int ItemID { get; set; }
-        //Making a collection of play objects in this class
+        //Making a collection of item objects in this class
         [Display(Name = "Items")]
         public Item Item { get; set; }
-
 
 
         [Display(Name = "Location")]

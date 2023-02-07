@@ -112,28 +112,7 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
     <input type="hidden" name="ItemID" value="@item.ID" />
     <div class="form-horizontal">
-        <button class="btn @(ViewData["Filtering"])" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-            Filter
-        </button>
         <div class="form-horizontal">
-            <div class="collapse card card-body bg-light" style="padding-top: 10px; padding-bottom: 5px;" id="collapseFilter">
-                <div class="card">
-                    <div class="card-body filter-content">
-                        <div class="form-group">
-                            <label class="control-label">Select by Supplier:</label>
-                            @Html.DropDownList("SupplierID", null, "All Suppliers", htmlAttributes: new { @class = "form-control" })
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label">Search Item Name OR UPC:</label>
-                            @Html.TextBox("SearchString", null, new { @class = "form-control" })
-                        </div>
-                        <div class="form-group align-self-end">
-                            <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary btn-color" />
-                            <a asp-action="Index" asp-route-ItemID="@item.ID" class="btn btn-outline-dark">Clear</a>
-                        </div>
-                    </div>
-            </div>
-        </div>
         <div>
             <table class="table">
                 <colgroup>
@@ -144,7 +123,6 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
                     <col span="1" />
                 </colgroup>
                 <tr>
-                    <th>Order</th>
                         <th>
                             <input type="submit" name="actionButton" value="UPC" class="btn btn-link" />
                         </th>
@@ -210,6 +188,6 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
 </form>
 
 <div>
-    <a asp-action="Edit" asp-controller="Inventories" asp-route-id="@item.ID">Edit</a> |
+    <a asp-action="Edit" asp-controller="Items" asp-route-id="@item.ID">Edit</a> |
     <a href='@ViewData["returnURL"]'>Back to Inventory List</a>
 </div>

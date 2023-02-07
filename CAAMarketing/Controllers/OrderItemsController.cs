@@ -181,7 +181,7 @@ namespace CAAMarketing.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add([Bind("ID,Quantity,DateMade,DeliveryDate,Cost,ItemID")] Order order
-            , string ItemName)
+    , string ItemName, int ItemID)
         {
             //Get the URL with the last filter, sort and page parameters
             ViewDataReturnURL();
@@ -192,7 +192,7 @@ namespace CAAMarketing.Controllers
                 {
                     _context.Add(order);
                     await _context.SaveChangesAsync();
-                    return Redirect(ViewData["returnURL"].ToString());
+                    return RedirectToAction("Index", "OrderItems", new { ItemID = order.ItemID });
                 }
             }
             catch (DbUpdateException)
@@ -205,48 +205,44 @@ namespace CAAMarketing.Controllers
             return View(order);
         }
 
-        // GET: PatientAppt/Update/5
-        public async Task<IActionResult> Update(int? id)
+        // GET: orderitems/Update/5
+        public async Task<IActionResult> UpdateAsync(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-            //Get the URL with the last filter, sort and page parameters
+
             ViewDataReturnURL();
 
-
             var order = _context.Orders
-               .Include(o => o.Item)
-               .AsNoTracking()
-               .FirstOrDefaultAsync(m => m.ID == id);
+                .Include(o => o.Item)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.ID == id);
 
             if (order == null)
             {
                 return NotFound();
             }
-            return View(order);
+            return View(await order);
         }
 
-        // POST: PatientAppt/Update/5
+
+        // POST: orderitems/Update/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(int id)
         {
-            //Get the URL with the last filter, sort and page parameters
             ViewDataReturnURL();
 
             var orderToUpdate = await _context.Orders.FirstOrDefaultAsync(o => o.ID == id);
 
-            //Check that you got it or exit with a not found error
             if (orderToUpdate == null)
             {
                 return NotFound();
-
             }
-
 
             if (await TryUpdateModelAsync<Order>(orderToUpdate, "",
                 o => o.Quantity, o => o.DateMade, o => o.DeliveryDate, o => o.Cost, o => o.ItemID))
@@ -278,7 +274,7 @@ namespace CAAMarketing.Controllers
             return View(orderToUpdate);
         }
 
-        // GET: PatientAppt/Remove/5
+        // GET: orderitems/Remove/5
         public async Task<IActionResult> Remove(int? id)
         {
             if (id == null)
@@ -289,11 +285,10 @@ namespace CAAMarketing.Controllers
             //Get the URL with the last filter, sort and page parameters
             ViewDataReturnURL();
 
-            var order = _context.Orders
+            var order = await _context.Orders
                .Include(o => o.Item)
                .AsNoTracking()
                .FirstOrDefaultAsync(m => m.ID == id);
-
 
             if (order == null)
             {
@@ -302,7 +297,7 @@ namespace CAAMarketing.Controllers
             return View(order);
         }
 
-        // POST: PatientAppt/Remove/5
+        // POST: orderitems/Remove/5
         [HttpPost, ActionName("Remove")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveConfirmed(int id)

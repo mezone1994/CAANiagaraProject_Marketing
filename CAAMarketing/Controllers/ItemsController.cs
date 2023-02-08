@@ -277,6 +277,14 @@ namespace CAAMarketing.Controllers
             {
                 return NotFound();
             }
+
+            //Go get the patient to update
+            var inventoryToUpdate = await _context.Inventories
+                .FirstOrDefaultAsync(p => p.ItemID == id);
+
+            item.Quantity = inventoryToUpdate.Quantity;
+            item.Cost = inventoryToUpdate.Cost;
+
             ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name", item.CategoryID);
             ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name", item.SupplierID);
             return View(item);
@@ -287,7 +295,8 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Byte[] RowVersion, string chkRemoveImage, IFormFile thePicture)
+        public async Task<IActionResult> Edit(int id, Byte[] RowVersion, string chkRemoveImage, IFormFile thePicture,
+            string InvCost, string InvQty)
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
@@ -296,6 +305,10 @@ namespace CAAMarketing.Controllers
             var itemToUpdate = await _context.Items
                 .Include(p => p.ItemImages)
                 .FirstOrDefaultAsync(p => p.ID == id);
+
+
+
+
 
             //Check that you got it or exit with a not found error
             if (itemToUpdate == null)
@@ -309,44 +322,57 @@ namespace CAAMarketing.Controllers
 
             //Try updating it with the values posted
             if (await TryUpdateModelAsync<Item>(itemToUpdate, "",
-                p => p.Name, p => p.Description, p => p.Notes, p => p.CategoryID, p => p.UPC,
+                p => p.Name, p => p.Description, p => p.Notes, p => p.CategoryID, p => p.UPC, p => p.Cost, p => p.Quantity,
                 p => p.DateReceived, p => p.SupplierID))
             {
                 try
                 {
 
-                    var email = User.Identity.Name;
-
-                    var employee = _context.Employees.FirstOrDefault(e => e.Email == email);
-
-                    itemToUpdate.EmployeeNameUser = employee.FullName;
-                    //foreach (Employee emp in _context.Employees)
-                    //{
-                    //    if (itemToUpdate.UpdatedBy == emp.Email)
-                    //    {
-                    //        itemToUpdate.EmployeeNameUser = emp.FullName;
-                    //    }
-                    //}
-
-                    //For the image
-                    if (chkRemoveImage != null)
+                    var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == itemToUpdate.ID);
+                    if (inventory != null)
                     {
-                        //If we are just deleting the two versions of the photo, we need to make sure the Change Tracker knows
-                        //about them both so go get the Thumbnail since we did not include it.
-                        itemToUpdate.ItemThumbNail = _context.ItemThumbNails.Where(p => p.ItemID == itemToUpdate.ID).FirstOrDefault();
-                        //Then, setting them to null will cause them to be deleted from the database.
-                        itemToUpdate.ItemImages = null;
-                        itemToUpdate.ItemThumbNail = null;
-                    }
-                    else
-                    {
-                        await AddPicture(itemToUpdate, thePicture);
-                    }
+                        inventory.Quantity = itemToUpdate.Quantity;
+                        inventory.Cost = itemToUpdate.Cost;
 
-                    await _context.SaveChangesAsync();
-                    // return RedirectToAction(nameof(Index));
-                    return RedirectToAction("Details", new { itemToUpdate.ID });
+                        _context.Update(inventory);
+                        await _context.SaveChangesAsync();
 
+
+                        var email = User.Identity.Name;
+
+                        var employee = _context.Employees.FirstOrDefault(e => e.Email == email);
+
+                        itemToUpdate.EmployeeNameUser = employee.FullName;
+
+
+                        //inventoryToUpdate.Cost = Convert.ToDecimal(InvCost);
+                        //inventoryToUpdate.Quantity = Convert.ToInt32(InvQty);
+
+
+
+                        //For the image
+                        if (chkRemoveImage != null)
+                        {
+                            //If we are just deleting the two versions of the photo, we need to make sure the Change Tracker knows
+                            //about them both so go get the Thumbnail since we did not include it.
+                            itemToUpdate.ItemThumbNail = _context.ItemThumbNails.Where(p => p.ItemID == itemToUpdate.ID).FirstOrDefault();
+                            //Then, setting them to null will cause them to be deleted from the database.
+                            itemToUpdate.ItemImages = null;
+                            itemToUpdate.ItemThumbNail = null;
+                        }
+                        else
+                        {
+                            await AddPicture(itemToUpdate, thePicture);
+                        }
+
+                        await _context.SaveChangesAsync();
+
+                        //_context.Add(inventoryToUpdate);
+                        //_context.SaveChanges();
+                        // return RedirectToAction(nameof(Index));
+                       return RedirectToAction("Index", "OrderItems", new { ItemID = itemToUpdate.ID });
+
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {

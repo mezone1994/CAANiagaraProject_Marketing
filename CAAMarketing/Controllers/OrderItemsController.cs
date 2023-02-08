@@ -155,7 +155,20 @@ namespace CAAMarketing.Controllers
                .AsNoTracking()
                .FirstOrDefault();
 
+            Inventory inventory = _context.Inventories
+                 .Where(p => p.ItemID == ItemID.GetValueOrDefault())
+                 .FirstOrDefault();
+
+            item.Cost = inventory.Cost;
+            item.Quantity = inventory.Quantity;
+
+            _context.Update(item);
+            _context.SaveChanges();
+
+
+
             ViewBag.Item = item;
+
             return View(pagedData);
         }
 

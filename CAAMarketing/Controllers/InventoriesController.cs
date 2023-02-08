@@ -104,30 +104,17 @@ namespace CAAMarketing.Controllers
             }
 
             //Now we know which field and direction to sort by
-            //if (sortField == "Costs")
-            //{
-            //    if (sortDirection == "asc")
-            //    {
-            //        inventories = inventories
-            //            .OrderBy(i => i.Cost);
-            //    }
-            //    else
-            //    {
-            //        inventories = inventories
-            //            .OrderByDescending(i => i.Cost);
-            //    }
-            //}
-            if (sortField == "UPC")
+            if (sortField == "Costs")
             {
                 if (sortDirection == "asc")
                 {
                     inventories = inventories
-                        .OrderBy(i => i.Item.UPC);
+                        .OrderBy(p => p.Cost);
                 }
                 else
                 {
                     inventories = inventories
-                        .OrderByDescending(i => i.Item.UPC);
+                        .OrderByDescending(p => p.Cost);
                 }
             }
             else if (sortField == "Quantity")
@@ -135,12 +122,12 @@ namespace CAAMarketing.Controllers
                 if (sortDirection == "asc")
                 {
                     inventories = inventories
-                        .OrderByDescending(i => i.Quantity);
+                        .OrderByDescending(p => p.Quantity);
                 }
                 else
                 {
                     inventories = inventories
-                        .OrderBy(i => i.Quantity);
+                        .OrderBy(p => p.Quantity);
                 }
             }
             else if (sortField == "Location")
@@ -148,25 +135,25 @@ namespace CAAMarketing.Controllers
                 if (sortDirection == "asc")
                 {
                     inventories = inventories
-                        .OrderBy(i => i.Location.Name);
+                        .OrderBy(p => p.Location.Name);
                 }
                 else
                 {
                     inventories = inventories
-                        .OrderByDescending(i => i.Location.Name);
+                        .OrderByDescending(p => p.Location.Name);
                 }
             }
-            else //Sorting by Item Name
+            else //Sorting by Patient Name
             {
                 if (sortDirection == "asc")
                 {
                     inventories = inventories
-                        .OrderBy(i => i.Item.Name);
+                        .OrderBy(p => p.Item.Name);
                 }
                 else
                 {
                     inventories = inventories
-                        .OrderByDescending(i => i.Item.Name);
+                        .OrderByDescending(p => p.Item.Name);
                 }
             }
             //Set sort for next time

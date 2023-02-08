@@ -205,6 +205,7 @@ namespace CAAMarketing.Controllers
                     inventory.Cost = order.Cost;
                     inventory.Item.DateReceived = order.DeliveryDate.Value;
                     _context.Update(inventory);
+
                     await _context.SaveChangesAsync();
                 }
                 else

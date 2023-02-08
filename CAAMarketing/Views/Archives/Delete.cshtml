@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Recover"  ;
 }
+
+<div class="delete">
 <h1>Are you sure you want to Recover <u>@Html.DisplayFor(model => model.Item.Name)</u> ?</h1>
 <div>
     <h4>Item Details</h4>
@@ -49,7 +51,9 @@
 
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Recover" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <input type="submit"  title="Click this to go to recover the item" value="Recover" class="btn btn-primary" /> |
+         <div class="tooltip"> <a asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back</span></a> </div>
     </form>
+           
+</div>
 </div>

@@ -32,7 +32,7 @@
                 </div>
                 <div class="form-group col-md-4 align-self-end">
                     <input type="submit" name="actionButton" value="Filter" title="click here to filter" class="btn btn-outline-primary btn-color" />
-                    <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
+                    <a asp-action="Index" title="Click here to clear the filter" class="btn btn-outline-dark">Clear</a>
                 </div>
             </div>
         </div>
@@ -56,7 +56,7 @@
                 <div class="table-title d-flex justify-content-between align-items-center">
                     <h1>Inventory</h1>
                     <div class="col-xs-7">
-                       <a asp-action="InventoryReport" class="btn btn-primary btn-color-Create"> Inventory Report</a>
+                       <a asp-action="InventoryReport" title="Click here to generate inventory report" class="btn btn-primary btn-color-Create"> Inventory Report</a>
                         </div>
                 </div>
                 <table class="table table-hover">
@@ -67,17 +67,17 @@
                                 <input type="submit" name="actionButton" value="Item" title="click here to sort by Items" class="btn btn-link" />
                             </th>
                             <th>
-                                <input type="submit" name="actionButton" title="click here to sort by UPC" value="UPC" class="btn btn-link" />
+                                @Html.DisplayNameFor(model => model.Item.UPC)
                             </th>
                             <th>
-                                <input type="submit" name="actionButton" title="click here to sort by location" value="Location" class="btn btn-link" />
+                                <input type="submit" name="Location" title="click here to sort by location" value="Location" class="btn btn-link" />
                             </th>
                             <th>
                                 <input type="submit" name="actionButton" title="click here to sort by quantity" value="Quantity" class="btn btn-link" />
                             </th>
                             
                             <th>
-                                <a asp-controller="Items" asp-action="Create" class="btn btn-primary btn-color-Create">Create New Item</a>
+                                <a asp-controller="Items" asp-action="Create" title="Click here to create a new item" class="btn btn-primary btn-color-Create">Create New Item</a>
 
                             </th>
                             <th></th>
@@ -120,9 +120,9 @@
 
 
  						        <td>
-                                   <a asp-controller="Items" asp-action="Edit" title="Click this to edit" class="padding-for-actions" asp-route-id="@inventory.Id"> Edit </a> 
-                                    <a asp-action="Index" asp-controller="OrderItems" title="Click this to go to details" class="padding-for-actions"  asp-route-ItemID="@inventory.Item.ID"> Details  </a> 
-                                    <a asp-controller="Items" asp-action="Delete" title="Click this to delete" class="padding-for-actions" asp-route-id="@inventory.Item.ID">Delete</a> 
+                                   <a asp-controller="Items" asp-action="Edit" title="Click this to edit" class="padding-for-actions" asp-route-id="@inventory.Id"> Edit </a> |
+                                   <a asp-action="Index" asp-controller="OrderItems" title="Click this to go to details" class="padding-for-actions"  asp-route-ItemID="@inventory.Item.ID"> Details   </a> |
+                                   <a asp-controller="Items" asp-action="Delete" title="Click this to archive the item" class="padding-for-actions" asp-route-id="@inventory.Item.ID">Archive </a> 
 
                                     </td>
                                 </tr>

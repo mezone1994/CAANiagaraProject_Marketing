@@ -13,8 +13,8 @@
     <hr />
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="Id" />
-    <div class="row">
-        <div class="col-md-8">
+    <div class="deimage2">
+        <div class="col-md-12">
             <div class="form-group">
                 <label asp-for="UserName" class="control-label"></label>
                 <input asp-for="UserName" class="form-control" readonly="readonly"/>
@@ -45,14 +45,9 @@
                         @:</tr>
                         }
                     </table>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    <input type="submit" id="btnSubmit" value="Save" class="btn btn-primary" />
-                    <div class="tooltip"> <a href="~/UserRoles" > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
+                    </br>
+                     <input type="submit" id="btnSubmit" title="Click here to save the changes" value="Save" class="btn btn-primary" />
+                    <div class="tooltip"> <a href="~/UserRoles" > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div><br/>
                 </div>
             </div>
         </div>

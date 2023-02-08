@@ -7,13 +7,12 @@
 <div class="deimage">
 <h2>Add Order for: @ViewData["ItemName"]</h2>
 <hr />
-    <div class="col-md-8">
         <form asp-action="Add">
             <input type="hidden" name="ItemID" value="@Model.ItemID" />
             <input type="hidden" name="ItemName" value="@ViewData["ItemName"]" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="row">
-                <div class="col-md-8">
+            <div class="deimage2">
+                <div class="col-md-12">
 
                     <div class="form-group">
                         <label asp-for="Quantity" class="control-label"></label>
@@ -37,16 +36,17 @@
                     </div>
 
                     <div class="form-group">
-                        <input type="submit" value="Create" class="btn btn-primary" />
+                        </br>
+                        <input type="submit" title="Click this to create" value="Create" class="btn btn-primary" /> |
+                          <div class="tooltip"> <a href="javascript:history.back()"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back To Inventory</span></a> </div>
                     </div>
 
                 </div>
             </div>
 
         </form>
-        <div class="tooltip"> <a href="javascript:history.back()"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back To Inventory</span></a> </div>
+      
     </div>
-</div>
 </div>
 @section Scripts {
     @{

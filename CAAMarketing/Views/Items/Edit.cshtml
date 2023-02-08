@@ -80,6 +80,17 @@
                     <select asp-for="SupplierID" class="form-control" asp-items="ViewBag.SupplierID"></select>
                     <span asp-validation-for="SupplierID" class="text-danger"></span>
                 </div>
+                <div class="cols">
+                    <label asp-for="Cost" class="control-label"></label>
+                    <input asp-for="Cost" class="form-control" />
+                    <span asp-validation-for="Cost" class="text-danger"></span>
+                </div>
+                
+                <div class="cols">
+                    <label asp-for="Quantity" class="control-label"></label>
+                    <input asp-for="Quantity" class="form-control" />
+                    <span asp-validation-for="Quantity" class="text-danger"></span>
+                </div>
                 <h1></h1>
                 <div class="cols">
                     <label class="control-label custom-file-label">Picture File:</label>
@@ -89,8 +100,8 @@
                     </div>
 
                 <div class="cols">
-                    <label for="sub" >Buttons </label><br/>
-                    <input type="submit" value="Save" class="btn btn-primary" id="sub"/>
+                   @* <label for="sub" >Buttons </label>*@<br/>
+                    <input type="submit" value="Save" title="Click here to save the changes" class="btn btn-primary" id="sub"/>
                     <div class="tooltip"> <a asp-controller="Inventories" asp-action="Index" asp-route-id="@Model.ID" > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
 
                 </div>

@@ -58,5 +58,14 @@ namespace CAAMarketing.Models
         public bool Archived { get; set; } = false;
 
         public ICollection<Order> Orders { get; set; }
+
+        [Display(Name = "Cost")]
+        [Required(ErrorMessage = "You must enter a cost.")]
+        [DataType(DataType.Currency)]
+        public decimal Cost { get; set; }
+
+        [Display(Name = "Quantity")]
+        [Required(ErrorMessage = "You must enter a quantity.")]
+        public int Quantity { get; set; }
     }
 }

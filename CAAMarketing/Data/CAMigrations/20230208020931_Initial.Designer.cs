@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CAAMarketing.Data.CAMigrations
 {
     [DbContext(typeof(CAAContext))]
-    [Migration("20230207030448_Initial")]
+    [Migration("20230208020931_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -366,6 +366,9 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<int>("CategoryID")
                         .HasColumnType("INTEGER");
 
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
@@ -397,6 +400,9 @@ namespace CAAMarketing.Data.CAMigrations
                         .IsRequired()
                         .HasMaxLength(4000)
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -687,6 +693,44 @@ namespace CAAMarketing.Data.CAMigrations
                     b.HasKey("ID");
 
                     b.ToTable("Suppliers");
+                });
+
+            modelBuilder.Entity("CAAMarketing.ViewModels.InventoryReportVM", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateReceived")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ItemName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Supplier")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UPC")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.ToView("InventoryReports");
                 });
 
             modelBuilder.Entity("CAAMarketing.Models.Archive", b =>

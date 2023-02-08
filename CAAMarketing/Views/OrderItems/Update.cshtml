@@ -11,8 +11,8 @@
     <form asp-action="Update">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <input type="hidden" asp-for="ID" />
-        <div class="row">
-            <div class="col-md-7">
+        <div class="deimage2">
+            <div class="col-md-12">
                 <input type="hidden" name="ItemID" value="@Model.ItemID" />
                 <div class="form-group">
                     <label asp-for="Quantity" class="control-label"></label>
@@ -35,15 +35,17 @@
                     <span asp-validation-for="Cost" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <input type="submit" value="Save" class="btn btn-primary" />
+                    </br>
+                    <input type="submit" title="Click this to save" value="Save" class="btn btn-primary" /> |
+                     <a href='@ViewData["returnURL"]' title="Click this to go back to the item details" class="padding-for-actions div-back">Back</a> | 
+        <a asp-controller="OrderItems" title="Click this to go back the Inventory List" class="padding-for-actions div-back" asp-action="Index" class="">Back to Inventory</a>
                 </div>
             </div>
         </div>
     </form>
 
 
-        <a href='@ViewData["returnURL"]' title="Click this to go back to the item details" class="padding-for-actions div-back">Back</a> | 
-        <a asp-controller="OrderItems" title="Click this to go to the Inventory List" class="padding-for-actions div-back" asp-action="Index" class="">Back to Inventory</a>
+       
 
    
 </div>

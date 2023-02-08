@@ -11,16 +11,16 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
 <figure class="row">
     <p class="col-auto">
         @{
-            if (item.ItemThumbNail?.Content != null)
-            {
-                string imageBase64 = Convert.ToBase64String(item.ItemThumbNail.Content);
-                string imageSrc = string.Format("data:" + item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
-                <img src="@imageSrc" alt="Profile Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid rounded" />
-            }
-            else
-            {
-                <img src="~/images/image-not-found.png" style="max-height: 80px; max-width: 96px" class="img-fluid rounded" />
-            }
+                if (item.ItemThumbNail?.Content != null)
+                {
+                    string imageBase64 = Convert.ToBase64String(item.ItemThumbNail.Content);
+                    string imageSrc = string.Format("data:" + item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
+                    <img src="@imageSrc" alt="Profile Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid rounded" />
+                }
+                else
+                {
+                    <img src="~/images/image-not-found .png" style="max-height: 200px; max-width: 200px" class="img-fluid rounded" />
+                }
         }
     </p>
     <figcaption class="col mt-3"><h3><text class="d-none d-sm-inline">Item: </text>@item.Name</h3></figcaption>
@@ -58,7 +58,25 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
             </dt>
             <dd class="col-sm-9">
                 @Html.DisplayFor(model => item.UPC)
-            </dd>
+          
+
+        </dl>
+    </div>
+    <div class="col-6">
+        <dl class="row">
+              </dd>
+                <dt class="col-sm-3">
+                    @Html.DisplayNameFor(model => item.Cost):
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => item.Cost)
+                </dd>
+                <dt class="col-sm-3">
+                    @Html.DisplayNameFor(model => item.Quantity):
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => item.Quantity)
+                </dd>
             <dt class="col-sm-3">
                 @Html.DisplayNameFor(model => item.DateReceived):
             </dt>
@@ -71,11 +89,6 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
             <dd class="col-sm-9">
                 @Html.DisplayFor(model => item.Supplier.Name)
             </dd>
-
-        </dl>
-    </div>
-    <div class="col-6">
-        <dl class="row">
             <dt class="col-sm-3">
                 Employee:
             </dt>

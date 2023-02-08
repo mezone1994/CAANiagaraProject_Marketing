@@ -183,6 +183,8 @@ namespace CAAMarketing.Data.CAMigrations
                     CategoryID = table.Column<int>(type: "INTEGER", nullable: false),
                     EmployeeID = table.Column<int>(type: "INTEGER", nullable: false),
                     Archived = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Cost = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Quantity = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),

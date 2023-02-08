@@ -41,8 +41,8 @@
             </dd>
         </dl>
     </div>
-    <div>
-        <div class="tooltip"> <a asp-action="Edit" asp-route-id="@Model.ID"> <img src="~/images/icons8-edit-24.png" alt="Edit Icon" /> <span class="tooltiptext">Edit</span></a> </div> |
+    <div> 
+         <a asp-action="Edit" title="Click this to edit" asp-route-id="@Model.ID" class="padding-for-actions div-back">Edit </a> |
         <div class="tooltip"> <a asp-controller="Orders" asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back</span></a> </div>
     </div>
 </div>

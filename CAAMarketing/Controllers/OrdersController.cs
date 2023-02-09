@@ -282,6 +282,7 @@ namespace CAAMarketing.Controllers
                         if (newInventoryQuantity > 0)
                         {
                             inventory.Quantity = newInventoryQuantity;
+                            inventory.Cost = orderToUpdate.Cost;
                         }
                         else
                         {
@@ -366,15 +367,38 @@ namespace CAAMarketing.Controllers
             {
                 return Problem("Entity set 'CAAContext.Orders'  is null.");
             }
-            var order = await _context.Orders.FindAsync(id);
-            if (order != null)
+            var order = await _context.Orders
+              .Include(o => o.Item)
+              .FirstOrDefaultAsync(m => m.ID == id);
+
+            try
             {
+                var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == order.ItemID);
+                if (inventory != null)
+                {
+                    var newInventoryQuantity = inventory.Quantity - order.Quantity;
+                    if (newInventoryQuantity > 0)
+                    {
+                        inventory.Quantity = newInventoryQuantity;
+                        _context.Inventories.Update(inventory);
+                    }
+                    else
+                    {
+                        _context.Inventories.Remove(inventory);
+                    }
+                }
+
                 _context.Orders.Remove(order);
+                await _context.SaveChangesAsync();
+                return Redirect(ViewData["returnURL"].ToString());
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem " +
+                    "persists see your system administrator.");
             }
 
-            await _context.SaveChangesAsync();
-            //return RedirectToAction(nameof(Index));
-            return Redirect(ViewData["returnURL"].ToString());
+            return View(order);
         }
 
         private string ControllerName()

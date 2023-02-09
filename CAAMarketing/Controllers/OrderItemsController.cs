@@ -205,6 +205,21 @@ namespace CAAMarketing.Controllers
                 {
                     _context.Add(order);
                     await _context.SaveChangesAsync();
+
+                    // Get the corresponding inventory item
+                    var inventoryItem = _context.Inventories.Find(order.ItemID);
+                    if (inventoryItem != null)
+                    {
+                        // Update the inventory with the ordered quantity and cost
+                        inventoryItem.Quantity += order.Quantity;
+                        inventoryItem.Cost = order.Cost;
+                        //inventoryItem.Item.DateReceived = order.DeliveryDate.Value;
+
+                        // Save changes to the inventory
+                        _context.Update(inventoryItem);
+                        await _context.SaveChangesAsync();
+                    }
+
                     return RedirectToAction("Index", "OrderItems", new { ItemID = order.ItemID });
                 }
             }
@@ -217,7 +232,6 @@ namespace CAAMarketing.Controllers
             ViewData["ItemName"] = ItemName;
             return View(order);
         }
-
         // GET: orderitems/Update/5
         public async Task<IActionResult> UpdateAsync(int? id)
         {
@@ -256,13 +270,45 @@ namespace CAAMarketing.Controllers
             {
                 return NotFound();
             }
-
+            var oldOrderQuantity = orderToUpdate.Quantity;
             if (await TryUpdateModelAsync<Order>(orderToUpdate, "",
                 o => o.Quantity, o => o.DateMade, o => o.DeliveryDate, o => o.Cost, o => o.ItemID))
             {
                 try
                 {
                     _context.Update(orderToUpdate);
+
+                    var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == orderToUpdate.ItemID);
+                    if (inventory != null)
+                    {
+                        var newInventoryQuantity = inventory.Quantity + (orderToUpdate.Quantity - oldOrderQuantity);
+                        if (newInventoryQuantity > 0)
+                        {
+                            inventory.Quantity = newInventoryQuantity;
+                            inventory.Cost = orderToUpdate.Cost;
+                            //inventory.Item.DateReceived = orderToUpdate.DeliveryDate.Value;
+                        }
+                        else
+                        {
+                            _context.Inventories.Remove(inventory);
+                        }
+                        _context.Update(inventory);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        if (orderToUpdate.Quantity > 0)
+                        {
+                            inventory = new Inventory
+                            {
+                                ItemID = orderToUpdate.ItemID,
+                                Quantity = orderToUpdate.Quantity,
+                                Cost = orderToUpdate.Cost
+                            };
+                            _context.Inventories.Add(inventory);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
                     await _context.SaveChangesAsync();
                     return Redirect(ViewData["returnURL"].ToString());
                 }
@@ -324,6 +370,21 @@ namespace CAAMarketing.Controllers
 
             try
             {
+                var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == order.ItemID);
+                if (inventory != null)
+                {
+                    var newInventoryQuantity = inventory.Quantity - order.Quantity;
+                    if (newInventoryQuantity > 0)
+                    {
+                        inventory.Quantity = newInventoryQuantity;
+                        _context.Inventories.Update(inventory);
+                    }
+                    else
+                    {
+                        _context.Inventories.Remove(inventory);
+                    }
+                }
+
                 _context.Orders.Remove(order);
                 await _context.SaveChangesAsync();
                 return Redirect(ViewData["returnURL"].ToString());
@@ -336,6 +397,7 @@ namespace CAAMarketing.Controllers
 
             return View(order);
         }
+
         private bool OrderExists(int id)
         {
           return _context.Orders.Any(e => e.ID == id);

@@ -30,7 +30,7 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: Inventories
-        public async Task<IActionResult> Index(string SearchString, int? LocationID, bool? LowQty,
+        public async Task<IActionResult> Index(string SearchString, int?[] LocationID, bool? LowQty,
            int? page, int? pageSizeID, string actionButton, string sortDirection = "asc", string sortField = "Item")
         {
             
@@ -61,10 +61,10 @@ namespace CAAMarketing.Controllers
             string[] sortOptions = new[] { "Item", "Location", "Quantity", "Cost" };
 
             //Add as many filters as needed
-            if (LocationID.HasValue)
+            if (LocationID.Length > 0)
             {
-                inventories = inventories.Where(p => p.LocationID == LocationID);
-                ViewData["Filtering"] = " show";
+                inventories = inventories.Where(p => LocationID.Contains(p.LocationID));
+                ViewData["Filtering"] = "btn-danger";
             }
             //if (LowQty.HasValue)
             //{

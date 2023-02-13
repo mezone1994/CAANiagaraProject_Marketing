@@ -415,7 +415,24 @@ public static class CAAInitializer
                             Quantity = rd.Next(10, 999),
                             LocationID = context.Locations.FirstOrDefault(d => d.Name == "Thorold").Id,
                             ItemID = (i + 1)
-                        });
+                        }
+                        ,
+                        new Inventory
+                        {
+                            Cost = rd.Next(10, 99),
+                            Quantity = rd.Next(10, 999),
+                            LocationID = context.Locations.FirstOrDefault(d => d.Name == "St. Catharines").Id,
+                            ItemID = (i + 1)
+                        }
+                        ,
+                        new Inventory
+                        {
+                            Cost = rd.Next(10, 99),
+                            Quantity = rd.Next(10, 999),
+                            LocationID = context.Locations.FirstOrDefault(d => d.Name == "Niagara Falls").Id,
+                            ItemID = (i + 1)
+                        }
+                        );
                 }
 
                 context.SaveChanges();

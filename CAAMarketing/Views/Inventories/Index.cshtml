@@ -18,9 +18,9 @@
         <div class="card card-body">
             <div class="row">
                 <div class="form-group col-md-4">
-                    <label class="control-label">Filter by Location:</label>
-                    @Html.DropDownList("LocationID", null, "All Locations", htmlAttributes: new { @class = "form-control" })
-                </div>
+                        <label class="control-label">Filter by Locations: (Ctrl + click to multiselect)</label>
+                        @Html.ListBox("LocationID", null, htmlAttributes: new { @class = "form-control", @size = 8 })
+                    </div>
                 @*                            <div class="form-group">
                 <label class="control-label">Check Low Quantity Items:</label>
                 @Html.CheckBox("LowQty", null)

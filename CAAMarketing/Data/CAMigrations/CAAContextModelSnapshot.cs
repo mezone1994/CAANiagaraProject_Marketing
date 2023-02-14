@@ -374,7 +374,8 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<DateTime?>("CreatedOn")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("DateReceived")
+                    b.Property<DateTime?>("DateReceived")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")

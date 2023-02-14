@@ -6,10 +6,23 @@ using System.Threading.Tasks;
 
 namespace CAAMarketing.Models
 {
-    public class Order : Auditable
+    public class Order : Auditable, IValidatableObject
     {
         //PROPERTY FIELDS
         public int ID { get; set; }
+
+        //Cost Summary Property
+        [Display(Name = "Cost")]
+        //[DataType(DataType.Currency)]
+        public string CostString 
+        {
+            get
+            {
+                //convert decimal cost to string for ordering to work
+                string newCost = Cost.ToString("C");
+                return newCost;
+            }
+        }
 
         [Required(ErrorMessage = "You Need An Order Quantity!")]
         public int Quantity { get; set; }
@@ -38,5 +51,19 @@ namespace CAAMarketing.Models
         [Display(Name = "Item Name")]
         public Item Item { get; set; }
 
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            //Create a string array containing the one element-the field where our error message should show up.
+            //then you pass this to the ValidaitonResult This is only so the mesasge displays beside the field
+            //instead of just in the validaiton summary.
+            //var field = new[] { "DOB" };
+
+            if (DateMade.GetValueOrDefault() > DateTime.Today)
+            {
+                yield return new ValidationResult("Date Made cannot be in the future.", new[] { "DateMade" });
+            }
+
+        }
     }
 }

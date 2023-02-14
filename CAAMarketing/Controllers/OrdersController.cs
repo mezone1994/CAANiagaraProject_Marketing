@@ -38,7 +38,7 @@ namespace CAAMarketing.Controllers
 
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
-            string[] sortOptions = new[] { "OrderItem", "Quantity", "DateMade", "DeliveryDate" };
+            string[] sortOptions = new[] { "OrderItem", "Quantity", "UPC","Cost", "DateMade", "DeliveryDate" };
 
             var orders = _context.Orders
                 .Include(o => o.Item)
@@ -71,30 +71,56 @@ namespace CAAMarketing.Controllers
             }
 
             //Now we know which field and direction to sort by
-            if (sortField == "DeliveryDate")
+            //if (sortField == "DeliveryDate")
+            //{
+            //    if (sortDirection == "asc")
+            //    {
+            //        orders = orders
+            //            .OrderBy(p => p.DeliveryDate);
+            //    }
+            //    else
+            //    {
+            //        orders = orders
+            //            .OrderByDescending(p => p.DeliveryDate);
+            //    }
+            //}
+            //else if (sortField == "DateMade")
+            //{
+            //    if (sortDirection == "asc")
+            //    {
+            //        orders = orders
+            //            .OrderByDescending(p => p.DateMade);
+            //    }
+            //    else
+            //    {
+            //        orders = orders
+            //            .OrderBy(p => p.DateMade);
+            //    }
+            //}
+            if (sortField == "Cost")
             {
                 if (sortDirection == "asc")
                 {
                     orders = orders
-                        .OrderBy(p => p.DeliveryDate);
+                        .OrderBy(p => p.CostString);
                 }
                 else
                 {
                     orders = orders
-                        .OrderByDescending(p => p.DeliveryDate);
+                        .OrderByDescending(p => p.CostString);
                 }
             }
-            else if (sortField == "DateMade")
+            else if (sortField == "UPC")
             {
                 if (sortDirection == "asc")
                 {
                     orders = orders
-                        .OrderByDescending(p => p.DateMade);
+                        .OrderBy(p => p.Item.UPC);
                 }
                 else
                 {
                     orders = orders
-                        .OrderBy(p => p.DateMade);
+                        .OrderByDescending(p => p.Item.UPC);
                 }
             }
             else if (sortField == "Quantity")
@@ -110,7 +136,7 @@ namespace CAAMarketing.Controllers
                         .OrderByDescending(p => p.Quantity);
                 }
             }
-            else //Sorting by Patient Name
+            else //Sorting by Item Name
             {
                 if (sortDirection == "asc")
                 {

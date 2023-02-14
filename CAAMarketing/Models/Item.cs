@@ -2,7 +2,7 @@
 
 namespace CAAMarketing.Models
 {
-    public class Item : Auditable
+    public class Item : Auditable, IValidatableObject
     {
         public int ID { get; set; }
 
@@ -30,7 +30,8 @@ namespace CAAMarketing.Models
         [Display(Name = "Date Received")]
         [Required(ErrorMessage = "You cannot leave blank.")]
         [DataType(DataType.Date)]
-        public DateTime DateReceived { get; set; }
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public DateTime? DateReceived { get; set; }
 
         public ItemImages ItemImages { get; set; }
 
@@ -67,5 +68,19 @@ namespace CAAMarketing.Models
         [Display(Name = "Quantity")]
         [Required(ErrorMessage = "You must enter a quantity.")]
         public int Quantity { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            //Create a string array containing the one element-the field where our error message should show up.
+            //then you pass this to the ValidaitonResult This is only so the mesasge displays beside the field
+            //instead of just in the validaiton summary.
+            //var field = new[] { "DOB" };
+
+            if (DateReceived.GetValueOrDefault() > DateTime.Today)
+            {
+                yield return new ValidationResult("Date Received cannot be in the future.", new[] { "DateReceived" });
+            }
+
+        }
     }
 }

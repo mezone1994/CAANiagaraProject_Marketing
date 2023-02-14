@@ -58,7 +58,7 @@ namespace CAAMarketing.Controllers
 
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
-            string[] sortOptions = new[] { "Item", "Location", "Quantity", "Cost" };
+            string[] sortOptions = new[] { "Item", "Location", "UPC", "Quantity", "Cost" };
 
             //Add as many filters as needed
             if (LocationID.Length > 0)
@@ -104,30 +104,43 @@ namespace CAAMarketing.Controllers
             }
 
             //Now we know which field and direction to sort by
-            if (sortField == "Costs")
+            //if (sortField == "Costs")
+            //{
+            //    if (sortDirection == "asc")
+            //    {
+            //        inventories = inventories
+            //            .OrderBy(p => p.Cost);
+            //    }
+            //    else
+            //    {
+            //        inventories = inventories
+            //            .OrderByDescending(p => p.Cost);
+            //    }
+            //}
+            if (sortField == "Quantity")
             {
                 if (sortDirection == "asc")
                 {
                     inventories = inventories
-                        .OrderBy(p => p.Cost);
+                        .OrderByDescending(i => i.Quantity);
                 }
                 else
                 {
                     inventories = inventories
-                        .OrderByDescending(p => p.Cost);
+                        .OrderBy(i => i.Quantity);
                 }
             }
-            else if (sortField == "Quantity")
+            else if (sortField == "UPC")
             {
                 if (sortDirection == "asc")
                 {
                     inventories = inventories
-                        .OrderByDescending(p => p.Quantity);
+                        .OrderBy(p => p.Item.UPC);
                 }
                 else
                 {
                     inventories = inventories
-                        .OrderBy(p => p.Quantity);
+                        .OrderByDescending(p => p.Item.UPC);
                 }
             }
             else if (sortField == "Location")
@@ -143,7 +156,7 @@ namespace CAAMarketing.Controllers
                         .OrderByDescending(p => p.Location.Name);
                 }
             }
-            else //Sorting by Patient Name
+            else //Sorting by Item Name
             {
                 if (sortDirection == "asc")
                 {
@@ -440,7 +453,7 @@ namespace CAAMarketing.Controllers
                             Quantity = i.Quantity,
                             Location = i.Location.Name,
                             Supplier = i.Item.Supplier.Name,
-                            DateReceived = i.Item.DateReceived,
+                            DateReceived = (DateTime)i.Item.DateReceived,
                             Notes = i.Item.Notes
                         };
 

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CAAMarketing.Data.CAMigrations
 {
     [DbContext(typeof(CAAContext))]
-    [Migration("20230208020931_Initial")]
+    [Migration("20230214155731_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -376,7 +376,8 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<DateTime?>("CreatedOn")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("DateReceived")
+                    b.Property<DateTime?>("DateReceived")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")

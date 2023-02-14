@@ -57,7 +57,7 @@ namespace CAAMarketing.Controllers
 
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
-            string[] sortOptions = new[] { "Item", "Location", "Quantity", "Cost" };
+            string[] sortOptions = new[] { "Item", "UPC", "Location", "Employee", "Quantity", "Cost" };
 
             //Add as many filters as needed
             if (LocationID.HasValue)
@@ -103,7 +103,7 @@ namespace CAAMarketing.Controllers
             }
 
             //Now we know which field and direction to sort by
-            if (sortField == "Costs")
+            if (sortField == "Cost")
             {
                 if (sortDirection == "asc")
                 {
@@ -114,6 +114,32 @@ namespace CAAMarketing.Controllers
                 {
                     inventories = inventories
                         .OrderByDescending(p => p.Cost);
+                }
+            }
+            else if (sortField == "Employee")
+            {
+                if (sortDirection == "asc")
+                {
+                    inventories = inventories
+                        .OrderByDescending(p => p.Item.Employee.LastName).ThenByDescending(p => p.Item.Employee.FirstName);
+                }
+                else
+                {
+                    inventories = inventories
+                        .OrderBy(p => p.Item.Employee.LastName).ThenBy(p => p.Item.Employee.FirstName);
+                }
+            }
+            else if (sortField == "UPC")
+            {
+                if (sortDirection == "asc")
+                {
+                    inventories = inventories
+                        .OrderBy(p => p.Item.UPC);
+                }
+                else
+                {
+                    inventories = inventories
+                        .OrderByDescending(p => p.Item.UPC);
                 }
             }
             else if (sortField == "Quantity")

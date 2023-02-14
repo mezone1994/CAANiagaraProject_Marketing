@@ -70,13 +70,14 @@
                                 <input type="submit" name="actionButton" value="UPC" title="Click here to sort by UPC" class="btn btn-link" />
                             </th>
                             <th>
-                                <input type="submit" name="Location" value="Location" title="Click here to sort by Locations" class="btn btn-link" />
+                                <input type="submit" name="actionButton" value="Location" title="Click here to sort by Locations" class="btn btn-link" />
                             </th>
                             <th>
                                 <input type="submit" name="actionButton" value="Quantity" title="Click here to sort by Quantity" class="btn btn-link" />
                             </th>
                             <th>
-                                <input type="submit" name="actionButton" value="Cost" title="Click here to sort by Cost" class="btn btn-link" />
+@*                                <input type="submit" name="actionButton" value="Cost" title="Click here to sort by Cost" class="btn btn-link" />
+*@                                @Html.DisplayNameFor(model => model.Cost)
                             </th>
                             @*<th>
                             <input type="submit" name="actionButton" value="DateRecieved" class="btn btn-link" />

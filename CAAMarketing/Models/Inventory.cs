@@ -7,6 +7,19 @@ namespace CAAMarketing.Models
     {
         public int Id { get; set; }
 
+        //Cost Summary Property
+        [Display(Name = "Cost")]
+        //[DataType(DataType.Currency)]
+        public string CostString
+        {
+            get
+            {
+                //convert decimal cost to string for ordering to work
+                string newCost = Cost.ToString("C");
+                return newCost;
+            }
+        }
+
         [Display(Name = "Cost")]
         [Required(ErrorMessage = "You must enter a cost.")]
         [DataType(DataType.Currency)]

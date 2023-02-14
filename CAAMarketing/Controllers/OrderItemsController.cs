@@ -50,7 +50,7 @@ namespace CAAMarketing.Controllers
 
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
-            string[] sortOptions = new[] { "OrderItem", "Quantity", "DateMade", "DeliveryDate" };
+            string[] sortOptions = new[] { "OrderItem", "UPC", "Quantity", "DateMade", "DeliveryDate" };
 
             var orders = _context.Orders
                 .Include(o => o.Item)
@@ -108,6 +108,19 @@ namespace CAAMarketing.Controllers
                 {
                     orders = orders
                         .OrderBy(p => p.DateMade);
+                }
+            }
+            else if (sortField == "UPC")
+            {
+                if (sortDirection == "asc")
+                {
+                    orders = orders
+                        .OrderBy(p => p.Item.UPC);
+                }
+                else
+                {
+                    orders = orders
+                        .OrderByDescending(p => p.Item.UPC);
                 }
             }
             else if (sortField == "Quantity")

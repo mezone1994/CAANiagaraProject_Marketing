@@ -30,7 +30,7 @@ namespace CAAMarketing.Models
         [Required(ErrorMessage = "You Need A Order Date!")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        public DateTime? DateMade { get; set; }
+        public DateTime? DateMade { get; set; } = DateTime.Today;
 
         [Required(ErrorMessage = "You Need A Order Delivery Date!")]
         [DataType(DataType.Date)]
@@ -59,9 +59,14 @@ namespace CAAMarketing.Models
             //instead of just in the validaiton summary.
             //var field = new[] { "DOB" };
 
-            if (DateMade.GetValueOrDefault() > DateTime.Today)
+            if (DateMade.GetValueOrDefault() > DateTime.Today || DateMade.GetValueOrDefault() < DateTime.Today.AddYears(-15))
             {
-                yield return new ValidationResult("Date Made cannot be in the future.", new[] { "DateMade" });
+                yield return new ValidationResult("Date Made cannot be in the Future or 15 years in the past.", new[] { "DateMade" });
+            }
+
+            if (DeliveryDate.GetValueOrDefault() < DateTime.Today.AddYears(-5))
+            {
+                yield return new ValidationResult("Delivery Date cannot be more than 5 years in the past.", new[] { "DeliveryDate" });
             }
 
         }

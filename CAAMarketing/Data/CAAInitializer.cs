@@ -195,7 +195,7 @@ public static class CAAInitializer
                     DateReceived = DateTime.Parse("2022/01/20"),
                     SupplierID = 2,
                     EmployeeID = 3,
-                    
+
                 },
                 new Item
                 {
@@ -296,7 +296,7 @@ public static class CAAInitializer
                     SupplierID = 7,
                     EmployeeID = 1,
                     Archived = true
-                    
+
                 });
                 context.SaveChanges();
             }
@@ -375,7 +375,7 @@ public static class CAAInitializer
                     Quantity = 45,
                     DateMade = DateTime.Now,
                     DeliveryDate = DateTime.Parse("2022/03/20"),
-                    Cost= 45,
+                    Cost = 45,
                     ItemID = context.Items.FirstOrDefault(d => d.Name == "Carry-on Bag Nike").ID
                 },
                 new Order
@@ -413,26 +413,9 @@ public static class CAAInitializer
                         {
                             Cost = rd.Next(10, 99),
                             Quantity = rd.Next(10, 999),
-                            LocationID = context.Locations.FirstOrDefault(d => d.Name == "Thorold").Id,
+                            LocationID = rd.Next(1, 5),
                             ItemID = (i + 1)
-                        }
-                        ,
-                        new Inventory
-                        {
-                            Cost = rd.Next(10, 99),
-                            Quantity = rd.Next(10, 999),
-                            LocationID = context.Locations.FirstOrDefault(d => d.Name == "St. Catharines").Id,
-                            ItemID = (i + 1)
-                        }
-                        ,
-                        new Inventory
-                        {
-                            Cost = rd.Next(10, 99),
-                            Quantity = rd.Next(10, 999),
-                            LocationID = context.Locations.FirstOrDefault(d => d.Name == "Niagara Falls").Id,
-                            ItemID = (i + 1)
-                        }
-                        );
+                        });
                 }
 
                 context.SaveChanges();

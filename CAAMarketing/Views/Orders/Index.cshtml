@@ -60,8 +60,8 @@
                                 <input type="submit" name="actionButton" value="Quantity" class="btn btn-link" title="Click this to sort" />
                             </th>
                             <th>
-                               @* <input type="submit" name="actionButton" value="Cost" class="btn btn-link" title="Click this to sort" />*@
-                                @Html.DisplayNameFor(model => model.Cost)
+                                <input type="submit" name="actionButton" value="Cost" class="btn btn-link" title="Click this to sort" />
+                               @* @Html.DisplayNameFor(model => model.Cost)*@
                             </th>
                             @*                <th>
                             <input type="submit" name="actionButton" value="DateMade" class="btn btn-link" />
@@ -86,7 +86,7 @@
                                     @Html.DisplayFor(modelItem => item.Quantity)
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.CostString)
+                                    @Html.DisplayFor(modelItem => item.Cost)
                                 </td>
                                 @*                    <td>
                             @Html.DisplayFor(modelItem => item.DateMade)

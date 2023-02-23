@@ -102,12 +102,12 @@ namespace CAAMarketing.Controllers
                 if (sortDirection == "asc")
                 {
                     orders = orders
-                        .OrderBy(p => p.CostString);
+                        .OrderBy(p => p.Cost.ToString());
                 }
                 else
                 {
                     orders = orders
-                        .OrderByDescending(p => p.CostString);
+                        .OrderByDescending(p => p.Cost.ToString());
                 }
             }
             else if (sortField == "UPC")

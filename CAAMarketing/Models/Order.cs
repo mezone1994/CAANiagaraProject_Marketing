@@ -11,19 +11,6 @@ namespace CAAMarketing.Models
         //PROPERTY FIELDS
         public int ID { get; set; }
 
-        //Cost Summary Property
-        [Display(Name = "Cost")]
-        //[DataType(DataType.Currency)]
-        public string CostString 
-        {
-            get
-            {
-                //convert decimal cost to string for ordering to work
-                string newCost = Cost.ToString("C");
-                return newCost;
-            }
-        }
-
         [Required(ErrorMessage = "You Need An Order Quantity!")]
         public int Quantity { get; set; }
 
@@ -59,7 +46,7 @@ namespace CAAMarketing.Models
             //instead of just in the validaiton summary.
             //var field = new[] { "DOB" };
 
-            if (DateMade.GetValueOrDefault() > DateTime.Today || DateMade.GetValueOrDefault() < DateTime.Today.AddYears(-15))
+            if ((DateMade.GetValueOrDefault() > DateTime.Today) || (DateMade.GetValueOrDefault() < DateTime.Today.AddYears(-15)))
             {
                 yield return new ValidationResult("Date Made cannot be in the Future or 15 years in the past.", new[] { "DateMade" });
             }
@@ -68,7 +55,6 @@ namespace CAAMarketing.Models
             {
                 yield return new ValidationResult("Delivery Date cannot be more than 5 years in the past.", new[] { "DeliveryDate" });
             }
-
         }
     }
 }

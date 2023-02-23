@@ -108,12 +108,12 @@ namespace CAAMarketing.Controllers
                 if (sortDirection == "asc")
                 {
                     inventories = inventories
-                        .OrderBy(p => p.Cost);
+                        .OrderBy(p => p.Cost.ToString());
                 }
                 else
                 {
                     inventories = inventories
-                        .OrderByDescending(p => p.Cost);
+                        .OrderByDescending(p => p.Cost.ToString());
                 }
             }
             else if (sortField == "Employee")

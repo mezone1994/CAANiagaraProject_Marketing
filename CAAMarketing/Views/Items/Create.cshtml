@@ -1,7 +1,7 @@
 ﻿@model CAAMarketing.Models.Item
 
 @{
-    
+
     ViewData["Title"] = "Create";
 }
 
@@ -28,118 +28,208 @@
         <center><h3>Step 1: </h3></center>
         <h1>Create Item</h1>
         <hr />
-            <div class="row">
-                <div class="col-md-12">
-                    <form asp-action="Create" method="post" enctype="multipart/form-data">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <div class="form-group">
-                            <label asp-for="Name" class="control-label"></label>
-                            <input asp-for="Name" class="form-control" />
-                            <span asp-validation-for="Name" class="text-danger"></span>
+        <div class="row">
+            <div class="col-md-12">
+                <partial name="_addSupplierModal" />
+                <partial name="_addCategoryModal" />
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label"></label>
+                        <textarea asp-for="Description" class="form-control"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Notes" class="control-label"></label>
+                        <textarea asp-for="Notes" class="form-control"></textarea>
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-outline-secondary btn-sm" id="nowAddCategory"
+                                data-bs-toggle="modal" data-bs-target="#addCategoryModal"
+                                type="button">
+                            <strong>Add Category</strong>
+                        </button>
+
+                        <label class="control-label"> Choose Category</label>
+                        <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.CategoryID"></select>
+                        <span asp-validation-for="CategoryID" class="text-danger"></span>
+                        @*@Html.DropDownList("CategoryID", (MultiSelectList)ViewBag.CategoryID, new { @size = 10, @class = "form-control" })*@
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="UPC" class="control-label"></label>
+                        <input asp-for="UPC" class="form-control" />
+                        <span asp-validation-for="UPC" class="text-danger"></span>
+                    </div>
+                    <div class="cols">
+                        <button class="btn btn-outline-secondary btn-sm" id="nowAddSupplier"
+                                data-bs-toggle="modal" data-bs-target="#addSupplierModal"
+                                type="button">
+                            <strong>Add Supplier</strong>
+                        </button>
+
+                        <label class="control-label"> Choose Supplier</label>
+                        <select asp-for="SupplierID" class="form-control" asp-items="ViewBag.SupplierID"></select>
+                        <span asp-validation-for="SupplierID" class="text-danger"></span>
+                        @*@Html.DropDownList("SupplierID", (MultiSelectList)ViewBag.SupplierID, new { @size = 10, @class = "form-control" })*@
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label custom-file-label">Picture File:</label>
+                        <div class="input-group mb-3">
+                            <input type="file" class="form-control" name="thePicture" id="thePicture">
                         </div>
-                        <div class="form-group">
-                            <label asp-for="Description" class="control-label"></label>
-                            <textarea asp-for="Description" class="form-control"></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Notes" class="control-label"></label>
-                            <textarea asp-for="Notes" class="form-control"></textarea>
-                            <span asp-validation-for="Notes" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="CategoryID" class="control-label"></label>
-                            <select asp-for="CategoryID" class ="form-control" asp-items="ViewBag.CategoryID"></select>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="UPC" class="control-label"></label>
-                            <input asp-for="UPC" class="form-control" />
-                            <span asp-validation-for="UPC" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="SupplierID" class="control-label"></label>
-                            <select asp-for="SupplierID" class ="form-control" asp-items="ViewBag.SupplierID"></select>
-                        </div>
-                         <div class="form-group">
-                                <label class="control-label custom-file-label">Picture File:</label>
-                                <div class="input-group mb-3">
-                                  <input type="file" class="form-control" name="thePicture" id="thePicture">
-                                </div>
-                            </div>
-                    
-                        <div class="form-group">
-                            <input type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-primary" />
                         <div class="tooltip"> <a asp-controller="Inventories" asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Exit Icon" /> <span class="tooltiptext">Exit</span></a> </div>
-                        </div>
-                    </form>
-        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div> 
+</div>
 
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/multiselect.js"></script>
+    <script src="~/js/refreshDDL.js"></script>
+    @*For Supplier Create , to create new supplier on the fly*@
+    <script type="text/javascript">
+        $('#submitSupplierCreate').click(function (event) {
+            event.preventDefault();
+            var form = $('#createSupplierForm');
+            if (form.valid()) {
+                $.ajax({
+                    type: "POST",
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function () {
+                        $('#addSupplierModal').modal('hide');
+                    },
+                    error: function () {
+                        alert("Create Failed.  There was a problem adding the record.");
+                    }
+                });
+            }
+            return false;
+        });
+        $('#addSupplierModal').on('hide.bs.modal', function () {
+            $('#createSupplierForm').find("input[type=text], textarea, select").val("");//to clear the data in the popup
+            //This will be a comma separated list of the keys of the selected options and
+            //we will pass it as a QueryString parameter when we get the new data
+            var qstring = "";
+            //Get the collection of currently selected options
+            var skipData = $("#selectedOptions option");
+            $.each(skipData, function () {
+                qstring += $(this).val() + ",";
+            });
+            var URI = "/Items/GetSuppliers?skip=" + qstring.substring(0, qstring.length - 1);
+            refreshDDL("SupplierID", URI, true, "No Data Available", false, null, false);
+        });
+    </script>
+
+    <script type="text/javascript">
+        @*For Category Create , to create new supplier on the fly*@
+            $('#submitCategoryCreate').click(function (event) {
+                event.preventDefault();
+                var form = $('#createCategoryForm');
+                if (form.valid()) {
+                    $.ajax({
+                        type: "POST",
+                        url: form.attr('action'),
+                        data: form.serialize(),
+                        success: function () {
+                            $('#addCategoryModal').modal('hide');
+                        },
+                        error: function () {
+                            alert("Create Failed.  There was a problem adding the record.");
+                        }
+                    });
+                }
+                return false;
+            });
+        $('#addCategoryModal').on('hide.bs.modal', function () {
+            $('#createCategoryForm').find("input[type=text], textarea, select").val("");//to clear the data in the popup
+            //This will be a comma separated list of the keys of the selected options and
+            //we will pass it as a QueryString parameter when we get the new data
+            var qstring = "";
+            //Get the collection of currently selected options
+            var skipData = $("#selectedOptions option");
+            $.each(skipData, function () {
+                qstring += $(this).val() + ",";
+            });
+            var URI = "/Items/GetCategories?skip=" + qstring.substring(0, qstring.length - 1);
+            refreshDDL("CategoryID", URI, true, "No Data Available", false, null, false);
+        });
+    </script>
 }
 
+<style>
+    .container {
+        width: 100%;
+    }
 
-    <style>
-        .container {
-            width: 100%;
+    .progressbar {
+        counter-reset: step;
+    }
+
+        .progressbar li {
+            list-style: none;
+            display: inline-block;
+            width: 30.33%;
+            position: relative;
+            text-align: center;
+            cursor: pointer;
         }
 
-        .progressbar {
-            counter-reset: step;
-        }
-
-            .progressbar li {
-                list-style: none;
-                display: inline-block;
-                width: 30.33%;
-                position: relative;
+            .progressbar li:before {
+                content: counter(step);
+                counter-increment: step;
+                width: 30px;
+                height: 30px;
+                line-height: 30px;
+                border: 1px solid #ddd;
+                border-radius: 100%;
+                display: block;
                 text-align: center;
-                cursor: pointer;
+                margin: 0 auto 10px auto;
+                background-color: #fff;
             }
 
-                .progressbar li:before {
-                    content: counter(step);
-                    counter-increment: step;
-                    width: 30px;
-                    height: 30px;
-                    line-height: 30px;
-                    border: 1px solid #ddd;
-                    border-radius: 100%;
-                    display: block;
-                    text-align: center;
-                    margin: 0 auto 10px auto;
-                    background-color: #fff;
+            .progressbar li:after {
+                content: "";
+                position: absolute;
+                width: 100%;
+                height: 1px;
+                background-color: #ddd;
+                top: 15px;
+                left: -50%;
+                z-index: -1;
+            }
+
+            .progressbar li:first-child:after {
+                content: none;
+            }
+
+            .progressbar li.active {
+                color: green;
+            }
+
+                .progressbar li.active:before {
+                    border-color: green;
                 }
 
-                .progressbar li:after {
-                    content: "";
-                    position: absolute;
-                    width: 100%;
-                    height: 1px;
-                    background-color: #ddd;
-                    top: 15px;
-                    left: -50%;
-                    z-index: -1;
+                .progressbar li.active + li:after {
+                    background-color: green;
                 }
-
-                .progressbar li:first-child:after {
-                    content: none;
-                }
-
-                .progressbar li.active {
-                    color: green;
-                }
-
-                    .progressbar li.active:before {
-                        border-color: green;
-                    }
-
-                    .progressbar li.active + li:after {
-                        background-color: green;
-                    }
-
-        }</style>
+</style>

@@ -465,6 +465,56 @@ namespace CAAMarketing.Controllers
 
         }
 
+        //For Adding Supplier
+        [HttpGet]
+        public JsonResult GetSuppliers(string skip)
+        {
+            return Json(SupplierSelectList(skip));
+        }
+        //For Adding Category
+        [HttpGet]
+        public JsonResult GetCategories(string skip)
+        {
+            return Json(CategorySelectList(skip));
+        }
+        //For Adding Supplier
+        private SelectList SupplierSelectList(string skip)
+        {
+            //default query if no values to avoid
+            var SupplierQuery = _context.Suppliers
+                .OrderBy(s => s.Name);
+            if (!String.IsNullOrEmpty(skip))
+            {
+                //Convert the string to an array of integers
+                //so we can make sure we leave them out of the data we download
+                string[] avoidStrings = skip.Split(',');
+                int[] skipKeys = Array.ConvertAll(avoidStrings, s => int.Parse(s));
+                SupplierQuery = _context.Suppliers
+                    .Where(s => !skipKeys.Contains(s.ID))
+                .OrderBy(s => s.Name);
+            }
+            return new SelectList(SupplierQuery, "ID", "Name");
+        }
+        //For Adding Category
+        private SelectList CategorySelectList(string skip)
+        {
+            //default query if no values to avoid
+            var CategoryQuery = _context.Categories
+                .OrderBy(d => d.Name);
+            if (!String.IsNullOrEmpty(skip))
+            {
+                //Convert the string to an array of integers
+                //so we can make sure we leave them out of the data we download
+                string[] avoidStrings = skip.Split(',');
+                int[] skipKeys = Array.ConvertAll(avoidStrings, s => int.Parse(s));
+                CategoryQuery = _context.Categories
+                    .Where(s => !skipKeys.Contains(s.Id))
+                .OrderBy(c => c.Name);
+            }
+            return new SelectList(CategoryQuery, "Id", "Name");
+        }
+
+
         private string ControllerName()
         {
             return this.ControllerContext.RouteData.Values["controller"].ToString();

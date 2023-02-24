@@ -1,0 +1,17 @@
+﻿<!-- Modal-->
+<div class="modal fade" id="addSupplierModal" tabindex="-1" role="dialog" aria-labelledby="SupplierModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="SuppliermyModalLabel">Add New Supplier</h4>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                @{
+                    var s = new CAAMarketing.Models.Supplier();
+                    <partial name="_SupplierCreate" model="s" />
+                }
+            </div>
+        </div>
+    </div>
+</div>

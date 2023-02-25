@@ -69,12 +69,12 @@
                         <strong>Add Category</strong>
                     </button>
 
-                    <label class="control-label"> Choose Category</label>
-                    <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.CategoryID"></select>
+                    <label class="control-label">Choose Category</label>
+                    <select asp-for="CategoryID" id="catOptions" class="form-control" asp-items="ViewBag.CategoryID"></select>
                     <span asp-validation-for="CategoryID" class="text-danger"></span>
-                   @* @Html.DropDownList("CategoryID", (MultiSelectList)ViewBag.CategoryID, new { @size = 10, @class = "form-control" })
+                    @*@Html.ListBox("catOptions", (MultiSelectList)ViewBag.CategoryID, new { @size = 10, @class = "form-control" })*@
                 </div>
-                <div class="cols">*@
+                <div class="cols">
                     <label asp-for="UPC" class="control-label"></label>
                     <input asp-for="UPC" class="form-control" />
                     <span asp-validation-for="UPC" class="text-danger"></span>
@@ -91,10 +91,10 @@
                         <strong>Add Supplier</strong>
                     </button>
                     
-                    <label class="control-label"> Choose Supplier</label>
-                    <select asp-for="SupplierID" class="form-control" asp-items="ViewBag.SupplierID"></select>
+                    <label class="control-label">Choose Supplier</label>
+                    <select asp-for="SupplierID" id="supOptions" class="form-control" asp-items="ViewBag.SupplierID"></select>
                     <span asp-validation-for="SupplierID" class="text-danger"></span>
-                    @*@Html.DropDownList("SupplierID", (MultiSelectList)ViewBag.SupplierID, new { @size = 10, @class = "form-control" })*@
+                    @*@Html.ListBox("supOptions", (MultiSelectList)ViewBag.SupplierID, new { @size = 10, @class = "form-control" })*@
                 </div>
                 <div class="cols">
                     <label asp-for="Cost" class="control-label"></label>
@@ -131,8 +131,8 @@
 
     <script src="~/js/multiselect.js"></script>
     <script src="~/js/refreshDDL.js"></script>
-    @*For Supplier Create , to create new supplier on the fly*@
-    <script type="text/javascript">
+    <script type="text/javascript">     
+        //For Supplier Create , to create new supplier on the fly
         $('#submitSupplierCreate').click(function (event) {
             event.preventDefault();
             var form = $('#createSupplierForm');
@@ -143,6 +143,10 @@
                     data: form.serialize(),
                     success: function () {
                         $('#addSupplierModal').modal('hide');
+                        //// Refresh the DDL after the modal is hidden
+                        //refreshDDL('SupplierID', '/Items/Edit', {param1: 'value1', param2: 'value2'}, function(result) {
+                        //console.log('DDL refreshed successfully!');
+                    });
                     },
                     error: function () {
                         alert("Create Failed.  There was a problem adding the record.");
@@ -157,17 +161,15 @@
             //we will pass it as a QueryString parameter when we get the new data
             var qstring = "";
             //Get the collection of currently selected options
-            var skipData = $("#selectedOptions option");
+            var skipData = $("#supOptions option");
             $.each(skipData, function () {
                 qstring += $(this).val() + ",";
             });
             var URI = "/Items/GetSuppliers?skip=" + qstring.substring(0, qstring.length - 1);
-            refreshDDL("SupplierID", URI, true, "No Data Available", false, null, false);
+            refreshDDL("supOptions", URI, true, "No Data Available", false, null, false);
         });
-    </script>
-
-    <script type="text/javascript">
-        @*For Category Create , to create new supplier on the fly*@
+        
+        //For Category Create , to create new Category on the fly
         $('#submitCategoryCreate').click(function (event) {
             event.preventDefault();
             var form = $('#createCategoryForm');
@@ -192,12 +194,12 @@
             //we will pass it as a QueryString parameter when we get the new data
             var qstring = "";
             //Get the collection of currently selected options
-            var skipData = $("#selectedOptions option");
+            var skipData = $("#catOptions option");
             $.each(skipData, function () {
                 qstring += $(this).val() + ",";
             });
             var URI = "/Items/GetCategories?skip=" + qstring.substring(0, qstring.length - 1);
-            refreshDDL("CategoryID", URI, true, "No Data Available", false, null, false);
+            refreshDDL("catOptions", URI, true, "No Data Available", false, null, false);
         });
     </script>
 }

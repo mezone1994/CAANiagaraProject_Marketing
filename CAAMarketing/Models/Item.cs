@@ -48,6 +48,7 @@ namespace CAAMarketing.Models
 
         [Display(Name = "Category")]
         [Required(ErrorMessage = "You cannot leave it blank.")]
+
         public int CategoryID { get; set; }
         public Category Category { get; set; }
 

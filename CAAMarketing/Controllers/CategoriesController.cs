@@ -130,13 +130,21 @@ namespace CAAMarketing.Controllers
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
 
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(category);
-                await _context.SaveChangesAsync();
-                //return RedirectToAction(nameof(Index));
-                return RedirectToAction("Details", new { category.Name });
+                if (ModelState.IsValid)
+                {
+                    _context.Add(category);
+                    await _context.SaveChangesAsync();
+                    //return RedirectToAction(nameof(Index));
+                    //return RedirectToAction("Details", new { category.Name });
+                    return Redirect(ViewData["returnURL"].ToString());
 
+                }
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
             }
             return View(category);
         }

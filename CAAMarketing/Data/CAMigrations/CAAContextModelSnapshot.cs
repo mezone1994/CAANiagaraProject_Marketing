@@ -803,7 +803,7 @@ namespace CAAMarketing.Data.CAMigrations
             modelBuilder.Entity("CAAMarketing.Models.Item", b =>
                 {
                     b.HasOne("CAAMarketing.Models.Category", "Category")
-                        .WithMany()
+                        .WithMany("Items")
                         .HasForeignKey("CategoryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -888,6 +888,11 @@ namespace CAAMarketing.Data.CAMigrations
                         .IsRequired();
 
                     b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("CAAMarketing.Models.Category", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("CAAMarketing.Models.Employee", b =>

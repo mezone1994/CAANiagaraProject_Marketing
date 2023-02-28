@@ -210,10 +210,9 @@ namespace CAAMarketing.Controllers
             var email = User.Identity.Name;
 
             var employee = _context.Employees.FirstOrDefault(e => e.Email == email);
+            item.EmployeeID = employee.ID;
+            item.DateReceived = DateTime.Now;
 
-            if (ModelState.IsValid)
-            {
-                item.EmployeeID = employee.ID;
 
                 //item.EmployeeID = 1;
                 _context.Add(item);
@@ -233,12 +232,15 @@ namespace CAAMarketing.Controllers
                 catch { }
 
 
-                //return RedirectToAction(nameof(Index));
-                //return RedirectToAction("Details", new { item.ID });
-                return RedirectToAction("Create", "Orders", new { id = item.ID });
+            ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name", item.CategoryID);
+            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name", item.SupplierID);
+
+            //return RedirectToAction(nameof(Index));
+            //return RedirectToAction("Details", new { item.ID });
+            return RedirectToAction("Create", "Orders", new { id = item.ID });
 
 
-            }
+            
 
             //if (ModelState.IsValid)
             //{
@@ -254,9 +256,6 @@ namespace CAAMarketing.Controllers
             //    catch { }
             //}
 
-            ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name", item.CategoryID);
-            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name", item.SupplierID);
-            return View(item);
         }
 
         // GET: Items/Edit/5
@@ -467,51 +466,29 @@ namespace CAAMarketing.Controllers
 
         //For Adding Supplier
         [HttpGet]
-        public JsonResult GetSuppliers(string skip)
+        public JsonResult GetSuppliers(int? id)
         {
-            return Json(SupplierSelectList(skip));
+            return Json(SupplierSelectList(id));
         }
         //For Adding Category
         [HttpGet]
-        public JsonResult GetCategories(string skip)
+        public JsonResult GetCategories(int? id)
         {
-            return Json(CategorySelectList(skip));
+            return Json(CategorySelectList(id));
         }
         //For Adding Supplier
-        private SelectList SupplierSelectList(string skip)
+        private SelectList SupplierSelectList(int? selectedId)
         {
-            //default query if no values to avoid
-            var SupplierQuery = _context.Suppliers
-                .OrderBy(s => s.Name);
-            if (!String.IsNullOrEmpty(skip))
-            {
-                //Convert the string to an array of integers
-                //so we can make sure we leave them out of the data we download
-                string[] avoidStrings = skip.Split(',');
-                int[] skipKeys = Array.ConvertAll(avoidStrings, s => int.Parse(s));
-                SupplierQuery = _context.Suppliers
-                    .Where(s => !skipKeys.Contains(s.ID))
-                .OrderBy(s => s.Name);
-            }
-            return new SelectList(SupplierQuery, "ID", "Name");
+            return new SelectList(_context
+                .Suppliers
+                .OrderBy(c => c.Name), "ID", "Name", selectedId);
         }
         //For Adding Category
-        private SelectList CategorySelectList(string skip)
+        private SelectList CategorySelectList(int? selectedId)
         {
-            //default query if no values to avoid
-            var CategoryQuery = _context.Categories
-                .OrderBy(d => d.Name);
-            if (!String.IsNullOrEmpty(skip))
-            {
-                //Convert the string to an array of integers
-                //so we can make sure we leave them out of the data we download
-                string[] avoidStrings = skip.Split(',');
-                int[] skipKeys = Array.ConvertAll(avoidStrings, s => int.Parse(s));
-                CategoryQuery = _context.Categories
-                    .Where(s => !skipKeys.Contains(s.Id))
-                .OrderBy(c => c.Name);
-            }
-            return new SelectList(CategoryQuery, "Id", "Name");
+            return new SelectList(_context
+                .Categories
+                .OrderBy(c=>c.Name), "Id", "Name", selectedId);
         }
 
 

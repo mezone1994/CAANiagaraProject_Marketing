@@ -1,4 +1,6 @@
 ﻿@model CAAMarketing.Models.Category
+@*<a asp-controller="OrderItems" asp-action="Add" asp-route-ItemID="@item.ID"
+                                asp-route-PatientName="@item.Name">*@
 <form asp-action="Create" asp-controller="Categories" method="post" id="createCategoryForm">
     <div class="row">
         <div class="col-md-12">
@@ -10,7 +12,7 @@
             </div>
             <br />
             <div class="form-group">
-                <input type="submit" id="submitCategoryCreate" value="Save" class="btn btn-outline-dark" />
+                <input type="submit" id="submitCategoryCreate" value="Create" class="btn btn-outline-dark" />
             </div>
         </div>
     </div>

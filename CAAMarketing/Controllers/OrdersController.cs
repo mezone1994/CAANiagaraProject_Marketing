@@ -209,7 +209,7 @@ namespace CAAMarketing.Controllers
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
-
+            Order newOrder = new Order();
             if (ModelState.IsValid)
             {
                 // Check if item already exists in items table
@@ -220,8 +220,16 @@ namespace CAAMarketing.Controllers
                     item = new Item { ID = order.ItemID };
                     _context.Add(item);
                 }
+                newOrder.ItemID = order.ItemID;
+                newOrder.Cost = order.Cost;
+                newOrder.DateMade = order.DateMade;
+                newOrder.DeliveryDate = order.DeliveryDate;
+                newOrder.CreatedBy = order.CreatedBy;
+                newOrder.UpdatedBy = order.UpdatedBy;
+                newOrder.UpdatedOn = order.UpdatedOn;
+                newOrder.EmployeeNameUser = order.EmployeeNameUser;
                 // Add order to orders table
-                _context.Add(order);
+                _context.Add(newOrder);
                 await _context.SaveChangesAsync();
 
                 var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == order.ItemID);
@@ -231,7 +239,6 @@ namespace CAAMarketing.Controllers
                     inventory.Cost = order.Cost;
                     inventory.Item.DateReceived = order.DeliveryDate.Value;
                     _context.Update(inventory);
-
                     await _context.SaveChangesAsync();
                 }
                 else
@@ -242,7 +249,7 @@ namespace CAAMarketing.Controllers
                     await _context.SaveChangesAsync();
                 }
                 // return RedirectToAction(nameof(Index));
-
+                ViewBag.Message = "This is a message from Controller 1.";
                 //Send on to add orders
                 return RedirectToAction("Index", "OrderItems", new { ItemID = order.ItemID });
                 //return RedirectToAction("Details", new { order.ID });

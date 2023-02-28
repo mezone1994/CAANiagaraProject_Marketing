@@ -49,34 +49,32 @@
                         <textarea asp-for="Notes" class="form-control"></textarea>
                         <span asp-validation-for="Notes" class="text-danger"></span>
                     </div>
+                    
+                        <label class="control-label">Choose Category</label>
+                            <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.CategoryID">
+                                <option value="">None</option>
+                            </select>
                     <div class="form-group">
-                        <button class="btn btn-outline-secondary btn-sm" id="nowAddCategory"
-                                data-bs-toggle="modal" data-bs-target="#addCategoryModal"
-                                type="button">
+                        <button class="btn btn-outline-secondary" id="nowAddCategory" data-bs-toggle="modal" data-bs-target="#addCategoryModal" type="button">
                             <strong>Add Category</strong>
                         </button>
-
-                        <label class="control-label">Choose Category</label>
-                        <select asp-for="CategoryID" id="catOptions" class="form-control" asp-items="ViewBag.CategoryID"></select>
-                        <span asp-validation-for="CategoryID" class="text-danger"></span>
-                @*        @Html.DropDownList("catOptions", (MultiSelectList)ViewBag.CategoryID, new { @size = 10, @class = "form-control" })*@
+                        
                     </div>
                     <div class="form-group">
                         <label asp-for="UPC" class="control-label"></label>
                         <input asp-for="UPC" class="form-control" />
                         <span asp-validation-for="UPC" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <button class="btn btn-outline-secondary btn-sm" id="nowAddSupplier"
-                                data-bs-toggle="modal" data-bs-target="#addSupplierModal"
-                                type="button">
+                   <div class="form-group">
+                        
+                        <label class="control-label">Choose Supplier</label>
+                            <select asp-for="SupplierID" class="form-control" asp-items="ViewBag.SupplierID">
+                                <option value="">None</option>
+                            </select>
+                        <button class="btn btn-outline-secondary" id="nowAddSupplier" data-bs-toggle="modal" data-bs-target="#addSupplierModal" type="button">
                             <strong>Add Supplier</strong>
                         </button>
-
-                        <label class="control-label">Choose Supplier</label>
-                        <select asp-for="SupplierID" id="supOptions" class="form-control" asp-items="ViewBag.SupplierID"></select>
-                        <span asp-validation-for="SupplierID" class="text-danger"></span>
-                   @*     @Html.DropDownList("supOptions", (MultiSelectList)ViewBag.SupplierID, new { @size = 10, @class = "form-control" })*@
+                        
                     </div>
                     <div class="form-group">
                         <label class="control-label custom-file-label">Picture File:</label>
@@ -101,47 +99,9 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-    <script src="~/js/multiselect.js"></script>
     <script src="~/js/refreshDDL.js"></script>
-    <script type="text/javascript">
-        //For Supplier Create , to create new supplier on the fly
-        $('#submitSupplierCreate').click(function (event) {
-            event.preventDefault();
-            var form = $('#createSupplierForm');
-            if (form.valid()) {
-                $.ajax({
-                    type: "POST",
-                    url: form.attr('action'),
-                    data: form.serialize(),
-                    success: function () {
-                        $('#addSupplierModal').modal('hide');
-                        //// Refresh the DDL after the modal is hidden
-                        //refreshDDL('SupplierID', '/Items/Edit', {param1: 'value1', param2: 'value2'}, function(result) {
-                        //console.log('DDL refreshed successfully!');
-                    });
-            },
-            error: function () {
-                alert("Create Failed.  There was a problem adding the record.");
-            }
-        });
-                    }
-        return false;
-                });
-        $('#addSupplierModal').on('hide.bs.modal', function () {
-            $('#createSupplierForm').find("input[type=text], textarea, select").val("");//to clear the data in the popup
-            //This will be a comma separated list of the keys of the selected options and
-            //we will pass it as a QueryString parameter when we get the new data
-            var qstring = "";
-            //Get the collection of currently selected options
-            var skipData = $("#supOptions option");
-            $.each(skipData, function () {
-                qstring += $(this).val() + ",";
-            });
-            var URI = "/Items/GetSuppliers?skip=" + qstring.substring(0, qstring.length - 1);
-            refreshDDL("supOptions", URI, true, "No Data Available", false, null, false);
-        });
 
-        //For Category Create , to create new Category on the fly
+    <script type="text/javascript">
         $('#submitCategoryCreate').click(function (event) {
             event.preventDefault();
             var form = $('#createCategoryForm');
@@ -162,16 +122,32 @@
         });
         $('#addCategoryModal').on('hide.bs.modal', function () {
             $('#createCategoryForm').find("input[type=text], textarea, select").val("");//to clear the data in the popup
-            //This will be a comma separated list of the keys of the selected options and
-            //we will pass it as a QueryString parameter when we get the new data
-            var qstring = "";
-            //Get the collection of currently selected options
-            var skipData = $("#catOptions option");
-            $.each(skipData, function () {
-                qstring += $(this).val() + ",";
-            });
-            var URI = "/Items/GetCategories?skip=" + qstring.substring(0, qstring.length - 1);
-            refreshDDL("catOptions", URI, true, "No Data Available", false, null, false);
+            refreshDDL('CategoryID', '/Items/GetCategories', false, null, true, 'None', true);
+        });
+    </script>
+
+    <script type="text/javascript">
+        $('#submitSupplierCreate').click(function (event) {
+            event.preventDefault();
+            var form = $('#createSupplierForm');
+            if (form.valid()) {
+                $.ajax({
+                    type: "POST",
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function () {
+                        $('#addSupplierModal').modal('hide');
+                    },
+                    error: function () {
+                        alert("Create Failed.  There was a problem adding the record.");
+                    }
+                });
+            }
+            return false;
+        });
+        $('#addSupplierModal').on('hide.bs.modal', function () {
+            $('#createSupplierForm').find("input[type=text], textarea, select").val("");//to clear the data in the popup
+            refreshDDL('SupplierID', '/Items/GetSuppliers', false, null, true, 'None', true);
         });
     </script>
 }

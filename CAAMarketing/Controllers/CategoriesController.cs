@@ -268,6 +268,46 @@ namespace CAAMarketing.Controllers
             return Redirect(ViewData["returnURL"].ToString());
 
         }
+
+
+        //CREATING CATEGORIES FROM ITEMS PAGE //
+        // GET: Categories/Create
+        public IActionResult CreateCategoriesFromItems()
+        {
+
+            return View();
+        }
+
+        // POST: Categories/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateCategoriesFromItems([Bind("Id,Name")] Category category)
+        {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    _context.Add(category);
+                    await _context.SaveChangesAsync();
+                    //return RedirectToAction(nameof(Index));
+                    //return RedirectToAction("Details", new { category.Name });
+                    //return Redirect(ViewData["returnURL"].ToString());
+
+                    ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name");
+
+                }
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
+            }
+            return View(category);
+        }
         private string ControllerName()
         {
             return this.ControllerContext.RouteData.Values["controller"].ToString();
@@ -280,5 +320,8 @@ namespace CAAMarketing.Controllers
         {
             return _context.Category.Any(e => e.Id == id);
         }
+
+
+
     }
 }

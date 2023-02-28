@@ -200,6 +200,7 @@ namespace CAAMarketing.Controllers
                     await _context.SaveChangesAsync();
                     //return RedirectToAction(nameof(Index));
                     return RedirectToAction("Details", new { categToUpdate.Name });
+                    //return Redirect(ViewData["returnURL"].ToString());
 
                 }
                 catch (DbUpdateConcurrencyException)

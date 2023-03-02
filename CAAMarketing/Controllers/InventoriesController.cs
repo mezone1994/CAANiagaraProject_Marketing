@@ -15,6 +15,7 @@ using System.Drawing;
 using NToastNotify;
 using Org.BouncyCastle.Utilities;
 using CAAMarketing.ViewModels;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace CAAMarketing.Controllers
 {
@@ -22,19 +23,21 @@ namespace CAAMarketing.Controllers
     {
         private readonly CAAContext _context;
         private readonly IToastNotification _toastNotification;
+        private readonly INotyfService _itoastNotify;
 
-        public InventoriesController(CAAContext context, IToastNotification toastNotification)
+        public InventoriesController(CAAContext context, IToastNotification toastNotification, INotyfService itoastNotify)
         {
             _context = context;
             _toastNotification = toastNotification;
+            _itoastNotify = itoastNotify;
         }
 
         // GET: Inventories
         public async Task<IActionResult> Index(string SearchString, int?[] LocationID, bool? LowQty,
            int? page, int? pageSizeID, string actionButton, string sortDirection = "asc", string sortField = "Item")
         {
-            
 
+            ViewDataReturnURL();
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
 
@@ -390,21 +393,22 @@ namespace CAAMarketing.Controllers
         }
 
         private void CheckInventoryLevel(List<Inventory> inventories)
+{
+    foreach (var inventory in inventories)
+    {
+        if (inventory.Quantity <= inventory.LowInventoryThreshold)
         {
-            foreach (var inventory in inventories)
-            {
-                if (inventory.Quantity <= inventory.LowInventoryThreshold)
-                {
-                    inventory.IsLowInventory = true;
-                    _toastNotification.AddWarningToastMessage(
-                        $"Inventory for {inventory.Item.Name} at location {inventory.Location.Name} is running low. Current quantity: {inventory.Quantity}");
-                }
-                else
-                {
-                    inventory.IsLowInventory = false;
-                }
-            }
+            inventory.IsLowInventory = true;
+            _toastNotification.AddWarningToastMessage(
+                $@"Inventory for {inventory.Item.Name} at location {inventory.Location.Name} is running low. Current quantity: {inventory.Quantity}
+                <a href='#' onclick='redirectToEdit({inventory.Item.ID}); return false;'>Edit</a>");
         }
+        else
+        {
+            inventory.IsLowInventory = false;
+        }
+    }
+}
 
         public IActionResult InventoryTransfer(int id, InventoryTransfer inventoryTransfer)
         {

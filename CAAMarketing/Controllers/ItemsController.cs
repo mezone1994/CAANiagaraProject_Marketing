@@ -261,8 +261,18 @@ namespace CAAMarketing.Controllers
         // GET: Items/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            //URL with the last filter, sort and page parameters for this controller
-            ViewDataReturnURL();
+            //Clear the sort/filter/paging URL Cookie for Controller
+            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
+
+            //Get the URL with the last filter, sort and page parameters from THE PATIENTS Index View
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Inventories");
+
+
+            if (!id.HasValue)
+            {
+                //Go back to the proper return URL for the Patients controller
+                return Redirect(ViewData["returnURL"].ToString());
+            }
 
             if (id == null || _context.Items == null)
             {
@@ -297,8 +307,9 @@ namespace CAAMarketing.Controllers
         public async Task<IActionResult> Edit(int id, Byte[] RowVersion, string chkRemoveImage, IFormFile thePicture,
             string InvCost, string InvQty)
         {
-            //URL with the last filter, sort and page parameters for this controller
+            //Get the URL with the last filter, sort and page parameters from THE PATIENTS Index View
             ViewDataReturnURL();
+
 
             //Go get the patient to update
             var itemToUpdate = await _context.Items

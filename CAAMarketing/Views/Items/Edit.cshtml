@@ -112,7 +112,8 @@
                 <div class="cols">
                    @* <label for="sub" >Buttons </label>*@<br/>
                     <input type="submit" value="Save" title="Click here to save the changes" class="btn btn-primary" id="sub"/>
-                    <div class="tooltip"> <a asp-controller="Inventories" asp-action="Index" asp-route-id="@Model.ID" > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
+
+                    <div class="tooltip"> <a href='@ViewData["returnURL"]' title="Back" class="padding-for-actions div-back" > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
 
                 </div>
             </form>

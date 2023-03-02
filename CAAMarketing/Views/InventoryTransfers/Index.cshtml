@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Index";
 }
+}
 
 
 
@@ -10,6 +11,7 @@
 
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
+    
     <div class="form-horizontal">
         <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" style="display: none;">
             Filter/Search
@@ -51,50 +53,60 @@
             <div class="col-md-12 col-lg-10 d-flex align-items-center">
                 <table class="table table-hover table-bordered">
                     <thead class="thead-light">
-                        <tr>
-                            <td>
-                                <input type="submit" name="actionButton" value="ItemTransfered" class="btn btn-link" />
-                            </td>
-                            <td>
-                                <input type="submit" name="actionButton" value="FromLocation" class="btn btn-link" />
-                            </td>
-                            <td>
-                                <input type="submit" name="actionButton" value="ToLocation" class="btn btn-link" />
-                            </td>
-                            <td>
-                                <input type="submit" name="actionButton" value="Quantity" class="btn btn-link" />
-                            </td>
-                            <td>
-                                <input type="submit" name="actionButton" value="TransferDate" class="btn btn-link" />
-                            </td>
-                            <th></th>
-                        </tr>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Item.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.FromLocation.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.ToLocation.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Quantity)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.TransferDate)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Item.Archived)
+                        </th>
+                        <th></th>
+                    </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Item.Name)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.FromLocation.Name)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.ToLocation.Name)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Quantity)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TransferDate)
-                                </td>
-                                <td>
-                                    <a asp-action="Edit" asp-route-id="@item.Id"> <img src="~/images/icons8-edit-24.png" alt="Edit Icon" /></a>
-                                    <a asp-action="Details" asp-route-id="@item.Id"><img src="~/images/icons8-more-details-24.png" alt="Details Icon" /></a>
-                                    <a asp-action="Delete" asp-route-id="@item.Id"><img src="~/images/icons8-trash-24.png" alt="Trash Can Icon" /></a>
-                                </td>
-                            </tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FromLocation.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ToLocation.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TransferDate)
+                </td>
+                <td>
+                        @(item.Item.Archived ? " " : " ")
+                        <span class="status text-success @(!item.Item.Archived ? "hide" : "")">&bull;</span>
+                        <span class="status text-danger @(item.Item.Archived ? "hide" : "")">&bull;</span>
+                    
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                    <a asp-action="Index" asp-controller="OrderItems" title="Click this to go to details" class="padding-for-actions" asp-route-ItemID="@item.ItemId"> Details   </a> |
+                                |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                </td>
+            </tr>
                         }
                     </tbody>
                 </table>

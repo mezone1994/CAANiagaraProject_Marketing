@@ -85,8 +85,10 @@
                         </tr>
                     </thead>
                     <tbody>
+
                         @foreach (var inventory in Model)
                         {
+
                                 <tr>
                                     <td>
                                     @{
@@ -118,10 +120,10 @@
                                     </td>
                                    
 
-
+                                
 
  						        <td>
-                                   <a asp-controller="Items" asp-action="Edit" title="Click this to edit" class="padding-for-actions" asp-route-id="@inventory.Id"> Edit </a> |
+                                   <a asp-controller="Items" asp-action="Edit" title="Click this to edit" class="padding-for-actions" asp-route-id="@inventory.Item.ID"> Edit </a> |
                                    <a asp-action="Index" asp-controller="OrderItems" title="Click this to go to details" class="padding-for-actions"  asp-route-ItemID="@inventory.Item.ID"> Details   </a> |
                                    <a asp-controller="Items" asp-action="Delete" title="Click this to archive the item" class="padding-for-actions" asp-route-id="@inventory.Item.ID">Archive </a> 
 
@@ -138,6 +140,13 @@
 
 </form>
 
+@section Scripts{
+    <script src="/js/toast.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+    </script>
+
+}
 
 
 

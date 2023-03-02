@@ -194,6 +194,7 @@ namespace CAAMarketing.Controllers
 
 
             ViewBag.Item = item;
+            ViewBag.Inventory = inventory;
 
             return View(pagedData);
         }

@@ -1,11 +1,18 @@
+using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification.Abstractions;
+using AspNetCoreHero.ToastNotification.Extensions;
 using CAAMarketing.Data;
 using CAAMarketing.Utilities;
 using CAAMarketing.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NToastNotify;
+
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,12 +76,22 @@ builder.Services.AddTransient<IMyEmailSender, MyEmailSender>();
 //To give access to IHttpContextAccessor for Audit Data with IAuditable
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+builder.Services.AddControllersWithViews();
+
 builder.Services.AddControllersWithViews().AddNToastNotifyToastr(new ToastrOptions()
 {
     PositionClass = ToastPositions.BottomRight,
     TimeOut = 5000,
-    CloseButton = true
-
+    CloseButton = true,
+    //CloseHtml = "<button><i class='icon-off'></i></button>"
+});
+// Add ToastNotification
+builder.Services.AddNotyf(config =>
+{
+    config.DurationInSeconds = 5;
+    config.IsDismissable = true;
+    config.Position = NotyfPosition.TopRight;
+    config.HasRippleEffect = true;
 });
 
 var app = builder.Build();
@@ -91,10 +108,12 @@ else
     app.UseHsts();
 }
 
+
 //NOTE this line must be above .UseMvc() line.
 app.UseNToastNotify();
 
-app.UseNToastNotify();
+app.UseNotyf();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CAAMarketing.styles.css" asp-append-version="true" />
+    <script>
+        function redirectToEdit(itemId) {
+            window.location.href = "/Items/Edit/" + itemId;
+        }
+    </script>
+    
 </head>
 <body>
     <header>
@@ -26,6 +32,7 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Inventories" asp-action="Index">Inventory</a>
+                                <a class="nav-link" asp-area="" asp-controller="InventoryTransfers" asp-action="Index">Transfers</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -119,5 +126,6 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
     @await Component.InvokeAsync("NToastNotify")
+    @await Component.InvokeAsync("Notyf")
 </body>
 </html>

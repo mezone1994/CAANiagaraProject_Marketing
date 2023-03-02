@@ -15,7 +15,7 @@ namespace CAAMarketing.Data.CAMigrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "6.0.13");
+            modelBuilder.HasAnnotation("ProductVersion", "6.0.14");
 
             modelBuilder.Entity("CAAMarketing.Models.Archive", b =>
                 {
@@ -331,7 +331,8 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<int>("ToLocationId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("TransferDate")
+                    b.Property<DateTime?>("TransferDate")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UpdatedBy")

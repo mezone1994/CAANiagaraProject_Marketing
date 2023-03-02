@@ -11,13 +11,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CAAMarketing.Data.CAMigrations
 {
     [DbContext(typeof(CAAContext))]
-    [Migration("20230225153920_Initial")]
+    [Migration("20230302014857_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "6.0.13");
+            modelBuilder.HasAnnotation("ProductVersion", "6.0.14");
 
             modelBuilder.Entity("CAAMarketing.Models.Archive", b =>
                 {
@@ -333,7 +333,8 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<int>("ToLocationId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("TransferDate")
+                    b.Property<DateTime?>("TransferDate")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UpdatedBy")

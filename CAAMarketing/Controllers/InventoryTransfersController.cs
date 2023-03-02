@@ -22,7 +22,7 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: InventoryTransfers
-        public async Task<IActionResult> Index(string SearchString, int? FromLocationID, int? ToLocationId,
+        public async Task<IActionResult> Index(string SearchString, int? FromLocationID, int? ToLocationId, int? ItemID,
            int? page, int? pageSizeID, string actionButton, string sortDirection = "asc", string sortField = "ItemTransfered")
         {
             //Clear the sort/filter/paging URL Cookie for Controller
@@ -151,6 +151,24 @@ namespace CAAMarketing.Controllers
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
 
+            Item item = _context.Items
+               .Include(i => i.Category)
+               .Include(i => i.Supplier)
+               .Include(i => i.Employee)
+               .Include(p => p.ItemThumbNail)
+               .Where(p => p.ID == ItemID.GetValueOrDefault())
+               .AsNoTracking()
+               .FirstOrDefault();
+
+            Inventory inventory = _context.Inventories
+                 .Where(p => p.ItemID == ItemID.GetValueOrDefault())
+                 .FirstOrDefault();
+
+
+
+            ViewBag.Item = item;
+            ViewBag.Inventory = inventory;
+
 
 
             //Handle Paging
@@ -163,14 +181,20 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: InventoryTransfers/Create
-        public IActionResult Create()
+        public IActionResult Create(int itemId, int fromLocationId,int ToLocationId, DateTime TransferDate)
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
 
-            ViewData["FromLocationId"] = new SelectList(_context.Locations, "Id", "Name");
-            ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name");
-            ViewData["ToLocationId"] = new SelectList(_context.Locations, "Id", "Name");
+            
+
+
+            // Pre-populate the fields with the specified item and location IDs
+            ViewData["FromLocationId"] = new SelectList(_context.Locations, "Id", "Name", fromLocationId);
+            ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", itemId);
+            ViewData["ToLocationId"] = new SelectList(_context.Locations, "Id", "Name", ToLocationId);
+
+
             return View();
         }
 
@@ -188,61 +212,63 @@ namespace CAAMarketing.Controllers
             {
                 // Find the inventory record for the item being transferred from the specified location
                 var fromInventory = await _context.Inventories
+                    .Include(i => i.Location)
                     .FirstOrDefaultAsync(i => i.ItemID == inventoryTransfer.ItemId && i.LocationID == inventoryTransfer.FromLocationId);
 
                 if (fromInventory.Quantity < inventoryTransfer.Quantity)
                 {
-                    // Display an error message if the inventory does not have sufficient quantity
-                    ModelState.AddModelError("Quantity", "There are not enough items in the inventory to complete this transfer.");
-                    ViewData["FromLocationId"] = new SelectList(_context.Locations, "Id", "Name", inventoryTransfer.FromLocationId);
-                    ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", inventoryTransfer.ItemId);
-                    ViewData["ToLocationId"] = new SelectList(_context.Locations, "Id", "Name", inventoryTransfer.ToLocationId);
+                    ModelState.AddModelError("Quantity", "Not enough inventory to transfer.");
                     return View(inventoryTransfer);
+                }
+
+                // Update the from location to the current location of the inventory item
+                inventoryTransfer.FromLocationId = fromInventory.LocationID;
+
+                // Update the inventory quantity at the from location
+                fromInventory.Quantity -= inventoryTransfer.Quantity;
+                _context.Update(fromInventory);
+
+                // Find the inventory record for the item being transferred to the specified location
+                var toInventory = await _context.Inventories
+                    .Include(i => i.Location)
+                    .FirstOrDefaultAsync(i => i.ItemID == inventoryTransfer.ItemId && i.LocationID == inventoryTransfer.ToLocationId);
+
+                if (toInventory == null)
+                {
+                    // Create a new inventory record if one doesn't exist at the to location
+                    toInventory = new Inventory
+                    {
+                        ItemID = inventoryTransfer.ItemId,
+                        LocationID = inventoryTransfer.ToLocationId,
+                        Quantity = inventoryTransfer.Quantity,
+                        Cost = fromInventory.Cost
+                    };
+                    _context.Add(toInventory);
                 }
                 else
                 {
-                    // Deduct the transferred quantity from the inventory record
-                    fromInventory.Quantity -= inventoryTransfer.Quantity;
-
-                    // Find the inventory record for the item being transferred to the specified location
-                    var toInventory = await _context.Inventories
-                        .FirstOrDefaultAsync(i => i.ItemID == inventoryTransfer.ItemId && i.LocationID == inventoryTransfer.ToLocationId);
-
-                    // If the inventory record for the destination location does not exist, create a new one
-                    if (toInventory == null)
-                    {
-                        toInventory = new Inventory
-                        {
-                            ItemID = inventoryTransfer.ItemId,
-                            LocationID = inventoryTransfer.ToLocationId,
-                            Quantity = inventoryTransfer.Quantity
-                        };
-                        _context.Add(toInventory);
-                    }
-                    else
-                    {
-                        // Else, add the transferred quantity to the existing inventory record
-                        toInventory.Quantity += inventoryTransfer.Quantity;
-                    }
-
-                    // Add the inventory transfer record to the database
-                    _context.Add(inventoryTransfer);
-
-                    // Save changes to the database
-                    await _context.SaveChangesAsync();
-
-                    return RedirectToAction(nameof(Index));
+                    // Update the inventory quantity at the to location
+                    toInventory.Quantity += inventoryTransfer.Quantity;
+                    _context.Update(toInventory);
                 }
+
+                // Update the to location
+                inventoryTransfer.ToLocationId = toInventory.LocationID;
+
+                // Save changes to the database
+                await _context.AddAsync(inventoryTransfer);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
             }
-            ViewData["FromLocationId"] = new SelectList(_context.Locations, "Id", "Name", inventoryTransfer.FromLocationId);
-            ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", inventoryTransfer.ItemId);
-            ViewData["ToLocationId"] = new SelectList(_context.Locations, "Id", "Name", inventoryTransfer.ToLocationId);
+
+            // If ModelState is invalid, return the view with the input inventoryTransfer
             return View(inventoryTransfer);
         }
 
-    
-    // GET: InventoryTransfers/Edit/5
-    public async Task<IActionResult> Edit(int? id)
+
+        // GET: InventoryTransfers/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
@@ -263,17 +289,14 @@ namespace CAAMarketing.Controllers
             return View(inventoryTransfer);
         }
 
-        // POST: InventoryTransfers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,ItemId,FromLocationId,ToLocationId,Quantity,TransferDate")] InventoryTransfer inventoryTransfer, Byte[] RowVersion)
         {
-            //URL with the last filter, sort and page parameters for this controller
+            // Get the URL with the last filter, sort, and page parameters for this controller
             ViewDataReturnURL();
 
-            //Go get the InventoryTransfers to update
+            // Get the InventoryTransfer to update
             var transferToUpdate = await _context.InventoryTransfers.FirstOrDefaultAsync(t => t.Id == id);
 
             if (transferToUpdate == null)
@@ -281,19 +304,62 @@ namespace CAAMarketing.Controllers
                 return NotFound();
             }
 
-            //Put the original RowVersion value in the OriginalValues collection for the entity
+            // Set the original RowVersion value for the entity
             _context.Entry(transferToUpdate).Property("RowVersion").OriginalValue = RowVersion;
 
-            //Try updating it with the values posted
+            // Find the inventory record for the item being transferred from the specified location
+            var fromInventory = await _context.Inventories
+                .Include(i => i.Location)
+                .FirstOrDefaultAsync(i => i.ItemID == inventoryTransfer.ItemId && i.LocationID == inventoryTransfer.FromLocationId);
+
+            if (fromInventory.Quantity < inventoryTransfer.Quantity)
+            {
+                ModelState.AddModelError("Quantity", "Not enough inventory to transfer.");
+                
+            }
+
+            // Find the inventory record for the item being transferred to the specified location
+            var toInventory = await _context.Inventories
+                .Include(i => i.Location)
+                .FirstOrDefaultAsync(i => i.ItemID == inventoryTransfer.ItemId && i.LocationID == inventoryTransfer.ToLocationId);
+
+            // Calculate the difference in inventory quantities
+            int quantityDifference = inventoryTransfer.Quantity - transferToUpdate.Quantity;
+
+            // Update the from location inventory
+            fromInventory.Quantity -= quantityDifference;
+            _context.Update(fromInventory);
+
+            if (toInventory == null)
+            {
+                // Create a new inventory record if one doesn't exist at the to location
+                toInventory = new Inventory
+                {
+                    ItemID = inventoryTransfer.ItemId,
+                    LocationID = inventoryTransfer.ToLocationId,
+                    Quantity = inventoryTransfer.Quantity,
+                    Cost = fromInventory.Cost
+                };
+                _context.Add(toInventory);
+            }
+            else
+            {
+                // Update the inventory quantity at the to location
+                toInventory.Quantity += quantityDifference;
+                _context.Update(toInventory);
+            }
+
+            // Update the InventoryTransfer with the values posted
             if (await TryUpdateModelAsync<InventoryTransfer>(transferToUpdate, "",
                 t => t.ItemId, t => t.FromLocationId, t => t.ToLocationId, t => t.Quantity, t => t.TransferDate))
             {
                 try
                 {
+                    // Save changes to the database
                     await _context.SaveChangesAsync();
-                    //return RedirectToAction(nameof(Index));
-                    return RedirectToAction("Details", new { transferToUpdate.ItemId });
 
+                    // Redirect to the updated InventoryTransfer's details page
+                    return RedirectToAction("Index", "OrderItems", new { transferToUpdate.ItemId });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -307,12 +373,13 @@ namespace CAAMarketing.Controllers
                             + "was modified by another user. Please go back and refresh.");
                     }
                 }
-                catch (DbUpdateException dex)
+                catch (DbUpdateException)
                 {
-                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
-
+                    ModelState.AddModelError("", "Unable to save changes. Please contact your system administrator.");
                 }
             }
+
+            // If the update was unsuccessful, populate ViewData with the original values and return to the Edit view
             ViewData["FromLocationId"] = new SelectList(_context.Locations, "Id", "Name", transferToUpdate.FromLocationId);
             ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", transferToUpdate.ItemId);
             ViewData["ToLocationId"] = new SelectList(_context.Locations, "Id", "Name", transferToUpdate.ToLocationId);

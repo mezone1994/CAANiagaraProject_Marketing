@@ -22,6 +22,8 @@ namespace CAAMarketing.Models
         public int Quantity { get; set; }
 
         [Required]
-        public DateTime TransferDate { get; set; }
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public DateTime? TransferDate { get; set; } = DateTime.Today;
     }
 }

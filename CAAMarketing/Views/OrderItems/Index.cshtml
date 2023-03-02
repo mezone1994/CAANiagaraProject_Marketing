@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Index";
     CAAMarketing.Models.Item item = (CAAMarketing.Models.Item)ViewBag.Item;
+    CAAMarketing.Models.Inventory inv = (CAAMarketing.Models.Inventory)ViewBag.Inventory;
 }
 
 <div class="detext-orderitem">
@@ -121,7 +122,10 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
 </div>
     <a asp-action="Edit" title="Click this to edit" asp-controller="Items" asp-route-id="@item.ID" class="padding-for-actions div-back">Edit </a> |
     <a href='@ViewData["returnURL"]' title="Click this to go to the Inventory List" class="padding-for-actions div-back">Back to Inventory List</a>
+    <a href="@Url.Action("Create", "InventoryTransfers", new { itemId = @item.ID, fromLocationId = @inv.LocationID })" class="btn btn-primary">Transfer</a>
+
 </div>
+ID
 
 
 <form asp-action="Index" method="get">

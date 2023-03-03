@@ -37,22 +37,71 @@
         <thead>
             <tr>
                 <th>
-                    <input type="submit" name="actionButton" value="Category" class="btn btn-link" />
+                    <input type="submit" name="actionButton" value="Category" title="click here to sort by Category" class="btn btn-link" />
+                </th>
+                <th>
+                    <input type="submit" name="actionButton" value="LowThresholdAmount" title="click here to sort by ThresholdAmount" class="btn btn-link" />
+
+                </th>
+                <th>
+                    <input type="submit" name="actionButton" disabled="disabled" value="Items" class="btn btn-link" />
+
                 </th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model)
+            @foreach (var category in Model)
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Name)
+                        @Html.DisplayFor(modelItem => category.Name)
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        @Html.DisplayFor(modelItem => category.LowCategoryThreshold)
+                    </td>
+
+                    <td>
+                        @{
+                            int condCount = category.Items.Count;
+                            string noItems = "None";
+                            if (condCount > 0)
+                            {
+                                string firstCond = category.Items.FirstOrDefault().Name;
+                                if (condCount > 1)
+                                {
+                                    string condList = "";
+                                    var c = category.Items.ToList();
+                                    for (int i = 1; i < condCount; i++)//Skip the first because we have it already
+                                    {
+                                        condList += c[i].Name + " <br />";
+                                    }
+                                    <a class="" role="button" data-bs-toggle="collapse" href="#collapseHistory@(@condCount)"
+                           aria-expanded="false" aria-controls="collapseHistory@(@condCount)">
+                                        @firstCond <span class="badge bg-info">@condCount</span>
+                                    </a>
+                                    <div class="collapse" id="collapseHistory@(@condCount)">
+                                        @Html.Raw(@condList)
+                                    </div>
+                                }
+                                else
+                                {
+                                    @firstCond
+                                }
+
+                            }
+                            if (category.Items.Count == 0)
+                            {
+                                @Html.Raw(noItems)
+                            }
+                        }
+
+                    </td>
+
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@category.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@category.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@category.Id">Delete</a>
                     </td>
                 </tr>
             }

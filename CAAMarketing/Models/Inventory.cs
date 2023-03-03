@@ -39,7 +39,10 @@ namespace CAAMarketing.Models
         public int LocationID { get; set; }
         public Location Location { get; set; }
 
+
         public bool IsLowInventory { get; set; }
         public int LowInventoryThreshold { get; set; } = 10;
+
+        public DateTime? DismissNotification { get; set; } = DateTime.Today;
     }
 }

@@ -3,9 +3,6 @@
 @{
     ViewData["Title"] = "Index";
 }
-}
-
-
 
 <form asp-action="Index" method="get">
 
@@ -13,30 +10,25 @@
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
     
     <div class="form-horizontal">
-        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" style="display: none;">
-            Filter/Search
+        <button class="btn btn-filter" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
+            <i class="material-icons">Filter/Search</i>
         </button>
-        <div class="card-header d-flex justify-content-between">
-            Filter/Search
-            <h1>Inventory Transfers</h1>
-            <a asp-action="Create" class="btn btn-primary btn-color-Create">Create New</a>
-        </div>
     </div>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-12 col-lg-2 filter-sidebar">
-                    <div class="card">
-                        <form>
+    <div class="collapse @(ViewData["Filtering"])" id="collapseFilter">
+        <div class="card card-body">
+                        
                             <div class="card-body filter-content">
-                                <div class="form-group">
+                <div class="row">
+                    <div class="form-group col-md-4">
+                                
                                     <label class="control-label">Filter by From-Location:</label>
                                     @Html.DropDownList("FromLocationID", null, "All From-Locations", htmlAttributes: new { @class = "form-control" })
                                 </div>
-                                <div class="form-group">
+                    <div class="form-group col-md-4">
                                     <label class="control-label">Filter by To-Location:</label>
                                     @Html.DropDownList("ToLocationId", null, "All To-Locations", htmlAttributes: new { @class = "form-control" })
                                 </div>
-                                <div class="form-group">
+                    <div class="form-group col-md-4">
                                     <label class="control-label">Search Item Name OR UPC:</label>
                                     @Html.TextBox("SearchString", null, new { @class = "form-control" })
                                 </div>
@@ -45,13 +37,17 @@
                                     <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
                                 </div>
                                 </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+                      </div>
+        </div>
+    </div>
 
-            <div class="col-md-12 col-lg-10 d-flex align-items-center">
-                <table class="table table-hover table-bordered">
+            <div class="container-fluid">
+        <div class="table-responsive">
+            <div class="table-wrapper">
+                <div class="table-title d-flex justify-content-between align-items-center">
+                    <h1>Inventory Transfer</h1>
+                </div>
+                <table class="table table-hover">
                     <thead class="thead-light">
                     <tr>
                         <th>
@@ -69,6 +65,9 @@
                         <th>
                             @Html.DisplayNameFor(model => model.TransferDate)
                         </th>
+                            <th>
+                                Received
+                            </th>
                         <th>
                             @Html.DisplayNameFor(model => model.Item.Archived)
                         </th>
@@ -95,6 +94,11 @@
                     @Html.DisplayFor(modelItem => item.TransferDate)
                 </td>
                 <td>
+                                    @(item.TransferDate > DateTime.Today ? "In Progress" : "Received")
+                                    <span class="status text-success @(item.TransferDate > DateTime.Today ? "hide" : "")">&bull;</span>
+                                    <span class="status text-danger @(!(item.TransferDate > DateTime.Today) ? "hide" : "")">&bull;</span>
+                                        </td>
+                <td>
                         @(item.Item.Archived ? " " : " ")
                         <span class="status text-success @(!item.Item.Archived ? "hide" : "")">&bull;</span>
                         <span class="status text-danger @(item.Item.Archived ? "hide" : "")">&bull;</span>
@@ -111,7 +115,8 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+        <partial name="_PagingNavBar" />
     </div>
-
-            <partial name="_PagingNavBar" />
+            
 </form>

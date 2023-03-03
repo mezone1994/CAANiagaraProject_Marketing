@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CAAMarketing.Data.CAMigrations
 {
     [DbContext(typeof(CAAContext))]
-    [Migration("20230302014857_Initial")]
+    [Migration("20230303011149_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -74,6 +74,12 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<string>("EmployeeNameUser")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsLowInventory")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("LowCategoryThreshold")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
@@ -257,6 +263,9 @@ namespace CAAMarketing.Data.CAMigrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DismissNotification")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EmployeeNameUser")

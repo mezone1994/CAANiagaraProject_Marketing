@@ -1,4 +1,4 @@
-﻿@model CAAMarketing.Models.Order
+﻿@model CAAMarketing.Models.Receiving
 
 @{
     ViewData["Title"] = "Details";
@@ -43,7 +43,7 @@
     </div>
     <div> 
          <a asp-action="Edit" title="Click this to edit" asp-route-id="@Model.ID" class="padding-for-actions div-back">Edit </a> |
-        <div class="tooltip"> <a asp-controller="Orders" asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back</span></a> </div>
+        <div class="tooltip"> <a asp-controller="Receiving" asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back</span></a> </div>
     </div>
 </div>
       <style>

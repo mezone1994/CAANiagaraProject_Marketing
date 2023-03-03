@@ -167,9 +167,9 @@ namespace CAAMarketing.Controllers
             ViewData["sortDirection"] = sortDirection;
 
             //Handle Paging
-            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Orders");
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Receiving");
             ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
-            var pagedData = await PaginatedList<Order>.CreateAsync(orders.AsNoTracking(), page ?? 1, pageSize);
+            var pagedData = await PaginatedList<Receiving>.CreateAsync(orders.AsNoTracking(), page ?? 1, pageSize);
 
 
             Item item = _context.Items
@@ -208,7 +208,7 @@ namespace CAAMarketing.Controllers
                 return Redirect(ViewData["returnURL"].ToString());
             }
             ViewData["ItemName"] = ItemName;
-            Order a = new Order()
+            Receiving a = new Receiving()
             {
                 ItemID = ItemID.GetValueOrDefault()
             };
@@ -220,7 +220,7 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add([Bind("ID,Quantity,DateMade,DeliveryDate,Cost,ItemID")] Order order
+        public async Task<IActionResult> Add([Bind("ID,Quantity,DateMade,DeliveryDate,Cost,ItemID")] Receiving order
     , string ItemName, int ItemID)
         {
             //Get the URL with the last filter, sort and page parameters
@@ -298,7 +298,7 @@ namespace CAAMarketing.Controllers
                 return NotFound();
             }
             var oldOrderQuantity = orderToUpdate.Quantity;
-            if (await TryUpdateModelAsync<Order>(orderToUpdate, "",
+            if (await TryUpdateModelAsync<Receiving>(orderToUpdate, "",
                 o => o.Quantity, o => o.DateMade, o => o.DeliveryDate, o => o.Cost, o => o.ItemID))
             {
                 try

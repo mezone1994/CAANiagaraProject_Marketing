@@ -1,6 +1,91 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+﻿
+@{
+    ViewData["Title"] = "Help Page";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="text-center">
+    <h1 class="display-4">Help</h1>
+
+</div>
+<div class="colsep">
+    <div class="homepagediv1">
+        <h3>Intoduction</h3>
+        <p>
+            Welcome to the Inventory application for CAA, in this you will be able to track your inventory through all your locations. 
+            You will also be making orders for when you need more of a product. With admin account managment capabilities you can make sure the right people 
+            will have the right permisions.
+        </p>
+
+
+    </div>
+    <div class="homepagediv2">
+        <img src="~/images/inventory.jpg" alt="man standing at shelves of boxes">
+    </div>
+</div>
+
+<div class="colsep">
+    <div class="homepagediv2">
+        <img src="~/images/Login.jpg" alt="man standing at shelves of boxes">
+    </div>
+
+
+    <div class="homepagediv1">
+        <h3>How to Start</h3>
+        <p>
+            To start you will need to register an account or login. If you need to register you will be given a password and then you will need to change
+            it to some thing you will remember. Then an admin will give you your role that you need for what ever your job is. Once you login you will have access
+            to all the other pages, and then you can get to work with what ever you need to do.
+        </p>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<div>
+    <div class="homepagediv1">
+        <h3>Where to</h3>
+        <p>
+            From the inventory page you can that you can search by name and upc or filter by location, making it easy to find what you are looking for, 
+            you can also sort by all columns. If you have the rights to do so from here you can also edit or archive. and while your at it you can look 
+            at more details to go more in depth with the item.
+        </p>
+    </div>
+
+    <div class="homepagediv2">
+        <img src="~/images/computer.jpg" alt="man standing at shelves of boxes">
+    </div>
+</div>
+
+<div>
+    <div class="homepagediv2">
+        <img src="~/images/next-steps.jpg" alt="man standing at shelves of boxes">
+    </div>
+    <div class="homepagediv1">
+        <h3>Whats next</h3>
+        <p>
+            Now that the first prototype is done in the next couple of weeks we will be working on the next steps. With more pages and more work done on this prototype one
+            both the design and back end. 
+        </p>
+    </div>
+
+</div>
+@section Scripts {
+    <script>
+        //Register the service worker.
+        //Note is is still not "installable" without the manifest
+        if (navigator.serviceWorker.controller) {
+            console.log('Active service worker found, no need to register');
+        } else {
+            navigator.serviceWorker.register('sw.js', {
+                scope: './'
+            }).then(function (reg) {
+                console.log('Service worker has been registered for scope:' + reg.scope);
+            });
+        }
+    </script>
+}

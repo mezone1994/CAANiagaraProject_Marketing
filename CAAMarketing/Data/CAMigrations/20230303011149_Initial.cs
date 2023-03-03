@@ -16,6 +16,8 @@ namespace CAAMarketing.Data.CAMigrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: true),
+                    IsLowInventory = table.Column<bool>(type: "INTEGER", nullable: false),
+                    LowCategoryThreshold = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -252,6 +254,7 @@ namespace CAAMarketing.Data.CAMigrations
                     LocationID = table.Column<int>(type: "INTEGER", nullable: false),
                     IsLowInventory = table.Column<bool>(type: "INTEGER", nullable: false),
                     LowInventoryThreshold = table.Column<int>(type: "INTEGER", nullable: false),
+                    DismissNotification = table.Column<DateTime>(type: "TEXT", nullable: true),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),

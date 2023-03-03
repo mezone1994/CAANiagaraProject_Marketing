@@ -1,4 +1,4 @@
-﻿@model CAAMarketing.Models.Order
+﻿@model CAAMarketing.Models.Receiving
 
 @{
     ViewData["Title"] = "Create";
@@ -40,7 +40,7 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="DateMade" class="control-label"></label>
-                        <input asp-for="DateMade" class="form-control" />
+                        <input asp-for="DateMade" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
                         <span asp-validation-for="DateMade" class="text-danger"></span>
                     </div>
                     <div class="form-group">

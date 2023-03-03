@@ -49,7 +49,7 @@ namespace CAAMarketing.Data
 
         public DbSet<Category> Categories { get; set; }
 
-        public DbSet<Order> Orders { get; set; }
+        public DbSet<Receiving> Orders { get; set; }
 
         public DbSet<Event> Events { get; set; }
 

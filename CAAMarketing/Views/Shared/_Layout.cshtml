@@ -12,6 +12,17 @@
             window.location.href = "/Items/Edit/" + itemId;
         }
     </script>
+
+    <script>
+        function redirectToSilenceNotif(itemId1) {
+            window.location.href = "/Inventories/SilencingToastrNottifPopup/" + itemId1
+        }
+    </script>
+    <script>
+        function redirectToRecoverNotif(itemId2) {
+            window.location.href = "/Inventories/RecoveringToastrNottifPopup/" + itemId2
+        }
+    </script>
     
 </head>
 <body>
@@ -63,7 +74,7 @@
                                     else if (User.IsInRole("Admin"))
                                     {
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" asp-area="" asp-controller="Orders" asp-action="Index">Receiving</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Receiving" asp-action="Index">Receiving</a></li>
                                         @*<li><a class="dropdown-item" asp-area="" asp-controller="Locations" asp-action="Index">Locations</a></li>
                                         <li><a class="dropdown-item" asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a></li>
                                         <li><a class="dropdown-item" asp-area="" asp-controller="Categories" asp-action="Index">Categories</a></li>
@@ -89,7 +100,7 @@
         @{
             var current = this.ViewContext.RouteData.Values["controller"] as string ?? "Home";
 
-            if (current == "Home")
+            if (current == "Privacy")
             {
                 <div>
 

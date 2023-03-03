@@ -59,7 +59,7 @@ namespace CAAMarketing.Models
 
         public bool Archived { get; set; } = false;
 
-        public ICollection<Order> Orders { get; set; }
+        public ICollection<Receiving> Orders { get; set; }
 
         [Display(Name = "Cost")]
         [Required(ErrorMessage = "You must enter a cost.")]

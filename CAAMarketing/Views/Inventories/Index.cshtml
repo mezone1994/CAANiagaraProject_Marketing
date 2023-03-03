@@ -3,6 +3,17 @@
 @{
     ViewData["Title"] = "Index";
 }
+<partial name="_silentNotifModal" />
+
+@*<form asp-action="Edit" method="get">
+    <button class="btn btn-outline-secondary" id="nowAddCategory" data-bs-toggle="modal" data-bs-target="#addNotifModal" type="button">
+        <strong>Check Messages</strong>
+    </button>
+ </form>*@
+ Caution: You have @ViewData["SilencedMessageCount"] Silenced Messages, Click to recover all...
+ <a asp-controller="Inventories" asp-action="RecoverAllSilencedNotif" title="Click here to Unsilence all messages" class="btn btn-primary btn-color-Create">Recover All Messages</a>
+ <a asp-controller="Inventories" asp-action="ViewSilencedNotif" title="Click here view Unsilenced messages" class="btn btn-primary btn-color-Create">View Silenced Messages</a>
+ <a asp-controller="Inventories" asp-action="ViewActiveNotif" title="Click here to view Active messages" class="btn btn-primary btn-color-Create">View Active Messages</a>
 
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
@@ -10,6 +21,7 @@
 
 
     <div class="form-horizontal">
+        <a asp-controller="Items" asp-action="Create" title="Click here to create a new item" class="btn btn-primary btn-color-Create">Create New Item</a>
         <button class="btn btn-filter" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
             <i class="material-icons">Filter/Search</i>
         </button>
@@ -78,7 +90,6 @@
                             </th>
                             
                             <th>
-                                <a asp-controller="Items" asp-action="Create" title="Click here to create a new item" class="btn btn-primary btn-color-Create">Create New Item</a>
 
                             </th>
                             <th></th>
@@ -146,6 +157,29 @@
     <script type="text/javascript">
     </script>
 
+    <script type="text/javascript">
+        $('#submitNotifCreate').click(function (event) {
+            event.preventDefault();
+            var form = $('#createNotifForm');
+            if (form.valid()) {
+                $.ajax({
+                    type: "POST",
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function () {
+                        $('#addNotifModal').modal('hide');
+                    },
+                    error: function () {
+                        alert("Create Failed.  There was a problem adding the record.");
+                    }
+                });
+            }
+            return false;
+        });
+        $('#addNotifModal').on('hide.bs.modal', function () {
+            $('#createNotifForm').find("input[type=text], textarea, select").val("");
+        });
+    </script>
 }
 
 

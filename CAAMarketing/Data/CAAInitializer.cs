@@ -370,7 +370,7 @@ public static class CAAInitializer
             if (!context.Orders.Any())
             {
                 context.Orders.AddRange(
-                new Order
+                new Receiving
                 {
                     Quantity = 45,
                     DateMade = DateTime.Now,
@@ -378,14 +378,14 @@ public static class CAAInitializer
                     Cost = 45,
                     ItemID = context.Items.FirstOrDefault(d => d.Name == "Carry-on Bag Nike").ID
                 },
-                new Order
+                new Receiving
                 {
                     Quantity = 70,
                     DateMade = DateTime.Now,
                     DeliveryDate = DateTime.Parse("2022/01/20"),
                     ItemID = context.Items.FirstOrDefault(d => d.Name == "Nike Solo Backpack").ID
                 },
-                new Order
+                new Receiving
                 {
                     Quantity = 200,
                     DateMade = DateTime.Now,
@@ -393,7 +393,7 @@ public static class CAAInitializer
                     Cost = 55,
                     ItemID = context.Items.FirstOrDefault(d => d.Name == "Stainless-Steel Water Bottles").ID
                 },
-                new Order
+                new Receiving
                 {
                     Quantity = 45,
                     DateMade = DateTime.Now,

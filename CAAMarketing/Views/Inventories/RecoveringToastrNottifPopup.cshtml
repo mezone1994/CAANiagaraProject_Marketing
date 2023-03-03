@@ -1,0 +1,37 @@
+﻿@model CAAMarketing.Models.Inventory
+
+@{
+    ViewData["Title"] = "Recover Notification";
+}
+
+<div>
+    <h1>Recover Notifications</h1>
+
+    <h4>Would you like to Recover this Notification for:</h4>
+    <hr />
+ 
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="RecoveringToastrNottifPopup" method="post">
+
+                <div class="form-group">
+                    <input type="submit" value="Yes" class="btn btn-primary" />
+                </div>
+                @TempData["RecoverNotifMessageBool"]
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <a href='@ViewData["returnURL"]'>Go Back</a>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    }
+
+
+</div>
+

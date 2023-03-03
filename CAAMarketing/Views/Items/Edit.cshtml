@@ -6,7 +6,8 @@
 
 <div class="cont">
     <div class="deimage">
-    <h1>Edit</h1>
+    <h3>Edit:(@Model.Name)</h3>
+
         @{
             var hasPicture = (Model.ItemImages?.Content != null);
             if (hasPicture)
@@ -39,6 +40,14 @@
             }
     </div>
     <div class="roe">
+         <div class="d-flex justify-content-end">
+        <button class="btn btn-primary" id="nowAddCategory" data-bs-toggle="modal" data-bs-target="#addCategoryModal" type="button">
+            <strong class="text-end">Add Category</strong>
+        </button>
+        <button class="btn btn-outline-secondary" id="nowAddSupplier" data-bs-toggle="modal" data-bs-target="#addSupplierModal" type="button">
+                            <strong>Add Supplier</strong>
+                        </button> 
+    </div>
         <div class="col-md-12">
             <partial name="_addSupplierModal" />
             <partial name="_addCategoryModal" />
@@ -56,20 +65,13 @@
                     <label asp-for="Description" class="control-label"></label>
                     <textarea asp-for="Description" class="form-control"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
-                <div class="cols">
-                    <label asp-for="Notes" class="control-label"></label>
-                    <textarea asp-for="Notes" class="form-control"></textarea>
-                    <span asp-validation-for="Notes" class="text-danger"></span>
-                </div>
+                </div> 
                 <div class="cols">
                         <label class="control-label">Choose Category</label>
                             <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.CategoryID">
                                 <option value="">None</option>
                             </select>  
-                        <button class="btn btn-outline-secondary" id="nowAddCategory" data-bs-toggle="modal" data-bs-target="#addCategoryModal" type="button">
-                            <strong>Add Category</strong>
-                        </button>                      
+                                          
                     </div>
                 <div class="cols">
                     <label asp-for="UPC" class="control-label"></label>
@@ -86,9 +88,7 @@
                             <select asp-for="SupplierID" class="form-control" asp-items="ViewBag.SupplierID">
                                 <option value="">None</option>
                             </select>
-                        <button class="btn btn-outline-secondary" id="nowAddSupplier" data-bs-toggle="modal" data-bs-target="#addSupplierModal" type="button">
-                            <strong>Add Supplier</strong>
-                        </button>                      
+                                             
                     </div>
                 <div class="cols">
                     <label asp-for="Cost" class="control-label"></label>
@@ -108,6 +108,12 @@
                                 <input type="file" class="form-control" name="thePicture" id="thePicture">
                             </div>
                     </div>
+
+                    <div class="cols">
+                    <label asp-for="Notes" class="control-label"></label>
+                    <textarea asp-for="Notes" class="form-control"></textarea>
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
 
                 <div class="cols">
                    @* <label for="sub" >Buttons </label>*@<br/>

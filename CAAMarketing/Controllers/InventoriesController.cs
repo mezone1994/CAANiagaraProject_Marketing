@@ -38,6 +38,22 @@ namespace CAAMarketing.Controllers
         {
 
             ViewDataReturnURL();
+            var inv = _context.Inventories.Where(i => i.DismissNotification > DateTime.Now).Count();
+
+            var invnulls = _context.Inventories.Where(i => i.DismissNotification == null).Count();
+
+            ViewData["SilencedMessageCount"] = (inv + invnulls).ToString();
+
+
+            if (TempData["RecoverNotifMessageBool"] != null)
+            {
+                _toastNotification.AddSuccessToastMessage(@$"Record Recovered!");
+            }
+            if (TempData["SilenceNotifMessageBool"] != null)
+            {
+                _toastNotification.AddSuccessToastMessage(@$"Record Silenced!");
+            }
+
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
 
@@ -45,18 +61,20 @@ namespace CAAMarketing.Controllers
             ViewData["Filtering"] = ""; //Assume not filtering
             //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
             var inventories = _context.Inventories
-                .Include(i => i.Item)
-                .Include(i=>i.Item.ItemThumbNail)
+                .Include(i => i.Item.ItemThumbNail)
                 .Include(i => i.Item.Employee)
                 .Include(i => i.Location)
+                .Include(i => i.Item).ThenInclude(i => i.Category)
             .AsNoTracking();
 
 
             inventories = inventories.Where(p => p.Item.Archived == false);
-            CheckInventoryLevel(inventories.ToList());
+            //CheckInventoryLevel(inventories.ToList());
 
             //Populating the DropDownLists for the Search/Filtering criteria, which are the Location
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
+
+
 
 
             //List of sort options.
@@ -85,7 +103,7 @@ namespace CAAMarketing.Controllers
                                        || p.Item.UPC.Contains(SearchString.ToUpper()));
                 ViewData["Filtering"] = " show";
             }
-            
+
 
             if (TempData["InventoryLow"] != null)
             {
@@ -199,7 +217,7 @@ namespace CAAMarketing.Controllers
 
             var inventory = await _context.Inventories
                 .Include(i => i.Item)
-                .Include(i=>i.Item.ItemImages)
+                .Include(i => i.Item.ItemImages)
                 .Include(i => i.Location)
                 .Include(i => i.Item.Employee)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -273,6 +291,7 @@ namespace CAAMarketing.Controllers
             {
                 return NotFound();
             }
+
             ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", inventory.ItemID);
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", inventory.LocationID);
             return View(inventory);
@@ -301,10 +320,11 @@ namespace CAAMarketing.Controllers
 
             //Try updating it with the values posted
             if (await TryUpdateModelAsync<Inventory>(inventoryToUpdate, "",
-                i => i.Cost, i => i.Quantity, i => i.ItemID, i => i.LocationID, i => i.IsLowInventory, i => i.LowInventoryThreshold))
+                i => i.Cost, i => i.Quantity, i => i.ItemID, i => i.LocationID))
             {
                 try
                 {
+
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                     //return RedirectToAction("Details", new { inventoryToUpdate.ItemID });
@@ -354,16 +374,16 @@ namespace CAAMarketing.Controllers
                 return NotFound();
             }
 
-                var item = await _context.Items
-                    .Include(i => i.Category)
-                    .Include(i => i.Supplier)
-                    .Include(i => i.Employee)
-                    .FirstOrDefaultAsync(m => m.ID == inventory.ItemID);
+            var item = await _context.Items
+                .Include(i => i.Category)
+                .Include(i => i.Supplier)
+                .Include(i => i.Employee)
+                .FirstOrDefaultAsync(m => m.ID == inventory.ItemID);
 
-                if (item == null)
-                {
-                    return NotFound();
-                }
+            if (item == null)
+            {
+                return NotFound();
+            }
 
             return View(item);
         }
@@ -385,7 +405,7 @@ namespace CAAMarketing.Controllers
             {
                 _context.Inventories.Remove(inventory);
             }
-            
+
             await _context.SaveChangesAsync();
             // return RedirectToAction(nameof(Index));
             return Redirect(ViewData["returnURL"].ToString());
@@ -393,22 +413,31 @@ namespace CAAMarketing.Controllers
         }
 
         private void CheckInventoryLevel(List<Inventory> inventories)
-{
-    foreach (var inventory in inventories)
-    {
-        if (inventory.Quantity <= inventory.LowInventoryThreshold)
         {
-            inventory.IsLowInventory = true;
-            _toastNotification.AddWarningToastMessage(
-                $@"Inventory for {inventory.Item.Name} at location {inventory.Location.Name} is running low. Current quantity: {inventory.Quantity}
-                <a href='#' onclick='redirectToEdit({inventory.Item.ID}); return false;'>Edit</a>");
+            foreach (var inventory in inventories)
+            {
+
+                if (inventory.Quantity <= inventory.Item.Category.LowCategoryThreshold)
+                {
+                    if (inventory.DismissNotification <= DateTime.Now)
+                    {
+                        inventory.IsLowInventory = true;
+                        _toastNotification.AddInfoToastMessage(
+                            $@"Inventory for {inventory.Item.Name} at location {inventory.Location.Name} is running low. Current quantity: {inventory.Quantity}
+                                    <a href='#' onclick='redirectToEdit({inventory.Item.ID}); return false;'>Edit</a>
+                                    <br><br>Qiuck Actions:
+                                    <button style='background:#3630a3;color:white;'>
+                                    <a href='#' onclick='redirectToSilenceNotif({inventory.Item.ID}); return false;'>Silent This Notification?</a>
+                                    ");
+                    }
+
+                }
+                else
+                {
+                    inventory.IsLowInventory = false;
+                }
+            }
         }
-        else
-        {
-            inventory.IsLowInventory = false;
-        }
-    }
-}
 
         public IActionResult InventoryTransfer(int id, InventoryTransfer inventoryTransfer)
         {
@@ -446,20 +475,20 @@ namespace CAAMarketing.Controllers
                         .Include(i => i.Item.Supplier)
                         .Include(i => i.Item.Category)
                         .Include(i => i.Item.Employee)
-                        orderby i.Item.Name descending
-                        select new InventoryReportVM
-                        {
-                            ID = i.ItemID,
-                            Category = i.Item.Category.Name,
-                            UPC = i.Item.UPC,
-                            ItemName = i.Item.Name,
-                            Cost = i.Cost,
-                            Quantity = i.Quantity,
-                            Location = i.Location.Name,
-                            Supplier = i.Item.Supplier.Name,
-                            DateReceived = (DateTime)i.Item.DateReceived,
-                            Notes = i.Item.Notes
-                        };
+                       orderby i.Item.Name descending
+                       select new InventoryReportVM
+                       {
+                           ID = i.ItemID,
+                           Category = i.Item.Category.Name,
+                           UPC = i.Item.UPC,
+                           ItemName = i.Item.Name,
+                           Cost = i.Cost,
+                           Quantity = i.Quantity,
+                           Location = i.Location.Name,
+                           Supplier = i.Item.Supplier.Name,
+                           DateReceived = (DateTime)i.Item.DateReceived,
+                           Notes = i.Item.Notes
+                       };
 
             int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "InventoryReport");//Remember for this View
             ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
@@ -545,7 +574,7 @@ namespace CAAMarketing.Controllers
                         //Total Cost Sum - get cost * qty for each row
                         totalfees.Formula = "Sum(" + (workSheet.Cells[4, 4].Address) + ":" + workSheet.Cells[numRows + 3, 4].Address + ")" + "*" + "Sum(" +
                             (workSheet.Cells[4, 5].Address) + ":" + workSheet.Cells[numRows + 3, 5].Address + ")";
-                        totalfees.Style.Font.Bold = true;   
+                        totalfees.Style.Font.Bold = true;
                         totalfees.Style.Numberformat.Format = "$###,###,##0.00";
                         var range = workSheet.Cells[numRows + 4, 4, numRows + 4, 5];
                         range.Merge = true;
@@ -624,6 +653,318 @@ namespace CAAMarketing.Controllers
             }
             return NotFound("No data.");
         }
+
+
+        public async Task<IActionResult> SilencingToastrNottifPopup(int id)
+        {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
+            if (id == null || _context.Inventories == null)
+            {
+                return NotFound();
+            }
+
+            var inventory = await _context.Inventories.FindAsync(id);
+            if (inventory == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", inventory.ItemID);
+            var options = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "1", Text = "1 day" },
+                new SelectListItem { Value = "2", Text = "2 days" },
+                new SelectListItem { Value = "3", Text = "3 days" },
+                new SelectListItem { Value = "7", Text = "1 week" },
+                new SelectListItem { Value = "0", Text = "Permanently" }
+            };
+
+            ViewData["SilentID"] = new SelectList(options, "Value", "Text");
+
+            return View(inventory);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> SilencingToastrNottifPopup(int id, Byte[] RowVersion, string SilentID)
+        {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
+            //Go get the Event to update
+            var inventoryToUpdate = await _context.Inventories.FirstOrDefaultAsync(i => i.Id == id);
+
+            if (inventoryToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            //Put the original RowVersion value in the OriginalValues collection for the entity
+            _context.Entry(inventoryToUpdate).Property("RowVersion").OriginalValue = RowVersion;
+
+            try
+            {
+                int days = 0;
+                // Use the selected value in your code
+                if (!string.IsNullOrEmpty(SilentID))
+                {
+                    if (SilentID == "1") { days = 1; }
+                    else if (SilentID == "2") { days = 2; }
+                    else if (SilentID == "3") { days = 3; }
+                    else if (SilentID == "7") { days = 7; }
+                    else if (SilentID == "0")
+                    {
+                        days = 0;
+
+                    }
+
+
+
+                    _context.SaveChangesAsync();
+
+
+                }
+                if (days <= 0)
+                { inventoryToUpdate.DismissNotification = null; }
+                else
+                {
+                    inventoryToUpdate.DismissNotification = null;
+                    inventoryToUpdate.DismissNotification = DateTime.Now.AddDays(days);
+                }
+                _context.Update(inventoryToUpdate);
+                _context.SaveChanges();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", inventoryToUpdate.ItemID);
+            var options = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "1", Text = "1 day" },
+                new SelectListItem { Value = "2", Text = "2 days" },
+                new SelectListItem { Value = "3", Text = "3 days" },
+                new SelectListItem { Value = "7", Text = "1 week" },
+                new SelectListItem { Value = "0", Text = "Permanently" }
+            };
+
+            ViewData["SilentID"] = new SelectList(options, "Value", "Text");
+
+            TempData["SilenceNotifMessageBool"] = "true";
+            return RedirectToAction("Index", "Inventories");
+        }
+
+        public async Task<IActionResult> RecoveringToastrNottifPopup(int id)
+        {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
+            if (id == null || _context.Inventories == null)
+            {
+                return NotFound();
+            }
+
+            var inventory = await _context.Inventories.FindAsync(id);
+            if (inventory == null)
+            {
+                return NotFound();
+            }
+
+
+            return View(inventory);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> RecoveringToastrNottifPopup(int id, Byte[] RowVersion)
+        {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
+            //Go get the Event to update
+            var inventoryToUpdate = await _context.Inventories.FirstOrDefaultAsync(i => i.Id == id);
+
+            if (inventoryToUpdate == null)
+            {
+                return NotFound();
+            }
+
+
+            try
+            {
+                inventoryToUpdate.DismissNotification = DateTime.Now;
+
+                _context.Update(inventoryToUpdate);
+                _context.SaveChanges();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            TempData["RecoverNotifMessageBool"] = "true";
+            return RedirectToAction("Index", "Inventories");
+        }
+
+
+        //Method for Viewing Inventory Report
+        public async Task<IActionResult> RecoverAllSilencedNotif()
+        {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+            int records = 0;
+            var inventories = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category).Where(t => t.Item.Archived == false).ToList();
+            try
+            {
+
+                foreach (var inventory in inventories)
+                {
+                    if (inventory.Quantity <= inventory.Item.Category.LowCategoryThreshold)
+                    {
+                        if (inventory.DismissNotification >= DateTime.Now || inventory.DismissNotification == null)
+                        {
+                            records += 1;
+                        }
+                    }
+                    inventory.DismissNotification = DateTime.Now;
+                    _context.Update(inventory);
+                    _context.SaveChanges();
+                }
+                if (records == 0)
+                {
+                    _toastNotification.AddSuccessToastMessage(
+                                $@"No Messages To Recover");
+                }
+                else if (records > 0)
+                {
+                    _toastNotification.AddSuccessToastMessage(
+                                $@"{records} Record(s) Recovered");
+
+                }
+
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return RedirectToAction("Index", "Inventories");
+        }
+
+        //Method for Viewing Silenced Messages
+        public async Task<IActionResult> ViewSilencedNotif()
+        {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+            int records = 0;
+            var inventories = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category).Where(t => t.Item.Archived == false).ToList();
+            try
+            {
+                foreach (var inventory in inventories)
+                {
+                    if (inventory.Quantity <= inventory.Item.Category.LowCategoryThreshold)
+                    {
+                        if (inventory.DismissNotification >= DateTime.Now || inventory.DismissNotification == null)
+                        {
+                            DateTime inventoryDismissNotification = inventory.DismissNotification ?? DateTime.MinValue; // Use DateTime.MinValue as a default value if inventory.DismissNotification is null
+                            TimeSpan timeDifference = inventoryDismissNotification - DateTime.Now;
+                            int daysApart = timeDifference.Days;
+                            if (timeDifference.Days == 0)
+                            {
+                                daysApart = 1;
+                            }
+                            else if (timeDifference.Days < 0)
+                            {
+                                daysApart = 0;
+                            }
+
+
+                            if (timeDifference.Days >= 0)
+                            {
+                                records++;
+                                _toastNotification.AddInfoToastMessage(
+                                $@"Inventory for {inventory.Item.Name} at location {inventory.Location.Name} is running low. Current quantity: {inventory.Quantity}
+                                    <a href='#' onclick='redirectToEdit({inventory.Item.ID}); return false;'>Edit</a> <br>***Silenced {daysApart} day(s) left***
+                                    
+                                    <button style='background:#3630a3;color:white;'>
+                                    <a href='#' onclick='redirectToRecoverNotif({inventory.Item.ID}); return false;'>Recover This Notification?</a>
+                                    ");
+                            }
+                            else
+                            {
+                                records++;
+                                _toastNotification.AddInfoToastMessage(
+                                $@"Inventory for {inventory.Item.Name} at location {inventory.Location.Name} is running low. Current quantity: {inventory.Quantity}
+                                    <a href='#' onclick='redirectToEdit({inventory.Item.ID}); return false;'>Edit</a> <br>***Silenced Permanantly***
+                                    
+                                    <button style='background:#3630a3;color:white;'>
+                                    <a href='#' onclick='redirectToRecoverNotif({inventory.Item.ID}); return false;'>Recover This Notification?</a>
+                                    ");
+                            }
+
+
+                        }
+
+                    }
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            if (records == 0)
+            {
+                _toastNotification.AddSuccessToastMessage(
+            $@"No Silent Messages At This Time");
+            }
+            return RedirectToAction("Index", "Inventories");
+        }
+
+        //Method for Viewing Silenced Messages
+        public async Task<IActionResult> ViewActiveNotif()
+        {
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+            int norecords = 0;
+            var inventories = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category).Where(t => t.Item.Archived == false).ToList();
+            foreach (var inventory in inventories)
+            {
+
+                if (inventory.Quantity <= inventory.Item.Category.LowCategoryThreshold)
+                {
+                    if (inventory.DismissNotification <= DateTime.Now)
+                    {
+                        norecords += 1;
+                        inventory.IsLowInventory = true;
+                        _toastNotification.AddInfoToastMessage(
+                            $@"Inventory for {inventory.Item.Name} at location {inventory.Location.Name} is running low. Current quantity: {inventory.Quantity}
+                                    <a href='#' onclick='redirectToEdit({inventory.Item.ID}); return false;'>Edit</a>
+                                    <br>Qiuck Actions:
+                                    <button style='background:#3630a3;color:white;'>
+                                    <a href='#' onclick='redirectToSilenceNotif({inventory.Item.ID}); return false;'>Silent This Notification?</a>
+                                    ");
+                    }
+
+                }
+                else
+                {
+
+                }
+            }
+
+            if (norecords == 0)
+            {
+                _toastNotification.AddSuccessToastMessage(
+                            $@"All Caught Up!");
+            }
+            return RedirectToAction("Index", "Inventories");
+        }
         private string ControllerName()
         {
             return this.ControllerContext.RouteData.Values["controller"].ToString();
@@ -634,7 +975,7 @@ namespace CAAMarketing.Controllers
         }
         private bool InventoryExists(int id)
         {
-          return _context.Inventories.Any(e => e.Id == id);
+            return _context.Inventories.Any(e => e.Id == id);
         }
 
     }

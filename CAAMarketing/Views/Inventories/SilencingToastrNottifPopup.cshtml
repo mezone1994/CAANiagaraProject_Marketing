@@ -1,0 +1,56 @@
+﻿@model CAAMarketing.Models.Inventory
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div>
+    <h1>Silence Notifications</h1>
+
+    <h4>Would you like to Silent this Notification for:</h4>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="SilencingToastrNottifPopup" method="post">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group col-md-4">
+                    <label class="control-label">Select by Times:</label>
+                    @Html.DropDownList("SilentID", null, htmlAttributes: new { @class = "form-control" })
+                </div>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="RowVersion" />
+                <div class="form-group">
+                    <label asp-for="ItemID" class="control-label"></label>
+                    <select asp-for="ItemID" class="form-control" asp-items="ViewBag.ItemID"></select>
+                    <span asp-validation-for="ItemID" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DismissNotification" class="control-label"></label>
+                    <input asp-for="DismissNotification" class="form-control" />
+                    <span asp-validation-for="DismissNotification" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+
+                @TempData["SilenceNotifMessageBool"]
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <a href='@ViewData["returnURL"]'>Go Back</a>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    }
+
+
+    </div>
+

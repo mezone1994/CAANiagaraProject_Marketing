@@ -27,7 +27,7 @@ namespace CAAMarketing.Controllers
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
 
-            
+
 
             //Toggle the Open/Closed state of the collapse depending on if we are filtering
             ViewData["Filtering"] = ""; //Assume not filtering
@@ -35,10 +35,11 @@ namespace CAAMarketing.Controllers
 
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
-            string[] sortOptions = new[] { "Category" };
+            string[] sortOptions = new[] { "Category", "LowThresholdAmount" };
 
 
             var categories = _context.Category
+                .Include(i => i.Items)
                 .AsNoTracking();
 
 
@@ -76,7 +77,21 @@ namespace CAAMarketing.Controllers
                         .OrderByDescending(p => p.Name);
                 }
             }
-            
+            //Now we know which field and direction to sort by
+            if (sortField == "LowThresholdAmount")
+            {
+                if (sortDirection == "asc")
+                {
+                    categories = categories
+                        .OrderBy(p => p.LowCategoryThreshold);
+                }
+                else
+                {
+                    categories = categories
+                        .OrderByDescending(p => p.LowCategoryThreshold);
+                }
+            }
+
             //Set sort for next time
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
@@ -193,13 +208,13 @@ namespace CAAMarketing.Controllers
 
             //Try updating it with the values posted
             if (await TryUpdateModelAsync<Category>(categToUpdate, "",
-                p => p.Name))
+                p => p.Name, p => p.LowCategoryThreshold))
             {
                 try
                 {
                     await _context.SaveChangesAsync();
                     //return RedirectToAction(nameof(Index));
-                    return RedirectToAction("Details", new { categToUpdate.Name });
+                    return RedirectToAction("Details", new { categToUpdate.Id });
                     //return Redirect(ViewData["returnURL"].ToString());
 
                 }

@@ -237,7 +237,7 @@ namespace CAAMarketing.Controllers
 
             //return RedirectToAction(nameof(Index));
             //return RedirectToAction("Details", new { item.ID });
-            return RedirectToAction("Create", "Orders", new { id = item.ID });
+            return RedirectToAction("Create", "Receiving", new { id = item.ID });
 
 
             

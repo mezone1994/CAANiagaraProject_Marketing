@@ -13,6 +13,9 @@ namespace CAAMarketing.Models
         //[StringLength(50, ErrorMessage = " cannot be more than 50 characters long.")]
         public string Name { get; set; }
 
+        public bool IsLowInventory { get; set; }
+        public int LowCategoryThreshold { get; set; } = 10;
+
         public ICollection<Item> Items { get; set; } = new HashSet<Item>();
     }
 }

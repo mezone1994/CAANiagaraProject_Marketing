@@ -11,11 +11,11 @@ using CAAMarketing.Utilities;
 
 namespace CAAMarketing.Controllers
 {
-    public class OrdersController : Controller
+    public class ReceivingController : Controller
     {
         private readonly CAAContext _context;
 
-        public OrdersController(CAAContext context)
+        public ReceivingController(CAAContext context)
         {
             _context = context;
         }
@@ -154,9 +154,9 @@ namespace CAAMarketing.Controllers
             ViewData["sortDirection"] = sortDirection;
 
             //Handle Paging
-            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Orders");
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Receiving");
             ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
-            var pagedData = await PaginatedList<Order>.CreateAsync(orders.AsNoTracking(), page ?? 1, pageSize);
+            var pagedData = await PaginatedList<Receiving>.CreateAsync(orders.AsNoTracking(), page ?? 1, pageSize);
             return View(pagedData);
         }
 
@@ -205,11 +205,11 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Quantity,DateMade,DeliveryDate,Cost,ItemID")] Order order)
+        public async Task<IActionResult> Create([Bind("ID,Quantity,DateMade,DeliveryDate,Cost,ItemID")] Receiving order)
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
-            Order newOrder = new Order();
+            Receiving newOrder = new Receiving();
             if (ModelState.IsValid)
             {
                 // Check if item already exists in items table
@@ -224,6 +224,7 @@ namespace CAAMarketing.Controllers
                 newOrder.Cost = order.Cost;
                 newOrder.DateMade = order.DateMade;
                 newOrder.DeliveryDate = order.DeliveryDate;
+                newOrder.Quantity= order.Quantity;
                 newOrder.CreatedBy = order.CreatedBy;
                 newOrder.UpdatedBy = order.UpdatedBy;
                 newOrder.UpdatedOn = order.UpdatedOn;
@@ -303,7 +304,7 @@ namespace CAAMarketing.Controllers
             _context.Entry(orderToUpdate).Property("RowVersion").OriginalValue = RowVersion;
 
             var oldOrderQuantity = orderToUpdate.Quantity;
-            if (await TryUpdateModelAsync<Order>(orderToUpdate, "",
+            if (await TryUpdateModelAsync<Receiving>(orderToUpdate, "",
                 o => o.Quantity, o => o.DateMade, o => o.DeliveryDate, o => o.Cost, o => o.ItemID))
             {
                 try

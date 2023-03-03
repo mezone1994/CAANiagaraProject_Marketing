@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CAAMarketing.Models.Order>
+﻿@model IEnumerable<CAAMarketing.Models.Receiving>
 
 @{
     ViewData["Title"] = "Index";
@@ -25,7 +25,21 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
         }
     </p>
     <figcaption class="col mt-3"><h3><text class="d-none d-sm-inline">Item: </text>@item.Name</h3></figcaption>
+            <dl>
+            <dt class="d-inline">
+                @Html.DisplayNameFor(model => item.Category.LowCategoryThreshold):
+            </dt>
+            <dd class="d-inline">
+                @Html.DisplayFor(model => item.Category.LowCategoryThreshold)
+                <a asp-action="Edit" title="Click this to edit" asp-controller="Categories" asp-route-id="@item.CategoryID" class="padding-for-actions div-back">Edit </a>
+            </dd>
+        </dl>
+        
+        
 </figure>
+
+
+
 
 <div class="row">
     <div class="col-6">
@@ -42,12 +56,7 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
             <dd class="col-sm-9">
                 @Html.DisplayFor(model => item.Description)
             </dd>
-            <dt class="col-sm-3">
-                @Html.DisplayNameFor(model => item.Notes):
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => item.Notes)
-            </dd>
+            
             <dt class="col-sm-3">
                 @Html.DisplayNameFor(model => item.Category):
             </dt>
@@ -59,25 +68,27 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
             </dt>
             <dd class="col-sm-9">
                 @Html.DisplayFor(model => item.UPC)
-          
-
-        </dl>
-    </div>
-    <div class="col-6">
-        <dl class="row">
-              </dd>
+            </dd>
                 <dt class="col-sm-3">
-                    @Html.DisplayNameFor(model => item.Cost):
+                        @Html.DisplayNameFor(model => item.Cost):
                 </dt>
                 <dd class="col-sm-9">
-                    @Html.DisplayFor(model => item.Cost)
+                        @Html.DisplayFor(model => item.Cost)
                 </dd>
+
                 <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => item.Quantity):
                 </dt>
                 <dd class="col-sm-9">
                     @Html.DisplayFor(model => item.Quantity)
                 </dd>
+                
+
+        </dl>
+    </div>
+    <div class="col-6">
+        <dl class="row">
+
             <dt class="col-sm-3">
                 @Html.DisplayNameFor(model => item.DateReceived):
             </dt>
@@ -117,6 +128,13 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
                     }
                 }
             </dd>
+
+                <dt class="col-sm-3">
+                    @Html.DisplayNameFor(model => item.Notes):
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => item.Notes)
+                </dd>
         </dl>
     </div>
 </div>
@@ -125,9 +143,6 @@ https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
     <a href="@Url.Action("Create", "InventoryTransfers", new { itemId = @item.ID, fromLocationId = @inv.LocationID })" class="btn btn-primary">Transfer</a>
 
 </div>
-ID
-
-
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
@@ -173,6 +188,9 @@ ID
                         <th>
                             <input type="submit" name="actionButton" value="DeliveryDate" class="btn btn-link" />
                         </th>
+                                    <th>
+                                        Received
+                                    </th>
                     
                     <th>
                             <a asp-controller="OrderItems" asp-action="Add" asp-route-ItemID="@item.ID"
@@ -201,6 +219,11 @@ ID
                             <td>
                                 @Html.DisplayFor(modelItem => order.DeliveryDate)
                             </td>
+                                        <td>
+                                            @(order.DeliveryDate > DateTime.Today ? "In Progress" : "Received")
+                                            <span class="status text-success @(order.DeliveryDate > DateTime.Today ? "hide" : "")">&bull;</span>
+                                            <span class="status text-danger @(!(order.DeliveryDate > DateTime.Today) ? "hide" : "")">&bull;</span>
+                                        </td>
                         <td>
                             <a asp-controller="OrderItems" asp-action="Update" asp-route-id="@order.ID">
                                 <span class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit a receive">&#x270D;</span>

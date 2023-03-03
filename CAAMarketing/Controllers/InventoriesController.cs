@@ -16,6 +16,10 @@ using NToastNotify;
 using Org.BouncyCastle.Utilities;
 using CAAMarketing.ViewModels;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
+using Syncfusion.Blazor.Buttons;
+using System.ComponentModel;
+using Microsoft.CodeAnalysis;
 
 namespace CAAMarketing.Controllers
 {
@@ -36,14 +40,26 @@ namespace CAAMarketing.Controllers
         public async Task<IActionResult> Index(string SearchString, int?[] LocationID, bool? LowQty,
            int? page, int? pageSizeID, string actionButton, string sortDirection = "asc", string sortField = "Item")
         {
-
             ViewDataReturnURL();
-            var inv = _context.Inventories.Where(i => i.DismissNotification > DateTime.Now).Count();
 
-            var invnulls = _context.Inventories.Where(i => i.DismissNotification == null).Count();
+            //FOR THE SILENTMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
+            var invForSilent = _context.Inventories.Where(i => i.DismissNotification > DateTime.Now).Count();
+            var invnullsForSilent = _context.Inventories.Where(i => i.DismissNotification == null && i.Item.Archived != true).Count();
+            ViewData["SilencedMessageCount"] = (invForSilent + invnullsForSilent).ToString();
+            //--------------------------------------------------------------------
 
-            ViewData["SilencedMessageCount"] = (inv + invnulls).ToString();
+            // FOR THE ACTIVEMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
+            var invForActive = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category)
+                .Where(i => i.DismissNotification <= DateTime.Now && i.Quantity < i.Item.Category.LowCategoryThreshold && i.Item.Archived != true).Count();
+            
+            ViewData["ActiveMessageCount"] = (invForActive).ToString();
+            //--------------------------------------------------------------------
 
+            // FOR THE RECOVERALLMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
+            var invForRecover = _context.Inventories.Where(i => i.DismissNotification > DateTime.Now).Count();
+            var invnullsForRecover = _context.Inventories.Where(i => i.DismissNotification == null && i.Item.Archived != true).Count();
+            ViewData["RecoverMessageCount"] = (invForRecover + invnullsForRecover).ToString();
+            //--------------------------------------------------------------------
 
             if (TempData["RecoverNotifMessageBool"] != null)
             {
@@ -73,9 +89,6 @@ namespace CAAMarketing.Controllers
 
             //Populating the DropDownLists for the Search/Filtering criteria, which are the Location
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
-
-
-
 
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
@@ -130,12 +143,12 @@ namespace CAAMarketing.Controllers
             //    if (sortDirection == "asc")
             //    {
             //        inventories = inventories
-            //            .OrderBy(p => p.Cost);
+            //            .OrderBy(p => p.Cost.ToString());
             //    }
             //    else
             //    {
             //        inventories = inventories
-            //            .OrderByDescending(p => p.Cost);
+            //            .OrderByDescending(p => p.Cost.ToString());
             //    }
             //}
             if (sortField == "Quantity")
@@ -452,7 +465,8 @@ namespace CAAMarketing.Controllers
         }
 
         //Method for Viewing Inventory Report
-        public async Task<IActionResult> InventoryReport(int? page, int? pageSizeID)
+        public async Task<IActionResult> InventoryReport(string SearchString, int?[] LocationID, int? page, int? pageSizeID, string actionButton, 
+            string sortDirection = "asc", string sortField = "ItemName")
         {
             //For the Report View
             //var sumQ = _context.Inventories.Include(a => a.Item).Include(p => p.Location)
@@ -470,12 +484,14 @@ namespace CAAMarketing.Controllers
             //       DateReceived = Convert.ToDateTime(grp.Select(grp => grp.Item.DateReceived)),
             //       Notes = grp.Select(grp => grp.Item.Notes).ToString()
             //   }).OrderBy(s => s.ItemName);
-
+            
+            //For report
             var sumQ = from i in _context.Inventories
                         .Include(i => i.Item.Supplier)
                         .Include(i => i.Item.Category)
                         .Include(i => i.Item.Employee)
-                       orderby i.Item.Name descending
+                        .Include (i => i.Location)
+                       orderby i.Item.Name ascending
                        select new InventoryReportVM
                        {
                            ID = i.ItemID,
@@ -485,10 +501,175 @@ namespace CAAMarketing.Controllers
                            Cost = i.Cost,
                            Quantity = i.Quantity,
                            Location = i.Location.Name,
+                           LocationID = i.LocationID,
                            Supplier = i.Item.Supplier.Name,
                            DateReceived = (DateTime)i.Item.DateReceived,
                            Notes = i.Item.Notes
                        };
+
+            ViewDataReturnURL();
+
+            //Clear the sort/filter/paging URL Cookie for Controller
+            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
+
+            //Toggle the Open/Closed state of the collapse depending on if we are filtering
+            ViewData["Filtering"] = ""; //Assume not filtering
+
+            //Populating the DropDownLists for the Search/Filtering criteria, which are the Location
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
+
+            //List of sort options.
+            //NOTE: make sure this array has matching values to the column headings
+            string[] sortOptions = new[] { "Category", "UPC", "ItemName", "Cost", "Quantity", "Location", "Supplier", "DateReveived" };
+
+            //Add as many filters as needed
+            if (LocationID.Length > 0)
+            {
+                sumQ = sumQ.Where(p => LocationID.Contains(p.LocationID));
+                ViewData["Filtering"] = "btn-danger";
+            }
+
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                sumQ = sumQ.Where(p => p.ItemName.ToUpper().Contains(SearchString.ToUpper())
+                                       || p.UPC.Contains(SearchString.ToUpper()));
+                ViewData["Filtering"] = " show";
+            }
+
+            //Before we sort, see if we have called for a change of filtering or sorting
+            if (!String.IsNullOrEmpty(actionButton)) //Form Submitted!
+            {
+                if (sortOptions.Contains(actionButton))//Change of sort is requested
+                {
+                    if (actionButton == sortField) //Reverse order on same field
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;//Sort by the button clicked
+                }
+            }
+
+            //Now we know which field and direction to sort by
+            if (sortField == "Category")
+            {
+                if (sortDirection == "asc")
+                {
+                    sumQ = sumQ
+                        .OrderBy(i => i.Category);
+                }
+                else
+                {
+                    sumQ = sumQ
+                        .OrderByDescending(i => i.Category);
+                }
+            }
+            else if (sortField == "UPC")
+            {
+                if (sortDirection == "asc")
+                {
+                    sumQ = sumQ
+                        .OrderBy(p => p.UPC);
+                }
+                else
+                {
+                    sumQ = sumQ
+                        .OrderByDescending(p => p.UPC);
+                }
+            }
+            //else if (sortField == "ItemName")
+            //{
+            //    if (sortDirection == "asc")
+            //    {
+            //        sumQ = sumQ
+            //            .OrderBy(p => p.ItemName);
+            //    }
+            //    else
+            //    {
+            //        sumQ = sumQ
+            //            .OrderByDescending(p => p.ItemName);
+            //    }
+            //}
+            else if (sortField == "Cost")
+            {
+                if (sortDirection == "asc")
+                {
+                    sumQ = sumQ
+                        .OrderBy(p => p.Cost.ToString());
+                }
+                else
+                {
+                    sumQ = sumQ
+                        .OrderByDescending(p => p.Cost.ToString());
+                }
+            }
+            else if (sortField == "Quantity")
+            {
+                if (sortDirection == "asc")
+                {
+                    sumQ = sumQ
+                        .OrderBy(p => p.Quantity);
+                }
+                else
+                {
+                    sumQ = sumQ
+                        .OrderByDescending(p => p.Quantity);
+                }
+            }
+            else if (sortField == "Location")
+            {
+                if (sortDirection == "asc")
+                {
+                    sumQ = sumQ
+                        .OrderBy(p => p.Location);
+                }
+                else
+                {
+                    sumQ = sumQ
+                        .OrderByDescending(p => p.Location);
+                }
+            }
+            else if (sortField == "Supplier")
+            {
+                if (sortDirection == "asc")
+                {
+                    sumQ = sumQ
+                        .OrderBy(p => p.Supplier);
+                }
+                else
+                {
+                    sumQ = sumQ
+                        .OrderByDescending(p => p.Supplier);
+                }
+            }
+            else if (sortField == "DateReveived")
+            {
+                if (sortDirection == "asc")
+                {
+                    sumQ = sumQ
+                        .OrderBy(p => p.DateReceived);
+                }
+                else
+                {
+                    sumQ = sumQ
+                        .OrderByDescending(p => p.DateReceived);
+                }
+            }
+            else //Sorting by Item Name
+            {
+                if (sortDirection == "asc")
+                {
+                    sumQ = sumQ
+                        .OrderBy(p => p.ItemName);
+                }
+                else
+                {
+                    sumQ = sumQ
+                        .OrderByDescending(p => p.ItemName);
+                }
+            }
+            //Set sort for next time
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
 
             int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "InventoryReport");//Remember for this View
             ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
@@ -505,7 +686,7 @@ namespace CAAMarketing.Controllers
                         .Include(i => i.Item.Supplier)
                         .Include(i => i.Item.Category)
                         .Include(i => i.Item.Employee)
-                        orderby i.Item.Name descending
+                        orderby i.Item.Name ascending
                         select new
                         {
                             Category = i.Item.Category.Name,
@@ -560,6 +741,38 @@ namespace CAAMarketing.Controllers
                     workSheet.Cells[4, 3, numRows + 3, 3].Style.Font.Bold = true;
                     //Make Item Locations Bold
                     workSheet.Cells[4, 6, numRows + 3, 6].Style.Font.Bold = true;
+
+                    //Make Item Quantity Bold/Colour coded
+                    workSheet.Cells[4, 5, numRows + 3, 5].Style.Font.Bold = true;
+                    var item = from i in _context.Inventories
+                               orderby i.Item.Name ascending
+                               select i.Quantity;
+                    int row = 4;
+                    foreach (var qty in item)
+                    {
+                        if (row <= (numRows + 3))
+                        {
+                            if (qty == 0)
+                            {
+                                workSheet.Cells[row, 5].Style.Font.Color.SetColor(Color.Red);
+                                row++;
+                            }
+                            else if ((qty <= 10) && (qty > 0))
+                            {
+                                workSheet.Cells[row, 5].Style.Font.Color.SetColor(Color.Yellow);
+                                row++;
+                            }
+                            else if (qty > 10)
+                            {
+                                workSheet.Cells[row, 5].Style.Font.Color.SetColor(Color.Green);
+                                row++;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
 
                     //Note: these are fine if you are only 'doing' one thing to the range of cells.
                     //Otherwise you should USE a range object for efficiency
@@ -654,6 +867,144 @@ namespace CAAMarketing.Controllers
             return NotFound("No data.");
         }
 
+        //Method for Excel Inventory Levels Report
+        public ActionResult DownloadInventoryLevels()
+        {
+            //Get the inventory
+            var items = from i in _context.Inventories
+                        orderby i.Location, i.Item.Name, i.Quantity ascending
+                        select new
+                        {
+                            UPC = i.Item.UPC,
+                            Item = i.Item.Name,
+                            Quantity = i.Quantity,
+                            Location = i.Location.Name
+                        };
+            //How many rows?
+            int numRows = items.Count();
+
+            if (numRows > 0) //We have data
+            {
+                //Create a new spreadsheet from scratch.
+                using (ExcelPackage excel = new ExcelPackage())
+                {
+                    var workSheet = excel.Workbook.Worksheets.Add("Inventory Levels");
+
+                    //Note: Cells[row, column]
+                    workSheet.Cells[3, 1].LoadFromCollection(items, true);
+
+                    //Style fee column for currency
+                    workSheet.Column(3).Style.Numberformat.Format = "###,###,##0";
+
+                    //Note: You can define a BLOCK of cells: Cells[startRow, startColumn, endRow, endColumn]
+                    //Make Item Name Bold
+                    workSheet.Cells[4, 2, numRows + 3, 2].Style.Font.Bold = true;
+                  
+                    //Make Item Quantity Bold/Colour coded
+                    workSheet.Cells[4, 3, numRows + 3, 3].Style.Font.Bold = true;
+                    var item = from i in _context.Inventories
+                               orderby i.Location, i.Item.Name, i.Quantity ascending
+                               select i.Quantity;
+                    int row = 4;
+                    foreach (var qty in item)
+                    {
+                        if (row <= (numRows + 3))
+                        {
+                            if (qty == 0)
+                            {
+                                workSheet.Cells[row, 3].Style.Font.Color.SetColor(Color.Red);
+                                row++;
+                            }
+                            else if ((qty <= 10) && (qty > 0))
+                            {
+                                workSheet.Cells[row, 3].Style.Font.Color.SetColor(Color.Yellow);
+                                row++;
+                            }
+                            else if (qty > 10)
+                            {
+                                workSheet.Cells[row, 3].Style.Font.Color.SetColor(Color.Green);
+                                row++;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    //Note: these are fine if you are only 'doing' one thing to the range of cells.
+                    //Otherwise you should USE a range object for efficiency
+                    //Total Cost for all Items in Inventory
+                    //workSheet.Cells[4, 4, numRows + 3, 5].Calculate();
+                    using (ExcelRange totalQty = workSheet.Cells[numRows + 4, 3])//
+                    {
+                        //Total Cost Text
+                        workSheet.Cells[numRows + 4, 2].Value = "Total Quantity:";
+                        workSheet.Cells[numRows + 4, 2].Style.Font.Bold = true;
+                        workSheet.Cells[numRows + 4, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                        //Total Cost Sum - get cost * qty for each row
+                        totalQty.Formula = "Sum(" + (workSheet.Cells[4, 3].Address) + ":" + workSheet.Cells[numRows + 3, 3].Address + ")";
+                        totalQty.Style.Font.Bold = true;
+                        totalQty.Style.Numberformat.Format = "###,###,##0";
+                        var range = workSheet.Cells[numRows + 4, 4, numRows + 4, 5];
+                        range.Merge = true;
+                        range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    }
+
+                    //Set Style and backgound colour of headings
+                    using (ExcelRange headings = workSheet.Cells[3, 1, 3, 4])
+                    {
+                        headings.Style.Font.Bold = true;
+                        var fill = headings.Style.Fill;
+                        fill.PatternType = ExcelFillStyle.Solid;
+                        fill.BackgroundColor.SetColor(Color.LightBlue);
+                    }
+
+                    //Autofit columns
+                    workSheet.Cells.AutoFitColumns();
+                    //Note: You can manually set width of columns as well
+                    //workSheet.Column(7).Width = 10;
+
+                    //Add a title and timestamp at the top of the report
+                    workSheet.Cells[1, 1].Value = "Inventory Levels Report";
+                    using (ExcelRange Rng = workSheet.Cells[1, 1, 1, 4])
+                    {
+                        Rng.Merge = true; //Merge columns start and end range
+                        Rng.Style.Font.Bold = true; //Font should be bold
+                        Rng.Style.Font.Size = 18;
+                        Rng.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    }
+                    //Since the time zone where the server is running can be different, adjust to 
+                    //Local for us.
+                    DateTime utcDate = DateTime.UtcNow;
+                    TimeZoneInfo esTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+                    DateTime localDate = TimeZoneInfo.ConvertTimeFromUtc(utcDate, esTimeZone);
+                    using (ExcelRange Rng = workSheet.Cells[2, 4])
+                    {
+                        Rng.Value = "Created: " + localDate.ToShortTimeString() + " on " +
+                            localDate.ToShortDateString();
+                        Rng.Style.Font.Bold = true; //Font should be bold
+                        Rng.Style.Font.Size = 12;
+                        Rng.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    }
+
+                    //Ok, time to download the Excel
+
+                    try
+                    {
+                        Byte[] theData = excel.GetAsByteArray();
+                        string filename = "InventoryLevelsReport.xlsx";
+                        string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        return File(theData, mimeType, filename);
+                    }
+                    catch (Exception)
+                    {
+                        return BadRequest("Could not build and download the file.");
+                    }
+                }
+            }
+            return NotFound("No data.");
+        }
 
         public async Task<IActionResult> SilencingToastrNottifPopup(int id)
         {

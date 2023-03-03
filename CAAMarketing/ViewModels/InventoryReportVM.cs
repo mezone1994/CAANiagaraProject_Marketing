@@ -25,6 +25,7 @@ namespace CAAMarketing.ViewModels
 
         [Display(Name = "Location")]
         public string Location { get; set; }
+        public int LocationID { get; set; }
 
         [Display(Name = "Type of Supplier")]
         public string Supplier { get; set; }

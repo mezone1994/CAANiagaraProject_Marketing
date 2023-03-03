@@ -10,10 +10,51 @@
         <strong>Check Messages</strong>
     </button>
  </form>*@
- Caution: You have @ViewData["SilencedMessageCount"] Silenced Messages, Click to recover all...
- <a asp-controller="Inventories" asp-action="RecoverAllSilencedNotif" title="Click here to Unsilence all messages" class="btn btn-primary btn-color-Create">Recover All Messages</a>
- <a asp-controller="Inventories" asp-action="ViewSilencedNotif" title="Click here view Unsilenced messages" class="btn btn-primary btn-color-Create">View Silenced Messages</a>
- <a asp-controller="Inventories" asp-action="ViewActiveNotif" title="Click here to view Active messages" class="btn btn-primary btn-color-Create">View Active Messages</a>
+ 
+ 
+ 
+@*FOR THE RECOVER ALL NOTIF BUTTON*@
+    @{
+        int RecoverMessageCount = Convert.ToInt32(ViewData["RecoverMessageCount"]);
+        string buttonClassForRecover = RecoverMessageCount > 0 ? "notivalue" : "WhiteClass";
+        string checkmarkIconForRecover = RecoverMessageCount > 0 ? @RecoverMessageCount.ToString() : "<img src='" + Url.Content("~/images/CheckMark.png") + "' style='height:15px; width:15px; margin-bottom:5px;' />";
+    }
+        <a style="text-decoration: none; position: relative; display: inline-block;" 
+        asp-controller="Inventories" asp-action="RecoverAllSilencedNotif" 
+        title="Click here to Unsilence all messages" 
+        class="btn btn-primary btn-color-Create">Recover All Messages
+        <span class="@buttonClassForRecover">@Html.Raw(@checkmarkIconForRecover)</span>
+    </a>
+ @*----------------------------------*@
+
+@*FOR THE SILENCE NOTIF BUTTON*@
+    @{
+        int silencedMessageCount = Convert.ToInt32(ViewData["SilencedMessageCount"]);
+        string buttonClassForSilents = silencedMessageCount > 0 ? "notivalue" : "WhiteClass";
+        string checkmarkIconForSilents = silencedMessageCount > 0 ? @silencedMessageCount.ToString() : "<img src='" + Url.Content("~/images/CheckMark.png") + "' style='height:15px; width:15px; margin-bottom:5px;' />";
+    }
+    <a style="text-decoration: none; position: relative; display: inline-block;" 
+        asp-controller="Inventories" asp-action="ViewSilencedNotif" 
+        title="Click here view Unsilenced messages" 
+        class="btn btn-primary btn-color-Create">View Silenced Messages
+        <span class="@buttonClassForSilents">@Html.Raw(@checkmarkIconForSilents)</span>
+    </a>
+@*----------------------------------*@
+
+
+@*FOR THE VIEW ACTIVE NOTIF BUTTON*@
+    @{
+        int ActiveMessageCount = Convert.ToInt32(ViewData["ActiveMessageCount"]);
+        string buttonClassForActive = ActiveMessageCount > 0 ? "notivalue" : "WhiteClass";
+        string checkmarkIconForActive = ActiveMessageCount > 0 ? @ActiveMessageCount.ToString() : "<img src='" + Url.Content("~/images/CheckMark.png") + "' style='height:15px; width:15px; margin-bottom:5px;' />";
+    }
+    <a style="text-decoration: none; position: relative; display: inline-block;" 
+        asp-controller="Inventories" asp-action="ViewActiveNotif" 
+        title="Click here to view Active messages" 
+        class="btn btn-primary btn-color-Create">View Active Messages
+        <span class="@buttonClassForActive">@Html.Raw(@checkmarkIconForActive)</span>
+    </a>
+ @*----------------------------------*@
 
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
@@ -184,3 +225,54 @@
 
 
 
+<style>
+    .mynotification {
+     /*background-color: #f60;
+     color: white;*/
+     text-decoration: none;
+     /*padding: 15px 26px;*/
+     position: relative;
+     display: inline-block;
+     /*border-radius: 2px;
+	 margin-top:10px;*/
+}
+
+.mynotification:hover {
+  background:#333;
+}
+
+.notivalue {
+  position: absolute;
+  top: -10px;
+  right: -6px;
+  padding: 2px 7px;
+  border-radius: 75%;
+  background: red;
+  color: white;
+  
+}
+
+
+.WhiteClass {
+  position: absolute;
+  top: -10px;
+  right: -6px;
+  padding: 2px 4px;
+  border-radius: 75%;
+  background: green;
+  color: white;
+  
+}
+
+
+.checkmark {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  -ms-transform: rotate(45deg); /* IE 9 */
+  -webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
+  transform: rotate(45deg);
+}
+
+ </style>
+            

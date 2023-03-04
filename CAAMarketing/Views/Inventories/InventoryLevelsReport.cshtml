@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<CAAMarketing.ViewModels.InventoryReportVM>
 
 @{
-    ViewData["Title"] = "InventoryReport";
+    ViewData["Title"] = "InventoryLevelsReport";
 }
 
-<form asp-controller="Inventories" asp-action="InventoryReport" method="get">
+<form asp-controller="Inventories" asp-action="InventoryLevelsReport" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
 
@@ -18,7 +18,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Download Report
-                        </a>                     
+                        </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li>
                                 <a asp-action="DownloadInventory" title="Click this to download the inventory report" class="dropdown-item">
@@ -51,7 +51,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             View Report
-                        </a>                     
+                        </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li>
                                 <a asp-controller="Inventories" asp-action="InventoryReport" class="dropdown-item">Full Inventory</a>
@@ -83,7 +83,7 @@
                 </div>
                 <div class="form-group col-md-4 align-self-end">
                     <input type="submit" name="actionButton" value="Filter" title="click here to filter" class="btn btn-outline-primary btn-color" />
-                    <a asp-action="InventoryReport" title="Click here to clear the filter" class="btn btn-outline-dark">Clear</a>
+                    <a asp-action="InventoryLevelsReport" title="Click here to clear the filter" class="btn btn-outline-dark">Clear</a>
                 </div>
             </div>
         </div>
@@ -93,22 +93,18 @@
         <div class="table-responsive">
             <div class="table-wrapper">
                 <div class="table-title d-flex justify-content-between align-items-center">
-                    <h2>Full Inventory Report</h2>
-                    <a asp-action="DownloadInventory" title="Click this to downloead the inventory report" class="btn btn-primary btn-color-Create">
+                    <h2>Inventory Levels Report</h2>
+                    <a asp-action="DownloadInventoryLevels" title="Click this to downloead the inventory levels report" class="btn btn-primary btn-color-Create">
                         Download Report
                         @*<i class="material-icons">&#xE147;</i>*@
                     </a>
-                </div>              
+                </div>
             </div>
         </div>
 
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <th>
-                        @*@Html.DisplayNameFor(model => model.Category)*@
-                        <input type="submit" name="actionButton" value="Category" title="click here to sort by Category" class="btn btn-link" />
-                    </th>
                     <th>
                         @* @Html.DisplayNameFor(model => model.UPC)*@
                         <input type="submit" name="actionButton" value="UPC" title="click here to sort by UPC" class="btn btn-link" />
@@ -118,27 +114,12 @@
                         <input type="submit" name="actionButton" value="ItemName" title="click here to sort by ItemName" class="btn btn-link" />
                     </th>
                     <th>
-                        @*    @Html.DisplayNameFor(model => model.Cost)*@
-                        <input type="submit" name="actionButton" value="Cost" title="click here to sort by Cost" class="btn btn-link" />
-                    </th>
-                    <th>
                         @*    @Html.DisplayNameFor(model => model.Quantity)*@
                         <input type="submit" name="actionButton" value="Quantity" title="click here to sort by Quantity" class="btn btn-link" />
                     </th>
                     <th>
                         @*  @Html.DisplayNameFor(model => model.Location)*@
                         <input type="submit" name="actionButton" value="Location" title="click here to sort by Location" class="btn btn-link" />
-                    </th>
-                    <th>
-                        @*   @Html.DisplayNameFor(model => model.Supplier)*@
-                        <input type="submit" name="actionButton" value="Supplier" title="click here to sort by Supplier" class="btn btn-link" />
-                    </th>
-                    <th>
-                        @*  @Html.DisplayNameFor(model => model.DateReceived)*@
-                        <input type="submit" name="actionButton" value="DateReceived" title="click here to sort by DateReceived" class="btn btn-link" />
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Notes)
                     </th>
                     <th></th>
                 </tr>
@@ -148,31 +129,16 @@
                 {
                     <tr>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Category)
-                        </td>
-                        <td>
                             @Html.DisplayFor(modelItem => item.UPC)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.ItemName)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Cost)
-                        </td>
-                        <td>
                             @Html.DisplayFor(modelItem => item.Quantity)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.Location)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Supplier)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.DateReceived)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Notes)
                         </td>
                     </tr>
                 }

@@ -11,16 +11,19 @@ using CAAMarketing.Utilities;
 using OfficeOpenXml.Style;
 using OfficeOpenXml;
 using System.Drawing;
+using NToastNotify;
 
 namespace CAAMarketing.Controllers
 {
     public class ItemsController : Controller
     {
         private readonly CAAContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public ItemsController(CAAContext context)
+        public ItemsController(CAAContext context, IToastNotification toastNotification)
         {
             _context = context;
+            _toastNotification = toastNotification;
         }
 
         // GET: Items
@@ -190,6 +193,12 @@ namespace CAAMarketing.Controllers
         // GET: Items/Create
         public IActionResult Create()
         {
+
+
+            _toastNotification.AddAlertToastMessage($"Please Start By Entering Information Of The Item, You Can Cancel By Clicking The Exit Button.");
+            
+
+
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
 
@@ -234,6 +243,13 @@ namespace CAAMarketing.Controllers
 
             ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name", item.CategoryID);
             ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name", item.SupplierID);
+
+
+            // Get the value of MySessionVariable from the session state
+            HttpContext.Session.SetString("GetItemIDForSkipOrder", item.ID.ToString());
+
+            
+
 
             //return RedirectToAction(nameof(Index));
             //return RedirectToAction("Details", new { item.ID });

@@ -16,6 +16,12 @@ using NToastNotify;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//ADDING THE SESSION
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+});
+
 // Add services to the container.
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -108,6 +114,7 @@ else
     app.UseHsts();
 }
 
+app.UseSession();
 
 //NOTE this line must be above .UseMvc() line.
 app.UseNToastNotify();

@@ -1,0 +1,88 @@
+﻿@model CAAMarketing.Models.Inventory
+@inject IHttpContextAccessor HttpContextAccessor
+
+<form asp-action="Create" asp-controller="Inventories" id="createNotifForm">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Would you like to Silence this Notification:</h4>
+            <div class="form-group">
+                <select id="myDropdown" required>
+                    <option value="" disabled selected>Choose Options</option>
+                  <option value="1">1 Day</option>
+                  <option value="2">2 Days</option>
+                  <option value="3">3 Days</option>
+                    <option value="7">1 Week</option>
+                  <option value="0">Permanantly</option>
+                </select>
+                <input type="submit" id="submitNotifCreate" value="Yes" class="btn btn-outline-dark" />
+
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="selectedValue" name="selectedValue" value="" />
+    <input type="hidden" id="selectedItemId" name="selectedItemId" value="" />
+    <input type="hidden" id="TypeOfOperation" name="TypeOfOperation" value="Silent" />
+
+</form>
+@*
+<script type="text/javascript">
+    var dropdown = document.getElementById("myDropdown");
+    var selectedValue = dropdown.value;
+    @{bool flag = false}
+    dropdown.addEventListener('change', function () {
+        selectedValue = dropdown.value;
+
+        console.log("Selected value:", selectedValue);
+
+        if(selectedValue == 1){
+            console.log("Im in 1")
+            // Update the session value here
+            @{
+                HttpContextAccessor.HttpContext.Session.SetString("SelectedDDLValueForSilentNotif", "1");
+            }
+        } 
+        else if(selectedValue == 2){
+            console.log("Im in 2")
+            // Update the session value here
+            @{
+                HttpContextAccessor.HttpContext.Session.SetString("SelectedDDLValueForSilentNotif", "2");
+            }
+        }
+        else if (selectedValue == 3) {
+            console.log("Im in 3")
+            // Update the session value here
+            @{
+                HttpContextAccessor.HttpContext.Session.SetString("SelectedDDLValueForSilentNotif", "3");
+            }
+         }
+         else if (selectedValue == 0) {
+            console.log("Im in 0")
+            // Update the session value here
+             @{
+                HttpContextAccessor.HttpContext.Session.SetString("SelectedDDLValueForSilentNotif", "NULL");
+             }
+         }
+          else if (selectedValue == 10) {
+            console.log("Im in 0")
+            // Update the session value here
+             @{
+                HttpContextAccessor.HttpContext.Session.SetString("SelectedDDLValueForSilentNotif", "TEST");
+             }
+         }
+            
+     });
+     console.log("jebhbvrewibefwbnvejbnuivewbuivewbuivewbuivebuvwe")
+</script>*@
+
+<script type="text/javascript">
+    
+    var dropdown = document.getElementById("myDropdown");
+    var selectedValue = dropdown.value;
+    var hiddenField = document.getElementById("selectedValue");
+    dropdown.addEventListener('change', function () {
+        selectedValue = dropdown.value;
+        hiddenField.value = selectedValue;
+    });
+
+</script>

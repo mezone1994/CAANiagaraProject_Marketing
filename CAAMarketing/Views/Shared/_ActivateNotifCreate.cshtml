@@ -1,0 +1,18 @@
+﻿@model CAAMarketing.Models.Inventory
+@inject IHttpContextAccessor HttpContextAccessor
+
+<form asp-action="Create" asp-controller="Inventories" id="createNotifActivateForm">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Would you like to Recover this Notification:</h4>
+            <div class="form-group">
+                <input type="submit" id="submitNotifActivate" value="Yes" class="btn btn-outline-dark" />
+            </div>
+        </div>
+    </div>
+    
+    <input type="hidden" id="selectedItemId1" name="selectedItemId1" value="" />
+    <input type="hidden" id="TypeOfOperation" name="TypeOfOperation" value="Activate" />
+
+</form>

@@ -696,31 +696,24 @@ ul {
 
 .homepagediv1 {
     float: left;
-    width: 75%;
     background-color: #eaeaea;
     text-align: center;
     padding: 25px;
-    margin-top: 25px;
-}
-
-.homepagediv2 {
-    float: left;
-    width: 25%;
+    padding: 1em 2em;
     text-align: center;
-    margin-top: 25px;
-    margin-bottom: 25px;
+    margin: 0 10px 0 10px;
 }
 
-    .homepagediv2 img {
+    .homepagediv1 img {
         max-height: 100%;
         max-width: 100%;
         object-fit: contain;
+        margin-bottom: 15px;
     }
-
-@media(max-width: 1024px) {
+/*@media(max-width: 1024px) {
     .homepagediv1 {
         float: left;
-        width: 75%;
+        width: 25%;
         background-color: #eaeaea;
         text-align: center;
         padding: 25px;
@@ -739,7 +732,7 @@ ul {
 @media(max-width: 1920px) {
     .homepagediv1 {
         float: left;
-        width: 75%;
+        width: 25%;
         background-color: #eaeaea;
         text-align: center;
         padding: 25px;
@@ -760,7 +753,7 @@ ul {
             max-width: 100%;
             object-fit: contain;
         }
-}
+}*/
 
 .colsep {
     margin: 20px;

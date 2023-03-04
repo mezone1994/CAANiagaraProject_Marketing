@@ -1,4 +1,5 @@
 ﻿@model CAAMarketing.Models.Receiving
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewData["Title"] = "Create";
@@ -17,7 +18,9 @@
         </li>
     </ul>
 </div>
-
+@{
+    HttpContextAccessor.HttpContext.Session.SetString("OrderandItemCreated", "True");
+}
 
 <div class="cont">
     <div class="edtext">
@@ -56,12 +59,19 @@
                     
 
                     <div class="form-group">
-                        
+                        @{
+                            // Get the value of MySessionVariable from the session state
+                            string GetItemIDForOrderSkip = HttpContextAccessor.HttpContext.Session.GetString("GetItemIDForSkipOrder");
+                            int ItemIDForSkip = 0;
+                            if (GetItemIDForOrderSkip != null)
+                            {
+                                ItemIDForSkip = Convert.ToInt32(GetItemIDForOrderSkip);
+                            }
+                        }
                         <input type="submit" value="Create" class="btn btn-primary" />
+                        <a asp-action="Index" asp-controller="OrderItems" title="Click this to go to details" class="padding-for-actions" asp-route-ItemID="@ItemIDForSkip"> Skip   </a> |
                         <div class="tooltip"> <a asp-controller="Inventories" asp-action="Index" > <img src="~/images/icons8-go-back-24.png" alt="Exit Icon"/> <span class="tooltiptext">Exit</span></a> </div>
                     </div>
-                    
-
                 </form>
             </div>
         </div>

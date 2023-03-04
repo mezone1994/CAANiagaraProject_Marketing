@@ -8,16 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
 using CAAMarketing.Utilities;
+using NToastNotify;
 
 namespace CAAMarketing.Controllers
 {
     public class OrderItemsController : Controller
     {
         private readonly CAAContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public OrderItemsController(CAAContext context)
+        public OrderItemsController(CAAContext context, IToastNotification toastNotification)
         {
             _context = context;
+            _toastNotification = toastNotification;
         }
 
         // GET: OrderItems
@@ -28,6 +31,15 @@ namespace CAAMarketing.Controllers
         {
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
+
+
+            // Get the value of MySessionVariable from the session state
+            string foundsession = HttpContext.Session.GetString("OrderandItemCreated");
+
+            if (foundsession == "True")
+            {
+                _toastNotification.AddSuccessToastMessage($"New Item Completed! Take A Look At The Overview.");
+            }
 
             //Get the URL with the last filter, sort and page parameters from THE PATIENTS Index View
             ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Inventories");

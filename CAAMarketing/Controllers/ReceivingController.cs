@@ -8,16 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
 using CAAMarketing.Utilities;
+using NToastNotify;
 
 namespace CAAMarketing.Controllers
 {
     public class ReceivingController : Controller
     {
         private readonly CAAContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public ReceivingController(CAAContext context)
+        public ReceivingController(CAAContext context, IToastNotification toastNotification)
         {
             _context = context;
+            _toastNotification = toastNotification;
         }
 
         // GET: Orders
@@ -196,6 +199,11 @@ namespace CAAMarketing.Controllers
             {
                 ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name");
             }
+
+            _toastNotification.AddSuccessToastMessage($"Item Created!");
+
+            _toastNotification.AddAlertToastMessage($"You Can Now Enter Any Recieving That Was Ordered For This Product. If There Wasnt Any Recieving, You Can Skip By Clicking The 'Skip' Button");
+
 
             return View();
         }

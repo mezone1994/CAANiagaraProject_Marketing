@@ -19,7 +19,9 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 using Syncfusion.Blazor.Buttons;
 using System.ComponentModel;
-using Microsoft.CodeAnalysis;
+using AspNetCore;
+using Microsoft.AspNetCore.Http;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 
 namespace CAAMarketing.Controllers
 {
@@ -43,14 +45,14 @@ namespace CAAMarketing.Controllers
             ViewDataReturnURL();
 
             //FOR THE SILENTMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
-            var invForSilent = _context.Inventories.Where(i => i.DismissNotification > DateTime.Now).Count();
+            var invForSilent = _context.Inventories.Where(i => i.DismissNotification > DateTime.Now && i.Item.Archived != true).Count();
             var invnullsForSilent = _context.Inventories.Where(i => i.DismissNotification == null && i.Item.Archived != true).Count();
             ViewData["SilencedMessageCount"] = (invForSilent + invnullsForSilent).ToString();
             //--------------------------------------------------------------------
 
             // FOR THE ACTIVEMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
             var invForActive = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category)
-                .Where(i => i.DismissNotification <= DateTime.Now && i.Quantity < i.Item.Category.LowCategoryThreshold && i.Item.Archived != true).Count();
+                .Where(i => i.DismissNotification <= DateTime.Now && i.Quantity < i.Item.Category.LowCategoryThreshold && i.Item.Archived != true && i.DismissNotification != null).Count();
             
             ViewData["ActiveMessageCount"] = (invForActive).ToString();
             //--------------------------------------------------------------------
@@ -63,11 +65,22 @@ namespace CAAMarketing.Controllers
 
             if (TempData["RecoverNotifMessageBool"] != null)
             {
-                _toastNotification.AddSuccessToastMessage(@$"Record Recovered!");
+                _toastNotification.AddSuccessToastMessage(@$"Message Recovered!");
             }
             if (TempData["SilenceNotifMessageBool"] != null)
             {
-                _toastNotification.AddSuccessToastMessage(@$"Record Silenced!");
+                _toastNotification.AddSuccessToastMessage(@$"Message Silenced!");
+            }
+            if (TempData.ContainsKey("NotifFromPopupSuccess") && TempData["NotifFromPopupSuccess"] != null)
+            {
+                if (TempData["NotifFromPopupSuccess"].ToString() == "Silent")
+                {
+                    _toastNotification.AddSuccessToastMessage(@$"Message Silenced!");
+                }
+                if (TempData["NotifFromPopupSuccess"].ToString() == "Activate")
+                {
+                    _toastNotification.AddSuccessToastMessage(@$"Message Activated!");
+                }
             }
 
             //Clear the sort/filter/paging URL Cookie for Controller
@@ -89,6 +102,9 @@ namespace CAAMarketing.Controllers
 
             //Populating the DropDownLists for the Search/Filtering criteria, which are the Location
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
+
+
+
 
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
@@ -143,12 +159,12 @@ namespace CAAMarketing.Controllers
             //    if (sortDirection == "asc")
             //    {
             //        inventories = inventories
-            //            .OrderBy(p => p.Cost.ToString());
+            //            .OrderBy(p => p.Cost);
             //    }
             //    else
             //    {
             //        inventories = inventories
-            //            .OrderByDescending(p => p.Cost.ToString());
+            //            .OrderByDescending(p => p.Cost);
             //    }
             //}
             if (sortField == "Quantity")
@@ -245,6 +261,7 @@ namespace CAAMarketing.Controllers
         // GET: Inventories/Create
         public IActionResult Create()
         {
+
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
 
@@ -258,34 +275,82 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Cost,Quantity,ItemID,LocationID,IsLowInventory,LowInventoryThreshold")] Inventory inventory)
+        public async Task<IActionResult> Create(string selectedValue, string selectedItemId, string selectedItemId1, string TypeOfOperation)
         {
-            //URL with the last filter, sort and page parameters for this controller
-            ViewDataReturnURL();
+            string typeofoperation = HttpContext.Session.GetString("NotifOperation");
+            
 
-            if (ModelState.IsValid)
+            
+
+            if (TypeOfOperation == "Activate")
             {
-                var existingInventory = _context.Inventories.FirstOrDefault(i => i.ItemID == inventory.ItemID);
-                if (existingInventory != null)
-                {
-                    existingInventory.Quantity += inventory.Quantity;
-                    _context.Update(existingInventory);
-                    await _context.SaveChangesAsync();
-                }
-                else
-                {
-                    _context.Add(inventory);
-                    await _context.SaveChangesAsync();
-                }
-                //Call the CheckInventoryLevel method after adding new inventory
-                CheckInventoryLevel(_context.Inventories.ToList());
-                //return RedirectToAction(nameof(Index));
-                return RedirectToAction("Details", new { inventory.ItemID });
+                // HttpContext.Session.SetString("SelectedDDLValueForSilentNotif", selectedValue);
+                HttpContext.Session.SetString("ItemIdForPartialNotif", selectedItemId1);
 
+                int itemID = Convert.ToInt32(HttpContext.Session.GetString("ItemIdForPartialNotif"));
+
+                var invEditNotif = _context.Inventories.FirstOrDefault(i => i.ItemID == itemID);
+
+                try
+                {
+                    invEditNotif.DismissNotification = DateTime.Now;
+
+                    _context.Update(invEditNotif);
+                    _context.SaveChanges();
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+                TempData["NotifFromPopupSuccess"] = "Activate";
             }
-            ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", inventory.ItemID);
-            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", inventory.LocationID);
-            return View(inventory);
+               
+
+
+            else if (TypeOfOperation == "Silent")
+            {
+                // HttpContext.Session.SetString("SelectedDDLValueForSilentNotif", selectedValue);
+                HttpContext.Session.SetString("ItemIdForPartialNotif", selectedItemId);
+
+                int itemID = Convert.ToInt32(HttpContext.Session.GetString("ItemIdForPartialNotif"));
+
+                var invEditNotif = _context.Inventories.FirstOrDefault(i => i.ItemID == itemID);
+
+                int days = 10;
+
+                if (selectedValue == "1") { days = 1; }
+                else if (selectedValue == "2") { days = 2; }
+                else if (selectedValue == "3") { days = 3; }
+                else if (selectedValue == "7") { days = 7; }
+                else if (selectedValue == "0") { days = 0; }
+
+
+                if (invEditNotif != null)
+                {
+                    if (days == 0)
+                    {
+                        invEditNotif.DismissNotification = null;
+                        _context.Update(invEditNotif);
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        int numofDays = Convert.ToInt32(HttpContext.Session.GetString("SelectedDDLValueForSilentNotif"));
+                        invEditNotif.DismissNotification = DateTime.Now;
+                        invEditNotif.DismissNotification = DateTime.Now.AddDays(days);
+                        _context.Update(invEditNotif);
+                        _context.SaveChanges();
+                    }
+                    TempData["NotifFromPopupSuccess"] = "Silent";
+                }
+            }
+
+
+
+
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Inventories/Edit/5
@@ -441,9 +506,15 @@ namespace CAAMarketing.Controllers
                                     <br><br>Qiuck Actions:
                                     <button style='background:#3630a3;color:white;'>
                                     <a href='#' onclick='redirectToSilenceNotif({inventory.Item.ID}); return false;'>Silent This Notification?</a>
+                                    
+                                    <button class='btn btn-outline-secondary' id='nowEditNotifSilent1' data-bs-toggle='modal' data-bs-target='#addNotifModal' type='button'>
+                                        <strong>Check Messages</strong>
+                                    </button>
                                     ");
                     }
-
+                    
+        
+    
                 }
                 else
                 {
@@ -465,7 +536,7 @@ namespace CAAMarketing.Controllers
         }
 
         //Method for Viewing Inventory Report
-        public async Task<IActionResult> InventoryReport(string SearchString, int?[] LocationID, int? page, int? pageSizeID, string actionButton, 
+        public async Task<IActionResult> InventoryReport(string SearchString, int?[] LocationID, int? page, int? pageSizeID, string actionButton,
             string sortDirection = "asc", string sortField = "ItemName")
         {
             //For the Report View
@@ -484,13 +555,13 @@ namespace CAAMarketing.Controllers
             //       DateReceived = Convert.ToDateTime(grp.Select(grp => grp.Item.DateReceived)),
             //       Notes = grp.Select(grp => grp.Item.Notes).ToString()
             //   }).OrderBy(s => s.ItemName);
-            
+
             //For report
             var sumQ = from i in _context.Inventories
                         .Include(i => i.Item.Supplier)
                         .Include(i => i.Item.Category)
                         .Include(i => i.Item.Employee)
-                        .Include (i => i.Location)
+                        .Include(i => i.Location)
                        orderby i.Item.Name ascending
                        select new InventoryReportVM
                        {
@@ -899,7 +970,7 @@ namespace CAAMarketing.Controllers
                     //Note: You can define a BLOCK of cells: Cells[startRow, startColumn, endRow, endColumn]
                     //Make Item Name Bold
                     workSheet.Cells[4, 2, numRows + 3, 2].Style.Font.Bold = true;
-                  
+
                     //Make Item Quantity Bold/Colour coded
                     workSheet.Cells[4, 3, numRows + 3, 3].Style.Font.Bold = true;
                     var item = from i in _context.Inventories
@@ -1073,7 +1144,7 @@ namespace CAAMarketing.Controllers
 
 
 
-                    _context.SaveChangesAsync();
+                    
 
 
                 }
@@ -1086,6 +1157,8 @@ namespace CAAMarketing.Controllers
                 }
                 _context.Update(inventoryToUpdate);
                 _context.SaveChanges();
+
+                _context.SaveChangesAsync();
             }
             catch (Exception)
             {
@@ -1221,6 +1294,7 @@ namespace CAAMarketing.Controllers
                     {
                         if (inventory.DismissNotification >= DateTime.Now || inventory.DismissNotification == null)
                         {
+                            
                             DateTime inventoryDismissNotification = inventory.DismissNotification ?? DateTime.MinValue; // Use DateTime.MinValue as a default value if inventory.DismissNotification is null
                             TimeSpan timeDifference = inventoryDismissNotification - DateTime.Now;
                             int daysApart = timeDifference.Days;
@@ -1241,8 +1315,11 @@ namespace CAAMarketing.Controllers
                                 $@"Inventory for {inventory.Item.Name} at location {inventory.Location.Name} is running low. Current quantity: {inventory.Quantity}
                                     <a href='#' onclick='redirectToEdit({inventory.Item.ID}); return false;'>Edit</a> <br>***Silenced {daysApart} day(s) left***
                                     
-                                    <button style='background:#3630a3;color:white;'>
-                                    <a href='#' onclick='redirectToRecoverNotif({inventory.Item.ID}); return false;'>Recover This Notification?</a>
+                                    <button class='btn btn-outline-secondary' id='nowEditActivateNotif' data-bs-toggle='modal' data-bs-target='#addNotifActivateModal' type='button'
+                                    onclick='setItemIdForPartialNotifActivate({inventory.Item.ID})'>
+                                        <strong>Recover Message</strong>
+                                    </button> 
+
                                     ");
                             }
                             else
@@ -1252,8 +1329,12 @@ namespace CAAMarketing.Controllers
                                 $@"Inventory for {inventory.Item.Name} at location {inventory.Location.Name} is running low. Current quantity: {inventory.Quantity}
                                     <a href='#' onclick='redirectToEdit({inventory.Item.ID}); return false;'>Edit</a> <br>***Silenced Permanantly***
                                     
-                                    <button style='background:#3630a3;color:white;'>
-                                    <a href='#' onclick='redirectToRecoverNotif({inventory.Item.ID}); return false;'>Recover This Notification?</a>
+                               
+                                    <button class='btn btn-outline-secondary' id='nowEditActivateNotifNull' data-bs-toggle='modal' data-bs-target='#addNotifActivateModal' type='button'
+                                    onclick='setItemIdForPartialNotifActivate({inventory.Item.ID})'>
+                                        <strong>Recover Message</strong>
+                                    </button> 
+
                                     ");
                             }
 
@@ -1282,6 +1363,7 @@ namespace CAAMarketing.Controllers
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
+            int itemID = 0;
             int norecords = 0;
             var inventories = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category).Where(t => t.Item.Archived == false).ToList();
             foreach (var inventory in inventories)
@@ -1289,17 +1371,22 @@ namespace CAAMarketing.Controllers
 
                 if (inventory.Quantity <= inventory.Item.Category.LowCategoryThreshold)
                 {
-                    if (inventory.DismissNotification <= DateTime.Now)
+                    if (inventory.DismissNotification <= DateTime.Now && inventory.DismissNotification != null)
                     {
+                        itemID = inventory.ItemID;
+                        HttpContext.Session.SetString("ItemIdForPartialNotif" + itemID, inventory.ItemID.ToString());
                         norecords += 1;
                         inventory.IsLowInventory = true;
                         _toastNotification.AddInfoToastMessage(
                             $@"Inventory for {inventory.Item.Name} at location {inventory.Location.Name} is running low. Current quantity: {inventory.Quantity}
-                                    <a href='#' onclick='redirectToEdit({inventory.Item.ID}); return false;'>Edit</a>
-                                    <br>Qiuck Actions:
-                                    <button style='background:#3630a3;color:white;'>
-                                    <a href='#' onclick='redirectToSilenceNotif({inventory.Item.ID}); return false;'>Silent This Notification?</a>
-                                    ");
+                                <a href='#' onclick='redirectToEdit({inventory.Item.ID}); return false;'>Edit</a>
+                                <br><br>Qiuck Actions:
+                                
+                                <button class='btn btn-outline-secondary' id='nowEditNotifSilent' data-bs-toggle='modal' data-bs-target='#addNotifModal' type='button'
+                                    onclick='setItemIdForPartialNotif({inventory.Item.ID})'>
+                                    <strong>Silence Message</strong>
+                                </button>");
+
                     }
 
                 }

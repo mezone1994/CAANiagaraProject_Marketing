@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
-using Microsoft.Extensions.Options;
 using CAAMarketing.Utilities;
 
 namespace CAAMarketing.Controllers
@@ -26,7 +25,7 @@ namespace CAAMarketing.Controllers
             , string actionButton, string sortDirection = "asc", string sortField = "Event")
         {
             //Clear the sort/filter/paging URL Cookie for Controller
-            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);            
+            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
 
 
             //Toggle the Open/Closed state of the collapse depending on if we are filtering
@@ -43,15 +42,8 @@ namespace CAAMarketing.Controllers
 
 
             var events = _context.Events
-                .Include(a => a.Location)
                 .AsNoTracking();
 
-            //Add as many filters as needed
-            if (LocationID.HasValue)
-            {
-                events = events.Where(p => p.LocationID == LocationID);
-                ViewData["Filtering"] = " show";
-            }
             if (!String.IsNullOrEmpty(SearchString))
             {
                 events = events.Where(p => p.Name.ToUpper().Contains(SearchString.ToUpper()));
@@ -77,12 +69,12 @@ namespace CAAMarketing.Controllers
                 if (sortDirection == "asc")
                 {
                     events = events
-                        .OrderBy(p => p.Location);
+                        .OrderBy(p => p.location);
                 }
                 else
                 {
                     events = events
-                        .OrderByDescending(p => p.Location);
+                        .OrderByDescending(p => p.location);
                 }
             }
             else if (sortField == "Date")
@@ -125,16 +117,12 @@ namespace CAAMarketing.Controllers
         // GET: Events/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            //URL with the last filter, sort and page parameters for this controller
-            ViewDataReturnURL();
-
             if (id == null || _context.Events == null)
             {
                 return NotFound();
             }
 
             var @event = await _context.Events
-                .Include(a => a.Location)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (@event == null)
             {
@@ -150,7 +138,6 @@ namespace CAAMarketing.Controllers
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
 
-            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
             return View();
         }
 
@@ -159,7 +146,7 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Description,Date,LocationID")] Event @event)
+        public async Task<IActionResult> Create([Bind("ID,Name,Description,Date,location")] Event @event)
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
@@ -168,11 +155,8 @@ namespace CAAMarketing.Controllers
             {
                 _context.Add(@event);
                 await _context.SaveChangesAsync();
-                //return RedirectToAction(nameof(Index));
-                return RedirectToAction("Details", new { @event.ID });
-
+                return RedirectToAction(nameof(Index));
             }
-            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", @event.LocationID);
             return View(@event);
         }
 
@@ -192,7 +176,6 @@ namespace CAAMarketing.Controllers
             {
                 return NotFound();
             }
-            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", @event.LocationID);
             return View(@event);
         }
 
@@ -219,7 +202,7 @@ namespace CAAMarketing.Controllers
 
             //Try updating it with the values posted
             if (await TryUpdateModelAsync<Event>(eventToUpdate, "",
-                e => e.Name, e => e.Description, e => e.Date, e => e.LocationID))
+                e => e.Name, e => e.Description, e => e.Date, e => e.location))
             {
                 try
                 {
@@ -246,23 +229,18 @@ namespace CAAMarketing.Controllers
 
                 }
             }
-            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", eventToUpdate.LocationID);
             return View(eventToUpdate);
         }
 
         // GET: Events/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            //URL with the last filter, sort and page parameters for this controller
-            ViewDataReturnURL();
-
             if (id == null || _context.Events == null)
             {
                 return NotFound();
             }
 
             var @event = await _context.Events
-                .Include(a => a.Location)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (@event == null)
             {
@@ -277,9 +255,6 @@ namespace CAAMarketing.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            //URL with the last filter, sort and page parameters for this controller
-            ViewDataReturnURL();
-
             if (_context.Events == null)
             {
                 return Problem("Entity set 'CAAContext.Events'  is null.");
@@ -291,10 +266,9 @@ namespace CAAMarketing.Controllers
             }
             
             await _context.SaveChangesAsync();
-            //return RedirectToAction(nameof(Index));
-            return Redirect(ViewData["returnURL"].ToString());
-
+            return RedirectToAction(nameof(Index));
         }
+
         private string ControllerName()
         {
             return this.ControllerContext.RouteData.Values["controller"].ToString();
@@ -303,6 +277,7 @@ namespace CAAMarketing.Controllers
         {
             ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, ControllerName());
         }
+
         private bool EventExists(int id)
         {
           return _context.Events.Any(e => e.ID == id);

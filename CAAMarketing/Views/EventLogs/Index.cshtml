@@ -1,0 +1,23 @@
+﻿@model IEnumerable<EventLog>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Event Name</th>
+            <th>Item Name</th>
+            <th>Quantity</th>
+            <th>Log Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.EventName</td>
+                <td>@item.ItemName</td>
+                <td>@item.Quantity</td>
+                <td>@item.LogDate</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -50,7 +50,7 @@
                     <thead>
                         <tr>
                             <th>
-                                <input type="submit" name="actionButton" value="OrderItem" class="btn btn-link" title="Click this to sort" />
+                                <input type="submit" name="actionButton" value="Item" class="btn btn-link" title="Click this to sort" />
                             </th>
                             <th>
                                 <input type="submit" name="actionButton" value="UPC" class="btn btn-link" title="Click this to sort" />
@@ -92,10 +92,90 @@
                                     @Html.DisplayFor(modelItem => item.Cost)
                                 </td>
                                 <td>
-                                    @(item.DeliveryDate > DateTime.Today ? "In Progress" : "Received")
-                                    <span class="status text-success @(item.DeliveryDate > DateTime.Today ? "hide" : "")">&bull;</span>
-                                    <span class="status text-danger @(!(item.DeliveryDate > DateTime.Today) ? "hide" : "")">&bull;</span>
-                                        </td>
+                                    @{
+                                        DateTime deliveryDate = Convert.ToDateTime(item.DeliveryDate);
+                                        TimeSpan timeRemaining = deliveryDate - DateTime.Now;
+
+                                        int totalDaysRemaining = (int)timeRemaining.TotalDays;
+                                        int totalWeeksRemaining = (int)timeRemaining.TotalDays / 7;
+                                        int totalMonthsRemaining = (int)timeRemaining.TotalDays / 30;
+                                        int totalYearsRemaining = (int)timeRemaining.TotalDays / 365;
+                                        int totalHoursRemaining = (int)timeRemaining.TotalHours;
+                                        int totalMinutesRemaining = (int)timeRemaining.TotalMinutes;
+                                        int totalSecondsRemaining = (int)timeRemaining.TotalSeconds;
+
+                                        var progress = 100 - Math.Min(Math.Max(totalDaysRemaining, 0), 100);
+
+                                        string remainingTime = string.Empty;
+
+                                        if (totalYearsRemaining > 0)
+                                        {
+                                            remainingTime = $"{totalYearsRemaining} year{(totalYearsRemaining > 1 ? "s" : string.Empty)}";
+                                            if (totalMonthsRemaining % 12 > 0)
+                                            {
+                                                remainingTime += $", {totalMonthsRemaining % 12} month{(totalMonthsRemaining % 12 > 1 ? "s" : string.Empty)}";
+                                            }
+                                        }
+                                        else if (totalMonthsRemaining > 0)
+                                        {
+                                            remainingTime = $"{totalMonthsRemaining} month{(totalMonthsRemaining > 1 ? "s" : string.Empty)}";
+                                            if (totalDaysRemaining % 30 > 0)
+                                            {
+                                                remainingTime += $", {totalDaysRemaining % 30} day{(totalDaysRemaining % 30 > 1 ? "s" : string.Empty)}";
+                                            }
+                                        }
+                                        else if (totalWeeksRemaining > 0)
+                                        {
+                                            remainingTime = $"{totalWeeksRemaining} week{(totalWeeksRemaining > 1 ? "s" : string.Empty)}";
+                                            if (totalDaysRemaining % 7 > 0)
+                                            {
+                                                remainingTime += $", {totalDaysRemaining % 7} day{(totalDaysRemaining % 7 > 1 ? "s" : string.Empty)}";
+                                            }
+                                        }
+                                        else if (totalDaysRemaining > 0)
+                                        {
+                                            remainingTime = $"{totalDaysRemaining} day{(totalDaysRemaining > 1 ? "s" : string.Empty)}";
+                                            if (totalHoursRemaining % 24 > 0)
+                                            {
+                                                remainingTime += $", {totalHoursRemaining % 24} hour{(totalHoursRemaining % 24 > 1 ? "s" : string.Empty)}";
+                                            }
+                                        }
+                                        else if (totalHoursRemaining > 0)
+                                        {
+                                            remainingTime = $"{totalHoursRemaining} hour{(totalHoursRemaining > 1 ? "s" : string.Empty)}";
+                                            if (totalMinutesRemaining % 60 > 0)
+                                            {
+                                                remainingTime += $", {totalMinutesRemaining % 60} minute{(totalMinutesRemaining % 60 > 1 ? "s" : string.Empty)}";
+                                            }
+                                        }
+                                        else if (totalMinutesRemaining > 0)
+                                        {
+                                            remainingTime = $"{totalMinutesRemaining} minute{(totalMinutesRemaining > 1 ? "s" : string.Empty)}";
+                                            if (totalSecondsRemaining % 60 > 0)
+                                            {
+                                                remainingTime += $", {totalSecondsRemaining % 60} second{(totalSecondsRemaining % 60 > 1 ? "s" : string.Empty)}";
+                                            }
+                                        }
+                                    }
+
+                                    <div class="progress">
+                                        <div class="progress-bar @((deliveryDate > DateTime.Now) ? "bg-warning" : "bg-success")"
+                                         role="progressbar"
+                                         aria-valuenow="@progress"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"
+                                         style="width: @progress%;">
+                                            @if (deliveryDate > DateTime.Now)
+                                            {
+                                                @($"In Progress ({remainingTime} remaining)")
+                                            }
+                                            else
+                                            {
+                                                <span class="text-white">Received</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
                                 @*                    <td>
                             @Html.DisplayFor(modelItem => item.DateMade)
                             </td>*@

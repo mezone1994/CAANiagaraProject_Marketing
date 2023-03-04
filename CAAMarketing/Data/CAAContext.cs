@@ -72,11 +72,16 @@ namespace CAAMarketing.Data
 
         public DbSet<InventoryReportVM> InventoryReports { get; set; }
 
+        public DbSet<ItemReservation> ItemReservations { get; set; }
+
+        public DbSet<EventLog> EventLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.HasDefaultSchema("CAA");
 
+
+            modelBuilder.Entity<ItemReservation>()
+        .HasQueryFilter(p => !p.IsDeleted);
 
             //Many to Many for Play Table to Musician
             modelBuilder.Entity<ItemEvent>()

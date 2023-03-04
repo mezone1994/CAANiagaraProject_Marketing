@@ -450,6 +450,44 @@ namespace CAAMarketing.Controllers
         {
             ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, ControllerName());
         }
+
+        public ActionResult LogOutItem(int itemId, int eventId, int quantity)
+        {
+            // Get the item and event objects from the database
+            var item = _context.Items.Find(itemId);
+            var @event = _context.Events.Find(eventId);
+
+            // Check if the item is already reserved for the event
+            var existingReservation = _context.ItemReservations
+                .FirstOrDefault(r => r.ItemId == itemId && r.EventId == eventId);
+
+            if (existingReservation != null)
+            {
+                // If the item is already reserved, update the reservation with the new quantity
+                existingReservation.Quantity += quantity;
+            }
+            else
+            {
+                // If the item is not already reserved, create a new reservation
+                var newReservation = new ItemReservation
+                {
+                    Item = item,
+                    Event = @event,
+                    Quantity = quantity,
+                    ReservedDate = DateTime.Now
+                };
+                _context.ItemReservations.Add(newReservation);
+            }
+
+            // Update the quantity of the item in the inventory
+            item.Quantity -= quantity;
+
+            // Save changes to the database
+            _context.SaveChanges();
+
+            // Redirect back to the event details page
+            return RedirectToAction("Details", "Event", new { id = eventId });
+        }
         private bool CategoryExists(int id)
         {
             return _context.Category.Any(e => e.Id == id);

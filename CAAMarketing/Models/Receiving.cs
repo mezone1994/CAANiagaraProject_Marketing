@@ -38,6 +38,19 @@ namespace CAAMarketing.Models
         [Display(Name = "Item Name")]
         public Item Item { get; set; }
 
+        public int Progress
+        {
+            get
+            {
+                if (DeliveryDate == null)
+                    return 0;
+
+                var totalDays = (DeliveryDate.Value - DateMade.Value).TotalDays;
+                var elapsedDays = (DateTime.Now - DateMade.Value).TotalDays;
+                var progress = (int)Math.Round(elapsedDays / totalDays * 100);
+                return progress;
+            }
+        }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

@@ -1,0 +1,51 @@
+﻿@model CAAMarketing.Models.ItemReservation
+
+@{
+    ViewData["Title"] = "Edit Item Reservation";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label asp-for="EventId" class="control-label">Event</label>
+                <select asp-for="EventId" class="form-control" asp-items="ViewBag.EventId"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ItemId" class="control-label">Item</label>
+                <select asp-for="ItemId" class="form-control" asp-items="ViewBag.ItemId"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Quantity" class="control-label">Quantity</label>
+                <input asp-for="Quantity" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ReservedDate" class="control-label">Reserved Date</label>
+                <input asp-for="ReservedDate" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ReturnDate" class="control-label">Return Date</label>
+                <input asp-for="ReturnDate" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

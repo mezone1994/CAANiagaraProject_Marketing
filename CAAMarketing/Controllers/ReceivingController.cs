@@ -25,7 +25,7 @@ namespace CAAMarketing.Controllers
 
         // GET: Orders
         public async Task<IActionResult> Index(string SearchString, int? SupplierID, int? page, int? pageSizeID
-            , string actionButton, string sortDirection = "asc", string sortField = "OrderItem")
+            , string actionButton, string sortDirection = "asc", string sortField = "Item")
         {
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
@@ -41,7 +41,7 @@ namespace CAAMarketing.Controllers
 
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
-            string[] sortOptions = new[] { "OrderItem", "Quantity", "UPC","Cost", "DateMade", "DeliveryDate" };
+            string[] sortOptions = new[] { "Item", "Quantity", "UPC","Cost", "DateMade", "DeliveryDate" };
 
             var orders = _context.Orders
                 .Include(o => o.Item)

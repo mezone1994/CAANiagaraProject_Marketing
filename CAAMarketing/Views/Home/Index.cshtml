@@ -36,14 +36,14 @@
                     <p>
                         Quickly create an item through here this will register it into the database.
                     </p>
-                    <a asp-area="" asp-controller="" asp-action="">
+
+	                <a href="#loginpop">
                         <span class="linkSpanner"></span>
                     </a>
                 }
             }
         </div>
 
-        <!--Does not completly work, would like so that it actually downloads and not just take you to the page-->
         <div class="colAct">
             @{
                 if (User.Identity.IsAuthenticated)
@@ -66,7 +66,7 @@
                     <p>
                         Download the Inventory Report of all items in your database and inventory
                     </p>
-                    <a asp-area="" asp-controller="" asp-action="">
+	                <a href="#loginpop">
                         <span class="linkSpanner"></span>
                     </a>
                 }
@@ -88,6 +88,17 @@
                         <span class="linkSpanner"></span>
                     </a>
                 }
+                else if(User.Identity.IsAuthenticated)
+                {
+                    <h3>New Employee</h3>
+                    //<a class="dropdown-item" asp-area="" asp-controller="" asp-action="">Click here to Create Employee</a>
+                    <p>
+                        Add new employee into database so that they can login (Admin Only)
+                    </p>
+	                <a href="#adminpop">
+                        <span class="linkSpanner"></span>
+                    </a>
+                }
                 else
                 {
                     <h3>New Employee</h3>
@@ -95,7 +106,7 @@
                     <p>
                         Add new employee into database so that they can login (Admin Only)
                     </p>
-                    <a asp-area="" asp-controller="" asp-action="">
+	                <a href="#loginpop">
                         <span class="linkSpanner"></span>
                     </a>
                 }
@@ -131,7 +142,7 @@
                     <p>
                         Go to all the archived items, unarchive them if needed
                     </p>
-                    <a asp-area="" asp-controller="" asp-action="">
+	                <a href="#loginpop">
                         <span class="linkSpanner"></span>
                     </a>
                 }
@@ -157,7 +168,7 @@
                     <p>
                         Look at or change the info of your own account
                     </p>
-                    <a asp-area="" asp-controller="" asp-action="">
+	                <a href="#loginpop">
                         <span class="linkSpanner"></span>
                     </a>
                 }
@@ -168,23 +179,23 @@
             @{
                 if (User.Identity.IsAuthenticated)
                 {
-                    <h3>Inventory</h3>
+                    <h3>New Transfer</h3>
                     //<a class="dropdown-item" asp-area="" asp-controller="Inventories" asp-action="Index">Click here For Inventory</a>
                     <p>
-                        Check on the location, UPC or quantities of all items
+                        Create a new inventory item transfer to mark that an item has been transfered from one location to another.
                     </p>
-                    <a asp-area="" asp-controller="Inventories" asp-action="Index">
+                    <a asp-area="" asp-controller="InventoryTransfers" asp-action="Create">
                         <span class="linkSpanner"></span>
                     </a>
                 }
                 else
                 {
-                    <h3>Inventory</h3>
+                    <h3>New Transfer</h3>
                     //<a class="dropdown-item" asp-area="" asp-controller="" asp-action="">Click here For Inventory</a>
                     <p>
-                        Check on the location, UPC or quantities of all items
+                        Create a new inventory transfer to mark that an item has been transfered from one location to another.
                     </p>
-                    <a asp-area="" asp-controller="" asp-action="">
+	                <a href="#loginpop">
                         <span class="linkSpanner"></span>
                     </a>
                 }
@@ -211,7 +222,7 @@
                     <p>
                         Check the items that you are receiving
                     </p>
-                    <a asp-area="" asp-controller="" asp-action="">
+	                <a href="#loginpop">
                         <span class="linkSpanner"></span>
                     </a>
                 }
@@ -220,8 +231,26 @@
         </div>
     </div>
 
+<!--popups for not being logged in or not being an admin-->
+<div id="loginpop" class="overlay">
+	<div class="popup">
+		<h2>Error!</h2>
+		<a class="close" href="#">&times;</a>
+		<div class="content">
+			You Must Be Logged In to Access This page!
+		</div>
+	</div>
+</div>
 
-
+<div id="adminpop" class="overlay">
+	<div class="popup">
+		<h2>Error!</h2>
+		<a class="close" href="#">&times;</a>
+		<div class="content">
+			You Must Be An Admin To Access This page!
+		</div>
+	</div>
+</div>
 
 <!-- Creating Item Page, Download Inventory Report and anywhere there are buttons-->
 

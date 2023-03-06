@@ -794,21 +794,155 @@ ul {
     cursor: pointer;
     position: relative;
 }
+@media(max-width: 1390px) {
+    .rowAct {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        margin-top: 25px;
+    }
+    .colAct {
+        margin-bottom:15px;
+    }
+}
+@media(max-width: 425px) {
+    .rowAct {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        margin-top: 25px;
+    }
+
+    .colAct {
+        margin-bottom: 15px;
+    }
+}
 
     .colAct:hover {
         background-color: lightgrey;
     }
 
-.linkSpanner {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 1;
+    .linkSpanner {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 1;
+    }
+
+        .linkSpanner:hover {
+            /*background-color: lightgrey;*/
+        }
+
+    /*Popup for home page when not logged in*/
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        transition: opacity 500ms;
+        visibility: hidden;
+        opacity: 0;
+    }
+
+        .overlay:target {
+            visibility: visible;
+            opacity: 1;
+        }
+
+    .popup {
+        margin: 70px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 5px;
+        width: 30%;
+        position: relative;
+        transition: all 5s ease-in-out;
+    }
+
+        .popup h2 {
+            margin-top: 0;
+            color: #333;
+            font-family: Tahoma, Arial, sans-serif;
+        }
+
+        .popup .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            transition: all 200ms;
+            font-size: 30px;
+            font-weight: bold;
+            text-decoration: none;
+            color: #333;
+        }
+
+            .popup .close:hover {
+                color: #06D85F;
+            }
+
+        .popup .content {
+            max-height: 30%;
+            overflow: auto;
+        }
+
+    @media screen and (max-width: 700px) {
+        .box {
+            width: 70%;
+        }
+
+        .popup {
+            width: 70%;
+        }
+    }
+
+
+    /*details page for inventory quick fixes*/
+    .dettop {
+        margin-top: 25px
+    }
+
+    .deth1top {
+        padding-top: 25px;
+    }
+
+    .detbut {
+        float: right;
+    }
+
+    .detlin {
+        float: left;
+        margin-top: 25px;
+    }
+    /*FOR STATUS */
+
+
+
+/*------------ the plus sign------------*/
+
+.btn-plus {
+    font-size: 1.5em;
+    padding: 0;
+    border: 1px solid black;
+    background: transparent;
+    color: black;
+    width: 1.5em;
+    height: 1.5em;
+    line-height: 1.5em;
+    text-align: center;
+    border-radius: 100%;
 }
 
-    .linkSpanner:hover {
-        /*background-color: lightgrey;*/
-    }   
-/*FOR STATUS */
+    .btn-plus:before {
+        content: "+";
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        line-height: 1;
+        text-align: center;
+        margin-top: 0.25em;
+        margin-left: 0.25em;
+    }
+

@@ -108,6 +108,12 @@ namespace CAAMarketing.Data
             .WithMany(l => l.Items)
             .HasForeignKey(t => t.EmployeeID);
 
+            modelBuilder.Entity<ItemReservation>()
+        .HasOne(i => i.Item)
+        .WithMany(ir => ir.ItemReservations)
+        .HasForeignKey(ir => ir.ItemId)
+        .OnDelete(DeleteBehavior.Cascade);
+
             //Add a unique index to the Employee Email
             modelBuilder.Entity<Employee>()
             .HasIndex(a => new {

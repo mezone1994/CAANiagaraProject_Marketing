@@ -1,0 +1,17 @@
+﻿<!-- Modal-->
+<div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="EventModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="EventmyModalLabel">Add New Event</h4>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                @{
+                    var e = new CAAMarketing.Models.Event();
+                    <partial name="_EventCreate" model="e" />
+                }
+            </div>
+        </div>
+    </div>
+</div>

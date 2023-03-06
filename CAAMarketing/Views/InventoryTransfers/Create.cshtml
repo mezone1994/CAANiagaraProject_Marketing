@@ -4,27 +4,26 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create Inventory Transfer</h1>
-
-<hr />
-
-<div class="row">
-    <div class="col-md-4">
         <form asp-action="Create">
+            <div class="cont">
+                    <div class="deimage">
+                    <h1>Create Inventory Transfer</h1>
+                        <hr />
+                        <div class="deimage2">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
-                <label asp-for="ItemId" class="control-label"></label>
+                <label asp-for="Item" class="control-label"></label>
                 <select asp-for="ItemId" class="form-control" asp-items="ViewBag.ItemId"></select>
             </div>
 
             <div class="form-group">
-                <label asp-for="FromLocationId" class="control-label"></label>
+                <label asp-for="FromLocation" class="control-label"></label>
                 <select asp-for="FromLocationId" class="form-control" asp-items="ViewBag.FromLocationId"></select>
             </div>
 
             <div class="form-group">
-                <label asp-for="ToLocationId" class="control-label"></label>
+                <label asp-for="ToLocation" class="control-label"></label>
                 <select asp-for="ToLocationId" asp-items="@ViewBag.ToLocationId" class="form-control"></select>
             </div>
 
@@ -40,14 +39,14 @@
                 <span asp-validation-for="TransferDate" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            <div style="margin:25px">
+                    <input type="submit" title="Click here to create new Transfer" value="Create" class="btn btn-primary" />
+                <div class="tooltip"> <a href="javascript:history.back()"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back To Inventory</span></a> </div>
             </div>
-        </form>
+            </div>
+        </div>
     </div>
-</div>
-
+</form>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

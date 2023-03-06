@@ -57,6 +57,8 @@ namespace CAAMarketing.Models
         public int EmployeeID { get; set; }
         public Employee Employee { get; set; }
 
+        public ICollection<ItemReservation> ItemReservations { get; set; }
+
         public bool Archived { get; set; } = false;
 
         public ICollection<Receiving> Orders { get; set; }
@@ -81,7 +83,6 @@ namespace CAAMarketing.Models
             {
                 yield return new ValidationResult("Date Received cannot be in the future.", new[] { "DateReceived" });
             }
-
         }
     }
 }

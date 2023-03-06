@@ -189,6 +189,7 @@ namespace CAAMarketing.Controllers
                .Include(i => i.Supplier)
                .Include(i => i.Employee)
                .Include(p => p.ItemThumbNail)
+               .Include(i=>i.ItemReservations)
                .Where(p => p.ID == ItemID.GetValueOrDefault())
                .AsNoTracking()
                .FirstOrDefault();
@@ -197,6 +198,8 @@ namespace CAAMarketing.Controllers
                  .Where(p => p.ItemID == ItemID.GetValueOrDefault())
                  .FirstOrDefault();
 
+            
+
             item.Cost = inventory.Cost;
             item.Quantity = inventory.Quantity;
 
@@ -204,9 +207,15 @@ namespace CAAMarketing.Controllers
             _context.SaveChanges();
 
 
+            var itemReservations = await _context.ItemReservations
+    .Where(ir => ir.ItemId == ItemID.GetValueOrDefault() && !ir.IsDeleted)
+    .ToListAsync();
+
+            ViewBag.ItemReservations = itemReservations;
 
             ViewBag.Item = item;
             ViewBag.Inventory = inventory;
+
 
             return View(pagedData);
         }

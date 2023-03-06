@@ -1,0 +1,35 @@
+﻿
+@model IEnumerable<CAAMarketing.Models.ItemReservation>
+
+@{
+    ViewData["Title"] = "Log Back In";
+}
+<div class="cont">
+    <div class="delete">
+        <h4>Log back in</h4>
+        <hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Delete" asp-controller="ItemReservations" method="post">
+            <input type="hidden" name="id" value="@Model.FirstOrDefault()?.Id" />
+            <div class="form-group">
+                <label for="reservation">Select Reservation:</label>
+                <br />
+                <select id="reservation" name="reservationId" class="form-control">
+                    @foreach (var itemReservation in Model)
+                    {
+    <option value="@itemReservation.Id">@itemReservation.Event.Name - @(itemReservation.ReservedDate.HasValue ? itemReservation.ReservedDate.Value.ToShortDateString() : "N/A") to @(itemReservation.ReturnDate.HasValue ? itemReservation.ReturnDate.Value.ToShortDateString() : "N/A") - @itemReservation.Quantity</option>
+                    }
+                </select>
+            </div>
+                    <div style="margin:25px">
+                        <button type="submit" title="Click here to log back in" class="btn btn-primary">Log Back In</button>
+                        <div class="tooltip"> <a href="javascript:history.back()"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back To Inventory</span></a> </div>
+                   
+                    </div>
+        </form>
+            </div>
+
+            </div>
+</div>
+</div>

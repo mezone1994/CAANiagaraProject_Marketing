@@ -535,7 +535,7 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<int>("Quantity")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("ReservedDate")
+                    b.Property<DateTime?>("ReservedDate")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ReturnDate")
@@ -944,7 +944,7 @@ namespace CAAMarketing.Data.CAMigrations
                         .IsRequired();
 
                     b.HasOne("CAAMarketing.Models.Item", "Item")
-                        .WithMany()
+                        .WithMany("ItemReservations")
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1004,6 +1004,8 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Navigation("InventoryTransfers");
 
                     b.Navigation("ItemImages");
+
+                    b.Navigation("ItemReservations");
 
                     b.Navigation("ItemThumbNail");
 

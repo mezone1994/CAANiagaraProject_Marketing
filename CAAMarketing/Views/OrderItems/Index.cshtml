@@ -7,142 +7,140 @@
 }
 
 <div class="detext-orderitem">
-@*Note: Instead of figure, you can also use Cards for this layout
-https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
-<figure class="row">
-    <p class="col-auto">
-        @{
-                if (item.ItemThumbNail?.Content != null)
-                {
-                    string imageBase64 = Convert.ToBase64String(item.ItemThumbNail.Content);
-                    string imageSrc = string.Format("data:" + item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
-                    <img src="@imageSrc" alt="Profile Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid rounded" />
-                }
-                else
-                {
-                    <img src="~/images/image-not-found .png" style="max-height: 200px; max-width: 200px" class="img-fluid rounded" />
-                }
-        }
-    </p>
-    <figcaption class="col mt-3"><h3><text class="d-none d-sm-inline">Item: </text>@item.Name</h3></figcaption>
-            <dl>
-            <dt class="d-inline">
-                @Html.DisplayNameFor(model => item.Category.LowCategoryThreshold):
-            </dt>
-            <dd class="d-inline">
-                @Html.DisplayFor(model => item.Category.LowCategoryThreshold)
-                <a asp-action="Edit" title="Click this to edit" asp-controller="Categories" asp-route-id="@item.CategoryID" class="padding-for-actions div-back">Edit </a>
-            </dd>
-        </dl>
-        
-        
-</figure>
-
-
-
-
-<div class="row">
-    <div class="col-6">
-        <dl class="row">
-            <dt class="col-sm-3">
-                @Html.DisplayNameFor(model => item.Name):
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => item.Name)
-            </dd>
-            <dt class="col-sm-3">
-                @Html.DisplayNameFor(model => item.Description):
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => item.Description)
-            </dd>
-            
-            <dt class="col-sm-3">
-                @Html.DisplayNameFor(model => item.Category):
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => item.Category.Name)
-            </dd>
-            <dt class="col-sm-3">
-                @Html.DisplayNameFor(model => item.UPC):
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => item.UPC)
-            </dd>
-                <dt class="col-sm-3">
-                        @Html.DisplayNameFor(model => item.Cost):
-                </dt>
-                <dd class="col-sm-9">
-                        @Html.DisplayFor(model => item.Cost)
-                </dd>
-
-                <dt class="col-sm-3">
-                    @Html.DisplayNameFor(model => item.Quantity):
-                </dt>
-                <dd class="col-sm-9">
-                    @Html.DisplayFor(model => item.Quantity)
-                </dd>
-                
-
-        </dl>
-    </div>
-    <div class="col-6">
-        <dl class="row">
-
-            <dt class="col-sm-3">
-                @Html.DisplayNameFor(model => item.DateReceived):
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => item.DateReceived)
-            </dd>
-            <dt class="col-sm-3">
-                @Html.DisplayNameFor(model => item.Supplier):
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => item.Supplier.Name)
-            </dd>
-            <dt class="col-sm-3">
-                Employee:
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => item.Employee.FullName)
-            </dd>
-            <dt class="col-sm-3">
-                Last Modified By:
-            </dt>
-            <dd class="col-sm-9">
-                @Html.DisplayFor(model => item.EmployeeNameUser)
-            </dd>
-            <dt class="col-md-3">
-                @Html.DisplayNameFor(model => item.Archived)?
-            </dt>
-            <dd class="col-md-8">
+    @*Note: Instead of figure, you can also use Cards for this layout
+    https://getbootstrap.com/docs/5.0/components/card/#horizontal*@
+    <figcaption class="col mt-3 deth1top"><h1><text class="d-none d-sm-inline"></text>@item.Name</h1></figcaption>  
+    <div class="row" style="margin:50px 0">
+        <div class="col-3">
                 @{
-                    if (item.Archived == true)
+                    if (item.ItemImages?.Content != null)
                     {
-                        @:Yes
+                        string imageBase64 = Convert.ToBase64String(item.ItemThumbNail.Content);
+                        string imageSrc = string.Format("data:" + item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
+                        <img src="@imageSrc" alt="Profile Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid rounded" />
                     }
                     else
                     {
-                        @:No
+                        <img src="~/images/image-not-found .png" class="img-fluid rounded" />
                     }
                 }
-            </dd>
+        </div>
+        <div class="col-4 dettop">
+            <dl class="row">
+                <dt class="col-sm-5">
+                    @Html.DisplayNameFor(model => item.Name):
+                </dt>
+                <dd class="col-sm-7">
+                    @Html.DisplayFor(model => item.Name)
+                </dd>
+                <dt class="col-sm-5">
+                    @Html.DisplayNameFor(model => item.Description):
+                </dt>
+                <dd class="col-sm-7">
+                    @Html.DisplayFor(model => item.Description)
+                </dd>
+            
+                <dt class="col-sm-5">
+                    @Html.DisplayNameFor(model => item.Category):
+                </dt>
+                <dd class="col-sm-7">
+                    @Html.DisplayFor(model => item.Category.Name)
+                </dd>
+                <dt class="col-sm-5">
+                    @Html.DisplayNameFor(model => item.UPC):
+                </dt>
+                <dd class="col-sm-7">
+                    @Html.DisplayFor(model => item.UPC)
+                </dd>
+                <dt class="col-sm-5">
+                        @Html.DisplayNameFor(model => item.Cost):
+                </dt>
+                <dd class="col-sm-7">
+                        @Html.DisplayFor(model => item.Cost)
+                </dd>
 
-                <dt class="col-sm-3">
+                <dt class="col-sm-5">
+                    @Html.DisplayNameFor(model => item.Quantity):
+                </dt>
+                <dd class="col-sm-7">
+                    @Html.DisplayFor(model => item.Quantity)
+                </dd>
+
+
+            </dl>
+        </div>
+        <div class="col-5 dettop">
+            <dl class="row">
+
+                <dt class="col-sm-5">
+                    @Html.DisplayNameFor(model => item.DateReceived):
+                </dt>
+                <dd class="col-sm-7">
+                    @Html.DisplayFor(model => item.DateReceived)
+                </dd>
+                <dt class="col-sm-5">
+                    @Html.DisplayNameFor(model => item.Supplier):
+                </dt>
+                <dd class="col-sm-7">
+                    @Html.DisplayFor(model => item.Supplier.Name)
+                </dd>
+                <dt class="col-sm-5">
+                    Employee:
+                </dt>
+                <dd class="col-sm-7">
+                    @Html.DisplayFor(model => item.Employee.FullName)
+                </dd>
+                <dt class="col-sm-5">
+                    Last Modified By:
+                </dt>
+                <dd class="col-sm-7">
+                    @Html.DisplayFor(model => item.EmployeeNameUser)
+                </dd>
+                <dt class="col-md-5">
+                    @Html.DisplayNameFor(model => item.Archived)?
+                </dt>
+                <dd class="col-md-7">
+                    @{
+                        if (item.Archived == true)
+                        {
+                            @:Yes
+                        }
+                        else
+                        {
+                            @:No
+                        }
+                    }
+                </dd>
+                <dt class="col-sm-5">
+                    Item Low Threshold:
+                </dt>
+                <dd class="col-sm-7">
+                
+                    <a asp-action="Edit" title="Click this to edit" asp-controller="Categories" asp-route-id="@item.CategoryID" class="padding-for-actions div-back">@Html.DisplayFor(model => item.Category.LowCategoryThreshold) </a>
+                </dd>
+                <dt class="col-sm-5">
                     @Html.DisplayNameFor(model => item.Notes):
                 </dt>
-                <dd class="col-sm-9">
+                <dd class="col-sm-7">
                     @Html.DisplayFor(model => item.Notes)
                 </dd>
-        </dl>
+
+            </dl>
+        </div>
+        <div class="detlin">
+            <a href="@Url.Action("Create", "InventoryTransfers", new { itemId = @item.ID, fromLocationId = @inv.LocationID })" title="Click this to transfer the item" class="btn btn-primary">Transfer</a>
+            <a href="@Url.Action("Create", "ItemReservations", new { itemId = @item.ID })" title="Click this to log out the item" class="btn btn-secondary">Log out Item</a>
+            @*<a href="@Url.Action("LogBackIn", "ItemReservations", new { id = @item.ID })" class="btn btn-secondary">Log back In</a>*@
+            <a href="@Url.Action("LogBackIn", "ItemReservations", new { id = @item.ID })" class="btn btn-secondary @((ViewBag.ItemReservations == null || ViewBag.ItemReservations.Count == 0) ? "disabled" : "")">Log back In</a>
+            <div class="detbut">
+                <a asp-action="Edit" title="Click this to edit" asp-controller="Items" asp-route-id="@item.ID" class="padding-for-actions div-back">Edit </a> |
+                <a href='@ViewData["returnURL"]' title="Click this to go to the Inventory List" class="padding-for-actions div-back">Back to Inventory List</a>
+            </div>
+
+        </div>
     </div>
-</div>
-    <a asp-action="Edit" title="Click this to edit" asp-controller="Items" asp-route-id="@item.ID" class="padding-for-actions div-back">Edit </a> |
-    <a href='@ViewData["returnURL"]' title="Click this to go to the Inventory List" class="padding-for-actions div-back">Back to Inventory List</a>
-    <a href="@Url.Action("Create", "InventoryTransfers", new { itemId = @item.ID, fromLocationId = @inv.LocationID })" class="btn btn-primary">Transfer</a>
-    <a href="@Url.Action("Create", "ItemReservations", new { itemId = @item.ID })" class="btn btn-secondary">Log out Item</a>
-    <a class="btn btn-primary" href="@Url.Action("Index", "ItemReservations")">Log Back In</a>
+
+
 
 
 

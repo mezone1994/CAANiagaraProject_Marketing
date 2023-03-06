@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
+using CAAMarketing.Utilities;
 
 namespace CAAMarketing.Controllers
 {
@@ -19,17 +20,109 @@ namespace CAAMarketing.Controllers
             _context = context;
         }
 
-        // GET: ItemReservations
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int?[] EventID, string SearchString, int? SupplierID, int? page, int? pageSizeID
+            , string actionButton, string sortDirection = "asc", string sortField = "Event")
         {
-            var cAAContext = _context.ItemReservations.Include(i => i.Event).Include(i => i.Item);
-            return View(await cAAContext.ToListAsync());
+            //Clear the sort/filter/paging URL Cookie for Controller
+            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
+
+            //Toggle the Open/Closed state of the collapse depending on if we are filtering
+            ViewData["Filtering"] = ""; //Assume not filtering
+                                        //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
+
+            //Populating the DropDownLists for the Search/Filtering criteria, which are the Category and Supplier DDL
+            ViewData["EventID"] = new SelectList(_context.Events, "ID", "Name");
+
+            // List of sort options.
+            //NOTE: make sure this array has matching values to the column headings
+            string[] sortOptions = new[] { "Event", "Item", "Quantity" };
+
+            var itemReservations = _context.ItemReservations
+                .Include(i => i.Event)
+                .Include(i => i.Item)
+                .AsNoTracking();
+
+            //Add as many filters as needed
+            if (EventID.Length > 0)
+            {
+                itemReservations = itemReservations.Where(p => EventID.Contains(p.EventId));
+                ViewData["Filtering"] = "btn-danger";
+            }
+
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                itemReservations = itemReservations.Where(p => p.Item.Name.ToUpper().Contains(SearchString.ToUpper()));
+                ViewData["Filtering"] = " show";
+            }
+
+            //Before we sort, see if we have called for a change of filtering or sorting
+            if (!String.IsNullOrEmpty(actionButton)) //Form Submitted!
+            {
+                if (sortOptions.Contains(actionButton))//Change of sort is requested
+                {
+                    if (actionButton == sortField) //Reverse order on same field
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;//Sort by the button clicked
+                }
+            }
+
+            //Now we know which field and direction to sort by
+            if (sortField == "Quantity")
+            {
+                if (sortDirection == "asc")
+                {
+                    itemReservations = itemReservations
+                        .OrderBy(i => i.Quantity);
+                }
+                else
+                {
+                    itemReservations = itemReservations
+                        .OrderByDescending(i => i.Quantity);
+                }
+            }
+            else if (sortField == "Item")
+            {
+                if (sortDirection == "asc")
+                {
+                    itemReservations = itemReservations
+                        .OrderBy(i => i.Item.Name);
+                }
+                else
+                {
+                    itemReservations = itemReservations
+                        .OrderByDescending(i => i.Item.Name);
+                }
+            }
+            else //Sorting by Event Name
+            {
+                if (sortDirection == "asc")
+                {
+                    itemReservations = itemReservations
+                        .OrderBy(i => i.Event.Name);
+                }
+                else
+                {
+                    itemReservations = itemReservations
+                        .OrderByDescending(i => i.Event.Name);
+                }
+            }
+            //Set sort for next time
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
+
+            //Handle Paging
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "ItemReservations");
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+            var pagedData = await PaginatedList<ItemReservation>.CreateAsync(itemReservations.AsNoTracking(), page ?? 1, pageSize);
+            return View(pagedData);
         }
 
         // GET: ItemReservations/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? itemId)
         {
-            if (id == null || _context.ItemReservations == null)
+            if (itemId == null)
             {
                 return NotFound();
             }
@@ -37,7 +130,8 @@ namespace CAAMarketing.Controllers
             var itemReservation = await _context.ItemReservations
                 .Include(i => i.Event)
                 .Include(i => i.Item)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.ItemId == itemId);
+
             if (itemReservation == null)
             {
                 return NotFound();
@@ -49,23 +143,36 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: ItemReservations/Create
-        public IActionResult Create(int? itemId)
+        public IActionResult Create(string returnUrl)
         {
-            if (itemId == null || !_context.Items.Any(i => i.ID == itemId))
-            {
-                return NotFound();
-            }
-
             ViewData["EventId"] = new SelectList(_context.Events, "ID", "Name");
-            ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", itemId);
 
-            return View(new ItemReservation { ItemId = itemId.Value });
+            if (!string.IsNullOrEmpty(Request.Query["itemId"]))
+            {
+                int itemId;
+                if (int.TryParse(Request.Query["itemId"], out itemId) && _context.Items.Any(i => i.ID == itemId))
+                {
+                    ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", itemId);
+                    ViewBag.ReturnUrl = returnUrl;
+                    return View(new ItemReservation { ItemId = itemId });
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name");
+                ViewBag.ReturnUrl = returnUrl;
+                return View(new ItemReservation());
+            }
         }
 
         // POST: ItemReservations/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,EventId,ItemId,Quantity,ReservedDate,ReturnDate")] ItemReservation itemReservation, bool isLogBack)
+        public async Task<IActionResult> Create(int itemId, [Bind("Id,EventId,ItemId,Quantity,ReservedDate,ReturnDate")] ItemReservation itemReservation, bool isLogBack, string returnUrl)
         {
             if (ModelState.IsValid)
             {
@@ -73,12 +180,19 @@ namespace CAAMarketing.Controllers
                 itemReservation.Event = await _context.Events.FindAsync(itemReservation.EventId);
                 itemReservation.Item = await _context.Items.FindAsync(itemReservation.ItemId);
 
-                // Check if the selected item is already reserved for another event during the same time period
+                // Check if the selected item is available for the event
                 bool isItemAvailable = _context.ItemReservations
                     .Where(ir => ir.ItemId == itemReservation.ItemId)
-                    .All(ir => itemReservation.ReservedDate > ir.ReturnDate || itemReservation.ReturnDate < ir.ReservedDate);
+                    .All(ir => ir.EventId != itemReservation.EventId ||
+                               itemReservation.ReservedDate >= ir.ReturnDate ||
+                               itemReservation.ReturnDate <= ir.ReservedDate);
 
-                if (isItemAvailable)
+                // Check if there is enough inventory available for the item
+                bool isInventoryAvailable = await _context.Inventories
+                    .AnyAsync(inv => inv.ItemID == itemReservation.ItemId &&
+                                      inv.Quantity >= itemReservation.Quantity);
+
+                if (isItemAvailable && isInventoryAvailable)
                 {
                     _context.Add(itemReservation);
                     await _context.SaveChangesAsync();
@@ -111,12 +225,19 @@ namespace CAAMarketing.Controllers
                     }
 
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-
+                    if (!string.IsNullOrEmpty(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+                    return RedirectToAction(nameof(Index), new { ItemID = itemId });
+                }
+                else if (!isItemAvailable)
+                {
+                    ModelState.AddModelError("", "The selected item is already reserved for another event during the same time period.");
                 }
                 else
                 {
-                    ModelState.AddModelError("", "The selected item is already reserved for another event during the same time period.");
+                    ModelState.AddModelError("", "There is not enough inventory available for the selected item.");
                 }
             }
 
@@ -124,6 +245,7 @@ namespace CAAMarketing.Controllers
             ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", itemReservation.ItemId);
             return View(itemReservation);
         }
+
 
 
         // GET: ItemReservations/Edit/5
@@ -159,66 +281,76 @@ namespace CAAMarketing.Controllers
         // POST: ItemReservations/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,EventId,ItemId,Quantity,ReservedDate,ReturnDate,LogedOutDate")] ItemReservation itemReservation)
+        public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
-            if (id != itemReservation.Id)
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
+            //Go get the ItemReservation to update
+            var itemReservationToUpdate = await _context.ItemReservations.Include(ir => ir.Event).Include(ir => ir.Item).FirstOrDefaultAsync(ir => ir.Id == id);
+
+            if (itemReservationToUpdate == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            //Put the original RowVersion value in the OriginalValues collection for the entity
+            _context.Entry(itemReservationToUpdate).Property("RowVersion").OriginalValue = RowVersion;
+
+            //Try updating it with the values posted
+            if (await TryUpdateModelAsync<ItemReservation>(itemReservationToUpdate, "",
+                ir => ir.EventId, ir => ir.ItemId, ir => ir.Quantity, ir => ir.ReservedDate, ir => ir.ReturnDate, ir => ir.LoggedOutDate))
             {
                 try
                 {
                     // Check if the selected item is already reserved for another event during the same time period
                     bool isItemAvailable = _context.ItemReservations
-                        .Where(ir => ir.ItemId == itemReservation.ItemId && ir.Id != itemReservation.Id)
-                        .All(ir => itemReservation.ReservedDate > ir.ReturnDate || itemReservation.ReturnDate < ir.ReservedDate);
+                        .Where(ir => ir.ItemId == itemReservationToUpdate.ItemId && ir.Id != itemReservationToUpdate.Id)
+                        .All(ir => itemReservationToUpdate.ReservedDate > ir.ReturnDate || itemReservationToUpdate.ReturnDate < ir.ReservedDate);
 
                     if (isItemAvailable)
                     {
                         // Get the original item reservation
-                        var originalItemReservation = await _context.ItemReservations.AsNoTracking().FirstOrDefaultAsync(ir => ir.Id == itemReservation.Id);
+                        var originalItemReservation = await _context.ItemReservations.AsNoTracking().FirstOrDefaultAsync(ir => ir.Id == itemReservationToUpdate.Id);
 
                         // Get the original event log
                         var originalEventLog = await _context.EventLogs.FirstOrDefaultAsync(el => el.ItemReservation.Id == originalItemReservation.Id);
 
                         // Update the inventory quantity
-                        var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == itemReservation.ItemId);
+                        var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == itemReservationToUpdate.ItemId);
                         if (inventory != null)
                         {
                             // Check if quantity is being added or subtracted
-                            if (itemReservation.Quantity > originalItemReservation.Quantity)
+                            if (itemReservationToUpdate.Quantity > originalItemReservation.Quantity)
                             {
-                                inventory.Quantity -= (itemReservation.Quantity - originalItemReservation.Quantity);
+                                inventory.Quantity -= (itemReservationToUpdate.Quantity - originalItemReservation.Quantity);
                             }
-                            else if (itemReservation.Quantity < originalItemReservation.Quantity)
+                            else if (itemReservationToUpdate.Quantity < originalItemReservation.Quantity)
                             {
-                                inventory.Quantity += (originalItemReservation.Quantity - itemReservation.Quantity);
+                                inventory.Quantity += (originalItemReservation.Quantity - itemReservationToUpdate.Quantity);
                             }
 
                             // Check if log out date is being updated
-                            if (itemReservation.LoggedOutDate != originalItemReservation.LoggedOutDate)
+                            if (itemReservationToUpdate.LoggedOutDate != originalItemReservation.LoggedOutDate)
                             {
                                 inventory.Quantity += originalItemReservation.Quantity;
                             }
                         }
 
-                        _context.Update(itemReservation);
-                        //await _context.SaveChangesAsync();
-
-                        //// Update the event log
-                        //if (originalEventLog != null)
-                        //{
-                        //    originalEventLog.EventName = itemReservation.Event.Name;
-                        //    originalEventLog.ItemName = itemReservation.Item.Name;
-                        //    originalEventLog.Quantity = itemReservation.Quantity;
-                        //    originalEventLog.LogDate = DateTime.Now;
-
-                        //    _context.Update(originalEventLog);
-                        //}
-
                         await _context.SaveChangesAsync();
+
+                        // Update the event log
+                        if (originalEventLog != null)
+                        {
+                            originalEventLog.EventName = itemReservationToUpdate.Event.Name;
+                            originalEventLog.ItemName = itemReservationToUpdate.Item.Name;
+                            originalEventLog.Quantity = itemReservationToUpdate.Quantity;
+                            originalEventLog.LogDate = DateTime.Now;
+
+                            _context.Update(originalEventLog);
+                            await _context.SaveChangesAsync();
+                        }
+
                         return RedirectToAction(nameof(Index));
                     }
                     else
@@ -228,7 +360,7 @@ namespace CAAMarketing.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ItemReservationExists(itemReservation.Id))
+                    if (!ItemReservationExists(itemReservationToUpdate.Id))
                     {
                         return NotFound();
                     }
@@ -237,11 +369,15 @@ namespace CAAMarketing.Controllers
                         throw;
                     }
                 }
+                catch (DbUpdateException dex)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
+                }
             }
 
-            ViewData["EventId"] = new SelectList(_context.Events, "ID", "Name", itemReservation.EventId);
-            ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", itemReservation.ItemId);
-            return View(itemReservation);
+            ViewData["EventId"] = new SelectList(_context.Events, "ID", "Name", itemReservationToUpdate.EventId);
+            ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", itemReservationToUpdate.ItemId);
+            return View(itemReservationToUpdate);
         }
 
 
@@ -287,37 +423,65 @@ namespace CAAMarketing.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            // Check if the total quantity of the item in all reservations
+            // is greater than the available quantity in the inventory
+            var totalReservedQuantity = await _context.ItemReservations
+                .Where(ir => ir.ItemId == itemReservation.ItemId && !ir.IsDeleted)
+                .SumAsync(ir => ir.Quantity);
+
+            if (totalReservedQuantity > inventory.Quantity)
+            {
+                return BadRequest("The total reserved quantity of the item is greater than the available quantity in the inventory.");
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> LogBackIn(int id)
+        //For Adding Event
+        [HttpGet]
+        public JsonResult GetEvents(int? id)
         {
-            var itemReservation = await _context.ItemReservations
-                .Include(ir => ir.Item)
-                .FirstOrDefaultAsync(ir => ir.Id == id);
+            return Json(EventSelectList(id));
+        }
+        //For Adding Event
+        private SelectList EventSelectList(int? selectedId)
+        {
+            return new SelectList(_context
+                .Events
+                .OrderBy(c => c.Name), "ID", "Name", selectedId);
+        }
 
-            if (itemReservation == null)
+        // GET: ItemReservations/LogBackIn/5
+        public async Task<IActionResult> LogBackIn(int? id)
+        {
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == itemReservation.ItemId);
+            // Get all reservations for the item associated with the specified ID
+            var itemReservations = await _context.ItemReservations
+                .Include(ir => ir.Event)
+                .Include(ir => ir.Item)
+                .Where(ir => ir.ItemId == id && !ir.IsDeleted)
+                .ToListAsync();
 
-            if (inventory == null)
+            if (itemReservations == null || itemReservations.Count == 0)
             {
-                ModelState.AddModelError("", "The selected item does not exist in the inventory.");
-                return RedirectToAction("Details", "Items", new { id = itemReservation.ItemId });
+                return NotFound();
             }
 
-            inventory.Quantity += itemReservation.Quantity;
-            itemReservation.ReturnDate = DateTime.Now;
-            itemReservation.LogBackInDate = DateTime.Now;
+            return View(itemReservations);
+        }
 
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Details", "Items", new { id = itemReservation.ItemId });
+        private string ControllerName()
+        {
+            return this.ControllerContext.RouteData.Values["controller"].ToString();
+        }
+        private void ViewDataReturnURL()
+        {
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, ControllerName());
         }
 
         private bool ItemReservationExists(int id)

@@ -40,14 +40,6 @@
             }
     </div>
     <div class="roe">
-         <div class="d-flex justify-content-end">
-        <button class="btn btn-primary" id="nowAddCategory" data-bs-toggle="modal" data-bs-target="#addCategoryModal" type="button">
-            <strong class="text-end">Add Category</strong>
-        </button>
-        <button class="btn btn-outline-secondary" id="nowAddSupplier" data-bs-toggle="modal" data-bs-target="#addSupplierModal" type="button">
-                            <strong>Add Supplier</strong>
-                        </button> 
-    </div>
         <div class="col-md-12">
             <partial name="_addSupplierModal" />
             <partial name="_addCategoryModal" />
@@ -66,12 +58,23 @@
                     <textarea asp-for="Description" class="form-control"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div> 
-                <div class="cols">
-                        <label class="control-label">Choose Category</label>
-                            <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.CategoryID">
-                                <option value="">None</option>
-                            </select>  
-                                          
+                 <div class="cols">
+  <label class="control-label">Choose Supplier</label>
+  <div class="input-group">
+    <select asp-for="SupplierID" class="form-control" asp-items="ViewBag.SupplierID">
+      <option value="">None</option>
+    </select>
+    <button class="btn btn-plus" id="nowAddSupplier" title="Add Supplier" data-bs-toggle="modal" data-bs-target="#addSupplierModal" type="button"></button>
+  </div>
+</div>
+                    <div class="cols">
+                   <label class="control-label">Choose Category</label>
+                    <div class="input-group">
+                        <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.CategoryID">
+                         <option value="">None</option>
+                            </select>
+                                <button class="btn btn-plus" id="nowAddCategory" title="Add Category" data-bs-toggle="modal" data-bs-target="#addCategoryModal" type="button"></button>
+                        </div>
                     </div>
                 <div class="cols">
                     <label asp-for="UPC" class="control-label"></label>
@@ -83,13 +86,6 @@
                     <input asp-for="DateReceived" class="form-control" />
                     <span asp-validation-for="DateReceived" class="text-danger"></span>
                 </div>
-                <div class="cols">                     
-                        <label class="control-label">Choose Supplier</label>
-                            <select asp-for="SupplierID" class="form-control" asp-items="ViewBag.SupplierID">
-                                <option value="">None</option>
-                            </select>
-                                             
-                    </div>
                 <div class="cols">
                     <label asp-for="Cost" class="control-label"></label>
                     <input asp-for="Cost" class="form-control" />
@@ -126,6 +122,14 @@
         </div>
     </div>
 </div>
+
+
+<style>
+.input-group {
+  display: flex;
+  align-items: center;
+}
+</style>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

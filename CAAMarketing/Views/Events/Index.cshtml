@@ -3,51 +3,52 @@
 @{
     ViewData["Title"] = "Index";
 }
-
-<h1>Events Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
 
     <div class="form-horizontal">
-        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-            Filter/Search
+       <a asp-action="Create" title="Click here to create a new event" class="btn btn-primary btn-color-Create">Create New Event</a>
+        <button class="btn btn-filter" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
+            <i class="material-icons">Filter/Search</i>
         </button>
+        </div>
         <div class="collapse @(ViewData["Filtering"])" id="collapseFilter">
-            <div class="card card-body bg-light">
+            <div class="card card-body">
                 <div class="row">
                     <div class="form-group col-md-4">
                         <label class="control-label">Search Event:</label>
                         @Html.TextBox("SearchString", null, new { @class = "form-control" })
                     </div>
                     <div class="form-group col-md-4 align-self-end">
-                        <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" />
-                        <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
+                        <input type="submit" name="actionButton" value="Filter" title="click here to filter" class="btn btn-outline-primary btn-color" />
+                    <a asp-action="Index" title="Click here to clear the filter" class="btn btn-outline-dark">Clear</a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-
-    <table class="table">
-        <thead>
+ 
+<div class="container-fluid ">
+        <div class="table-responsive">
+            <div class="table-wrapper">
+                <div class="table-title d-flex justify-content-between align-items-center">
+                    <h1>Events</h1>
+                </div>
+                <table class="table table-hover">
+                    <thead class="thead-light">
             <tr>
                 <th>
-                    <input type="submit" name="actionButton" value="Event" class="btn btn-link" />
+                                <input type="submit" name="actionButton" title="click here to sort by event" value="Event" class="btn btn-link" />
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Description)
                 </th>
                 <th>
-                    <input type="submit" name="actionButton" value="Date" class="btn btn-link" />
+                                <input type="submit" name="actionButton" value="Date" title="click here to sort by date" class="btn btn-link" />
                 </th>
                 <th>
-                    <input type="submit" name="actionButton" value="Location" class="btn btn-link" />
+                                <input type="submit" name="actionButton" value="Location" title="click here to sort by location" class="btn btn-link" />
                 </th>
                 <th></th>
             </tr>
@@ -69,14 +70,18 @@
                         @Html.DisplayFor(modelItem => item.location)
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                                    <a asp-action="Edit" title="Click this to edit" class="padding-for-actions" asp-route-id="@item.ID">Edit</a> |
+                                    <a asp-action="Details" title="Click this to go to details" class="padding-for-actions" asp-route-id="@item.ID">Details</a> |
+                                    <a asp-action="Delete" title="Click this to delete the event" class="padding-for-actions" asp-route-id="@item.ID">Delete</a>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-    <partial name="_PagingNavBar" />
+            </div>
+        </div>
+        <partial name="_PagingNavBar" />
+    </div>
+   
 
 </form>

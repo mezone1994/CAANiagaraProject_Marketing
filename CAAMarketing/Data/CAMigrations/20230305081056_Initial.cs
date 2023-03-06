@@ -368,7 +368,7 @@ namespace CAAMarketing.Data.CAMigrations
                     EventId = table.Column<int>(type: "INTEGER", nullable: false),
                     ItemId = table.Column<int>(type: "INTEGER", nullable: false),
                     Quantity = table.Column<int>(type: "INTEGER", nullable: false),
-                    ReservedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ReservedDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     ReturnDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     LoggedOutDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     LogBackInDate = table.Column<DateTime>(type: "TEXT", nullable: true),
@@ -557,7 +557,6 @@ namespace CAAMarketing.Data.CAMigrations
                 column: "EmployeeID");
 
             ExtraMigration.Steps(migrationBuilder);
-
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

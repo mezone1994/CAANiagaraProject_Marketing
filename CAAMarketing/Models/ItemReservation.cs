@@ -20,7 +20,7 @@ namespace CAAMarketing.Models
 
         [Display(Name = "Reserved Date")]
         [DataType(DataType.Date)]
-        public DateTime ReservedDate { get; set; }
+        public DateTime? ReservedDate { get; set; }
 
         [Display(Name = "Return Date")]
         [DataType(DataType.Date)]

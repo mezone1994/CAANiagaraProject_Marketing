@@ -52,9 +52,10 @@
                                     Office Menu
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item" asp-area="" asp-controller="Archives" asp-action="Index">Archives</a></li>
+
                                     <li><a class="dropdown-item" asp-area="" asp-controller="Events" asp-action="Index">Events</a></li>
-                                    <li><a class="dropdown-item" asp-area="" asp-controller="EventLogs" asp-action="Index">Event Logs</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="ItemReservations" asp-action="Index">Reservations</a></li>
+                                    
                                     @if (User.IsInRole("Supervisor"))
                                     {
                                         <li><hr class="dropdown-divider"></li>
@@ -78,6 +79,8 @@
                                     else if (User.IsInRole("Admin"))
                                     {
                                         <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="EventLogs" asp-action="Index">Event Logs</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Archives" asp-action="Index">Archives</a></li>
 @*                                        <li><a class="dropdown-item" asp-area="" asp-controller="Receiving" asp-action="Index">Receiving</a></li>
 *@                                        @*<li><a class="dropdown-item" asp-area="" asp-controller="Locations" asp-action="Index">Locations</a></li>
                                         <li><a class="dropdown-item" asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a></li>

@@ -21,6 +21,10 @@
         </li>
     </ul>
 </div>
+
+
+
+
 <div class="cont">
     <div class="edtext">
         <center><h3>Step 1: </h3></center>
@@ -31,7 +35,6 @@
                 <partial name="_addSupplierModal" />
                 <partial name="_addCategoryModal" />
                 <form asp-action="Create" method="post" enctype="multipart/form-data">
-
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-group">
                         <label asp-for="Name" class="control-label"></label>
@@ -49,27 +52,27 @@
                         <span asp-validation-for="Notes" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Choose Category</label>
-                            <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.CategoryID">
-                                <option value="">None</option>
-                            </select>  
-                        <button class="btn btn-outline-secondary" id="nowAddCategory" data-bs-toggle="modal" data-bs-target="#addCategoryModal" type="button">
-                            <strong>Add Category</strong>
-                        </button>                      
-                    </div>
-                    <div class="form-group">
                         <label asp-for="UPC" class="control-label"></label>
                         <input asp-for="UPC" class="form-control" />
                         <span asp-validation-for="UPC" class="text-danger"></span>
                     </div>
-                   <div class="form-group">                     
+                    <div class="form-group">
                         <label class="control-label">Choose Supplier</label>
+                        <div class="input-group">
                             <select asp-for="SupplierID" class="form-control" asp-items="ViewBag.SupplierID">
                                 <option value="">None</option>
                             </select>
-                        <button class="btn btn-outline-secondary" id="nowAddSupplier" data-bs-toggle="modal" data-bs-target="#addSupplierModal" type="button">
-                            <strong>Add Supplier</strong>
-                        </button>                      
+                            <button class="btn btn-plus" id="nowAddSupplier" title="Add Supplier" data-bs-toggle="modal" data-bs-target="#addSupplierModal" type="button"></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Choose Category</label>
+                        <div class="input-group">
+                            <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.CategoryID">
+                                <option value="">None</option>
+                            </select>
+                            <button class="btn btn-plus" id="nowAddCategory" title="Add Category" data-bs-toggle="modal" data-bs-target="#addCategoryModal" type="button"></button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label custom-file-label">Picture File:</label>

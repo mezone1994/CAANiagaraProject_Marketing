@@ -9,13 +9,13 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>Details</title>
 </head>
 <body>
 
-<div>
-    <h4>Event</h4>
-    <hr />
+<div class="detext">
+    <div>
+        <h4>details for <u>@Html.DisplayFor(model => model.Name)</u></h4>
+        <hr />
     <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
@@ -44,8 +44,9 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.ID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+            <a asp-action="Edit" title="Click this to edit" class="padding-for-actions div-back" asp-route-id="@Model?.ID">Edit</a> |
+            <div class="tooltip"> <a asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back</span></a> </div>
+</div>
 </div>
 </body>
 </html>

@@ -38,6 +38,10 @@ namespace CAAMarketing.Models
         [Display(Name = "Item Name")]
         public Item Item { get; set; }
 
+
+        [Display(Name = "Location")]
+        public int LocationID { get; set; }
+        public Location Location { get; set; }
         public int Progress
         {
             get

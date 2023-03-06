@@ -11,10 +11,11 @@
             <hr />
             <div class="deimage2">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <partial name="_addEventModal" />
             <div class="form-group">
                 <label class="control-label">Choose Event</label>
                     <div class="input-group">
-                <select asp-for="EventId" class="form-control" asp-items="ViewBag.EventID">
+                <select asp-for="EventId" class="form-control" asp-items="ViewBag.EventId">
                     <option value="">None</option>
                 </select>
                     <button class="btn btn-plus" id="nowAddEvent" data-bs-toggle="modal" title="Add Event" data-bs-target="#addEventModal" type="button"></button>

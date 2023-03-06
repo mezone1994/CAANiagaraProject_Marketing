@@ -124,6 +124,9 @@
                             <th>
                                 <input type="submit" name="actionButton" title="click here to sort by quantity" value="Quantity" class="btn btn-link" />
                             </th>
+                            <th>
+                                <input type="submit" name="actionButton" disabled="disabled" title="click here to sort by quantity" value="Locations" class="btn btn-link" />
+                            </th>
                             
                             <th>
 
@@ -165,6 +168,12 @@
                                     <td>
                                     @Html.DisplayFor(modelItem => inventory.Quantity)
                                     </td>
+                                 <td>
+                                    @foreach(var c in inventory.Item.ItemLocations)
+                                    {
+                                        @c.Location.Name <br />
+                                    }
+                                </td>
                                    
 
                                 

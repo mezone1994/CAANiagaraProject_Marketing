@@ -67,6 +67,17 @@
                 </dd>
 
 
+                <dt class="col-sm-5">
+                    @Html.DisplayNameFor(model => item.ItemLocations):
+                </dt>
+                <dd class="col-sm-7">
+                    @foreach (var c in item.ItemLocations)
+                    {
+                        @c.Location.Name <br />
+                    }
+                </dd>
+
+
             </dl>
         </div>
         <div class="col-5 dettop">
@@ -190,6 +201,9 @@
                         <th>
                             <input type="submit" name="actionButton" value="DeliveryDate" class="btn btn-link" />
                         </th>
+                         <th>
+                              <input type="submit" name="actionButton" value="Location" class="btn btn-link" />
+                       </th>
                                     <th>
                                         Received
                                     </th>
@@ -218,9 +232,13 @@
                             <td>
                                 @Html.DisplayFor(modelItem => order.DateMade)
                             </td>
+
                             <td>
                                 @Html.DisplayFor(modelItem => order.DeliveryDate)
                             </td>
+                           <td>
+                                 @Html.DisplayFor(modelItem => order.Location)
+                           </td>
                                         <td>
                                             @{
                                                 DateTime deliveryDate = Convert.ToDateTime(order.DeliveryDate);

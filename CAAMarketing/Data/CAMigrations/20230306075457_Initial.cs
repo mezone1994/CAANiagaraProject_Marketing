@@ -36,10 +36,10 @@ namespace CAAMarketing.Data.CAMigrations
                 {
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    FirstName = table.Column<string>(type: "TEXT", nullable: true),
-                    LastName = table.Column<string>(type: "TEXT", nullable: true),
-                    Phone = table.Column<string>(type: "TEXT", nullable: true),
-                    Email = table.Column<string>(type: "TEXT", nullable: true),
+                    FirstName = table.Column<string>(type: "TEXT", nullable: false),
+                    LastName = table.Column<string>(type: "TEXT", nullable: false),
+                    Phone = table.Column<string>(type: "TEXT", nullable: false),
+                    Email = table.Column<string>(type: "TEXT", nullable: false),
                     Active = table.Column<bool>(type: "INTEGER", nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
@@ -80,7 +80,7 @@ namespace CAAMarketing.Data.CAMigrations
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     Date = table.Column<DateTime>(type: "TEXT", nullable: false),
                     location = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -102,6 +102,8 @@ namespace CAAMarketing.Data.CAMigrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
+                    Phone = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
+                    Address = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -171,8 +173,8 @@ namespace CAAMarketing.Data.CAMigrations
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    Notes = table.Column<string>(type: "TEXT", maxLength: 4000, nullable: false),
+                    Description = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", maxLength: 4000, nullable: true),
                     UPC = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     DateReceived = table.Column<DateTime>(type: "TEXT", nullable: false),
                     SupplierID = table.Column<int>(type: "INTEGER", nullable: false),
@@ -360,6 +362,30 @@ namespace CAAMarketing.Data.CAMigrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ItemLocations",
+                columns: table => new
+                {
+                    LocationID = table.Column<int>(type: "INTEGER", nullable: false),
+                    ItemID = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ItemLocations", x => new { x.LocationID, x.ItemID });
+                    table.ForeignKey(
+                        name: "FK_ItemLocations_Items_ItemID",
+                        column: x => x.ItemID,
+                        principalTable: "Items",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ItemLocations_Locations_LocationID",
+                        column: x => x.LocationID,
+                        principalTable: "Locations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ItemReservations",
                 columns: table => new
                 {
@@ -368,8 +394,8 @@ namespace CAAMarketing.Data.CAMigrations
                     EventId = table.Column<int>(type: "INTEGER", nullable: false),
                     ItemId = table.Column<int>(type: "INTEGER", nullable: false),
                     Quantity = table.Column<int>(type: "INTEGER", nullable: false),
-                    ReservedDate = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    ReturnDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    ReservedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ReturnDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     LoggedOutDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     LogBackInDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
@@ -423,6 +449,7 @@ namespace CAAMarketing.Data.CAMigrations
                     DeliveryDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Cost = table.Column<decimal>(type: "TEXT", nullable: false),
                     ItemID = table.Column<int>(type: "INTEGER", nullable: false),
+                    LocationID = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -438,6 +465,12 @@ namespace CAAMarketing.Data.CAMigrations
                         column: x => x.ItemID,
                         principalTable: "Items",
                         principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Orders_Locations_LocationID",
+                        column: x => x.LocationID,
+                        principalTable: "Locations",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -516,6 +549,11 @@ namespace CAAMarketing.Data.CAMigrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ItemLocations_ItemID",
+                table: "ItemLocations",
+                column: "ItemID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ItemReservations_EventId",
                 table: "ItemReservations",
                 column: "EventId");
@@ -552,11 +590,17 @@ namespace CAAMarketing.Data.CAMigrations
                 column: "ItemID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Orders_LocationID",
+                table: "Orders",
+                column: "LocationID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Subscriptions_EmployeeID",
                 table: "Subscriptions",
                 column: "EmployeeID");
 
             ExtraMigration.Steps(migrationBuilder);
+
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -581,6 +625,9 @@ namespace CAAMarketing.Data.CAMigrations
 
             migrationBuilder.DropTable(
                 name: "itemImages");
+
+            migrationBuilder.DropTable(
+                name: "ItemLocations");
 
             migrationBuilder.DropTable(
                 name: "ItemThumbNails");

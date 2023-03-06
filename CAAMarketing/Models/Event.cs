@@ -13,7 +13,6 @@ namespace CAAMarketing.Models
         public string Name { get; set; }
 
         [Display(Name = "Description")]
-        [Required(ErrorMessage = "You cannot leave it blank.")]
         [StringLength(50, ErrorMessage = "cannot be more than 50 characters long.")]
         public string Description { get; set; }
 

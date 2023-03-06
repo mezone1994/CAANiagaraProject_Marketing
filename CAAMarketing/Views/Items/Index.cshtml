@@ -1,163 +1,379 @@
-﻿@using CAAMarketing.Data
-@model IEnumerable<CAAMarketing.Models.Item>
+﻿@model IEnumerable<CAAMarketing.Models.Item>
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewData["Title"] = "Index";
 }
+<partial name="_silentNotifModal" />
+<partial name="_activateNotifModal" />
+
+
+<p>Number of Locations Selected: @HttpContextAccessor.HttpContext.Session.GetString("NumOfLocationsSelected")</p>
+<p>Names of Locations Selected: @HttpContextAccessor.HttpContext.Session.GetString("LocationNames")</p>
+<p>If Statemtn: @HttpContextAccessor.HttpContext.Session.GetString("IfStatement")</p>
+
+ 
+@*FOR THE RECOVER ALL NOTIF BUTTON*@
+    @{
+        int RecoverMessageCount = Convert.ToInt32(ViewData["RecoverMessageCount"]);
+        string buttonClassForRecover = RecoverMessageCount > 0 ? "notivalue" : "WhiteClass";
+        string checkmarkIconForRecover = RecoverMessageCount > 0 ? @RecoverMessageCount.ToString() : "<img src='" + Url.Content("~/images/CheckMark.png") + "' style='height:15px; width:15px; margin-bottom:5px;' />";
+    }
+        <a style="text-decoration: none; position: relative; display: inline-block;" 
+        asp-controller="Inventories" asp-action="RecoverAllSilencedNotif" 
+        title="Click here to Unsilence all messages" 
+        class="btn btn-primary btn-color-Create">Recover All Messages
+        <span class="@buttonClassForRecover">@Html.Raw(@checkmarkIconForRecover)</span>
+    </a>
+ @*----------------------------------*@
+
+@*FOR THE SILENCE NOTIF BUTTON*@
+    @{
+        int silencedMessageCount = Convert.ToInt32(ViewData["SilencedMessageCount"]);
+        string buttonClassForSilents = silencedMessageCount > 0 ? "notivalue" : "WhiteClass";
+        string checkmarkIconForSilents = silencedMessageCount > 0 ? @silencedMessageCount.ToString() : "<img src='" + Url.Content("~/images/CheckMark.png") + "' style='height:15px; width:15px; margin-bottom:5px;' />";
+    }
+    <a style="text-decoration: none; position: relative; display: inline-block;" 
+        asp-controller="Inventories" asp-action="ViewSilencedNotif" 
+        title="Click here view Unsilenced messages" 
+        class="btn btn-primary btn-color-Create">View Silenced Messages
+        <span class="@buttonClassForSilents">@Html.Raw(@checkmarkIconForSilents)</span>
+    </a>
+@*----------------------------------*@
+
+
+@*FOR THE VIEW ACTIVE NOTIF BUTTON*@
+    @{
+        int ActiveMessageCount = Convert.ToInt32(ViewData["ActiveMessageCount"]);
+        string buttonClassForActive = ActiveMessageCount > 0 ? "notivalue" : "WhiteClass";
+        string checkmarkIconForActive = ActiveMessageCount > 0 ? @ActiveMessageCount.ToString() : "<img src='" + Url.Content("~/images/CheckMark.png") + "' style='height:15px; width:15px; margin-bottom:5px;' />";
+    }
+    <a style="text-decoration: none; position: relative; display: inline-block;" 
+        asp-controller="Inventories" asp-action="ViewActiveNotif" 
+        title="Click here to view Active messages" 
+        class="btn btn-primary btn-color-Create">View Active Messages
+        <span class="@buttonClassForActive">@Html.Raw(@checkmarkIconForActive)</span>
+    </a>
+ @*----------------------------------*@
+
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
+
+
     <div class="form-horizontal">
-        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" style="display: none;">
-            Filter/Search
+        <a asp-controller="Items" asp-action="Create" title="Click here to create a new item" class="btn btn-primary btn-color-Create">Create New Item</a>
+        <button class="btn btn-filter" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
+            <i class="material-icons">Filter/Search</i>
         </button>
-        <div class="card-header d-flex justify-content-between">
-            Filter/Search
-            <h1>Items</h1>
-            <a asp-action="Create" class="btn btn-primary btn-color-Create">Create New Item</a>
-        </div>
     </div>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12 col-lg-2 filter-sidebar">
-                <div class="card">
-                    <div class="card-body filter-content">
-                        <form>
-                            <div class="form-group">
-                                <label class="control-label">Select by Supplier:</label>
-                                @Html.DropDownList("SupplierID", null, "All Suppliers", htmlAttributes: new { @class = "form-control" })
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">Filter by Category:</label>
-                                @Html.DropDownList("CategoryID", null, "All Categories", htmlAttributes: new { @class = "form-control" })
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">Search Item Name OR UPC:</label>
-                                @Html.TextBox("SearchString", null, new { @class = "form-control" })
-                            </div>
-                            <div class="form-group align-self-end">
-                                <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary btn-color" />
-                                <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
-                            </div>
-                        </form>
+    <div class="collapse @(ViewData["Filtering"])" id="collapseFilter">
+        <div class="card card-body">
+            <div class="row">
+                <div class="form-group col-md-4">
+                        <label class="control-label">Filter by Locations: (Ctrl + click to multiselect)</label>
+                        @Html.ListBox("LocationID", null, htmlAttributes: new { @class = "form-control", @size = 8 })
                     </div>
+                @*                            <div class="form-group">
+                <label class="control-label">Check Low Quantity Items:</label>
+                @Html.CheckBox("LowQty", null)
+                </div>*@
+
+                <div class="form-group col-md-4">
+                    <label class="control-label">Search Item Name OR UPC:</label>
+                    @Html.TextBox("SearchString", null, new { @class = "form-control" })
+                </div>
+                <div class="form-group col-md-4 align-self-end">
+                    <input type="submit" name="actionButton" value="Filter" title="click here to filter" class="btn btn-outline-primary btn-color" />
+                    <a asp-action="Index" title="Click here to clear the filter" class="btn btn-outline-dark">Clear</a>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="col-md-12 col-lg-10 d-flex align-items-center">
+    @*@if (ViewBag.InventoryLow != null)
+            {
+            <script>
+            alert("@ViewBag.InventoryLow");
+            </script>
+            }*@
+
+@*    <div class="form-horizontal">
+        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" style="display: none;">
+            Filter/Search
+        </button>*@
+  
+<div class="container-fluid">
+        <div class="table-responsive">
+            <div class="table-wrapper">
+                <div class="table-title d-flex justify-content-between align-items-center">
+                    <h1>Inventory</h1>
+                    <div class="col-xs-7">
+                       <a asp-action="InventoryReport" title="Click here to generate inventory report" class="btn btn-primary btn-color-Create"> Inventory Report</a>
+                        </div>
+                </div>
                 <table class="table table-hover">
                     <thead class="thead-light">
                         <tr>
-                            <th></th>
+                            <th>Item Image :</th>
                             <th>
-                                <input type="submit" name="actionButton" value="Item" class="btn btn-link" />
+                                <input type="submit" name="actionButton" value="Item" title="click here to sort by Items" class="btn btn-link" />
                             </th>
                             <th>
-                                <input type="submit" name="actionButton" value="Supplier" class="btn btn-link" />
+                                <input type="submit" name="actionButton" value="UPC" title="click here to sort by Items" class="btn btn-link" />
+                             @*   @Html.DisplayNameFor(model => model.Item.UPC)*@
                             </th>
                             <th>
-                                <input type="submit" name="actionButton" value="Category" class="btn btn-link" />
+                                <input type="submit" name="actionButton" disabled="disabled" value="Total Stock" title="click here to sort by Stock" class="btn btn-link" />
+                             @*   @Html.DisplayNameFor(model => model.Item.UPC)*@
                             </th>
+                            <th>
+                                <input type="submit" name="actionButton" title="click here to sort by location" value="Location" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" title="click here to sort by quantity" value="Quantity" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" disabled="disabled" title="click here to sort by quantity" value="Locations" class="btn btn-link" />
+                            </th>
+                            
+                            <th>
 
-                            <th>
-                                @Html.DisplayNameFor(model => model.UPC)
-                            </th>
-                            <th>
-                                @Html.DisplayNameFor(model => model.Description)
-                            </th>
-                            <th>
-                                @Html.DisplayNameFor(model => model.Notes)
-                            </th>
-                            <th>
-                                Employee
-                            </th>
-                            <th>
-                                Last Modified By
-                                
                             </th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
+
                         @foreach (var item in Model)
                         {
-                            if(item.Archived == false){
+
                                 <tr>
                                     <td>
-                                        @{
-                                            if (item.ItemThumbNail?.Content != null)
-                                            {
-                                                string imageBase64 = Convert.ToBase64String(item.ItemThumbNail.Content);
-                                                string imageSrc = string.Format("data:" + item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
-                                                <img src="@imageSrc" alt="Item Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid avatar" />
+                                    @{
+                                        if (item.ItemThumbNail?.Content != null)
+                                        {
+                                            string imageBase64 = Convert.ToBase64String(item.ItemThumbNail.Content);
+                                            string imageSrc = string.Format("data:" + item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
+                                                        <img src="@imageSrc" alt="Item Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid avatar" />
+                                        }
+                                        else
+                                            { 
+                                         @:<div>
+                                             <img src="~/images/image-not-found_tm.png" alt="Image not found" title="Image not found" class="img-fluid avatar" />
+                                            @:</div>
                                             }
-                                        }
+                                    }
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Name)
+                                    @Html.DisplayFor(modelItem => item.Name)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Supplier.Name)
+                                    @Html.DisplayFor(modelItem => item.UPC)
                                     </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Category.Name)
+                                     <td>
+                                    @{int TotalStock = 0;}
+                                    @foreach(var c in item.Inventories)
+                                    {
+                                        TotalStock += c.Quantity;
+                                    }
+                                    @TotalStock
                                     </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.UPC)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Description)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Notes)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Employee.FullName)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.EmployeeNameUser)
-                                        @{
+                                   <td>
 
-                                            //using (var context = new CAAContext())
-                                            //{
-                                            //    var employees = context.Employees.ToList();
-                                            //    @Html.Raw(employees)
-                                            //}
+                                    @foreach(var c in item.Inventories)
+                                    {
+                                        @c.Location.Name <br />
+                                    }
+                                </td>
+                                <td>
+                                    @foreach(var c in item.Inventories)
+                                    {
+                                        @c.Quantity <br />
+                                    }
+                                </td>
+                                 <td>
+                                    @foreach(var c in item.ItemLocations)
+                                    {
+                                        @c.Location.Name <br />
+                                    }
+                                </td>
+                                   
 
-                                            //string Name = "";
-                                            //foreach (var emp in Model)
-                                            //{
-                                            //    Name += emp.Employee.FullName + " ";
-                                            ////if(emp.UpdatedBy != "Seed Data") {
-                                            //    //    if (item.UpdatedBy == emp.UpdatedBy)
-                                            //    //    {
+                                
 
-                                            //    //        Name = emp.Employee.FullName;
-                                            //    //    }
-                                            //    //}
+ 						        <td>
+                                   <a asp-controller="Items" asp-action="Edit" title="Click this to edit" class="padding-for-actions" asp-route-id="@item.ID"> Edit </a> |
+                                   <a id="details-link" asp-action="Index" asp-controller="OrderItems" title="Click this to go to details" class="padding-for-actions"  asp-route-ItemID="@item.ID"> Details   </a> |
+                                   <a asp-controller="Items" asp-action="Delete" title="Click this to archive the item" class="padding-for-actions" asp-route-id="@item.ID">Archive </a> 
 
-                                            //}
-                                            //if(Name == ""){
-                                            //    Name = "None!";
-                                            //}
-                                            //@Html.Raw(Name)
-
-                                        }
-
-                                    </td>
-                                    <td>
-                                        <div class="tooltip"> <a asp-action="Edit" asp-route-id="@item.ID"> <img src="~/images/icons8-edit-24.png" alt="Edit Icon" /> <span class="tooltiptext">Edit</span></a> </div>
-                                        <div class="tooltip"> <a asp-action="Details" asp-route-id="@item.ID"> <img src="~/images/icons8-more-details-24.png" alt="Details Icon" /> <span class="tooltiptext">Details</span></a> </div>
-                                        <div class="tooltip"> <a asp-action="Delete" asp-route-id="@item.ID"> <img src="~/images/icons8-trash-24.png" alt="Trash Can Icon" /> <span class="tooltiptext">Delete</span></a> </div>
                                     </td>
                                 </tr>
-                            }
-
                         }
                     </tbody>
                 </table>
-            </div>
-        </div>
+             </div>
+           </div>
+    </div>
         <partial name="_PagingNavBar" />
     </div>
+
 </form>
+
+
+
+@section Scripts{
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+
+    <script type="text/javascript">
+  var detailsLink = document.getElementById("details-link");
+  detailsLink.addEventListener("click", function(event) {
+    @{
+    HttpContextAccessor.HttpContext.Session.SetString("OrderandItemCreated", "False");
+    }
+  });
+
+  //var ActivateNotifLink = document.getElementById("nowEditActivateNotif");
+  //detailsLink.addEventListener("click", function(event) {
+    
+  //  @{HttpContextAccessor.HttpContext.Session.SetString("NotifOperation", "Activate");}
+  //  }
+  //});
+  
+  //var ActivateNotifNullLink = document.getElementById("nowEditActivateNotifNull");
+  //detailsLink.addEventListener("click", function(event) {
+    
+  //  @{HttpContextAccessor.HttpContext.Session.SetString("NotifOperation", "Activate");}
+    
+  //});
+
+  //  var SilentNotifLink = document.getElementById("nowEditNotifSilent");
+  //detailsLink.addEventListener("click", function(event) {
+    
+  //  @{HttpContextAccessor.HttpContext.Session.SetString("NotifOperation", "Silent");}
+  //  }
+  //});
+  //This is to get the ItemId when the user clicks on the notification, it will get sent over to the partial views action method
+  function setItemIdForPartialNotif(itemId) {
+    document.getElementById('selectedItemId').value = itemId;
+}
+function setItemIdForPartialNotifActivate(itemId) {
+    document.getElementById('selectedItemId1').value = itemId;
+}
+    </script>
+
+    
+    //FOR THE SILENCE NOTIF MODAL POPUP
+    <script type="text/javascript">
+        $('#submitNotifActivate').click(function (event) {
+            event.preventDefault();
+            var form = $('#createNotifActivateForm');
+            if (form.valid()) {
+
+                $.ajax({
+                    type: "POST",
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function () {
+                        $('#addNotifActivateModal').modal('hide');
+                    },
+                    error: function () {
+                        $('#addNotifActivateModal').modal('hide');
+                        @TempData["NotifFromPopupStatus"] = "";
+                        //window.location.reload();
+                    }
+                });
+            }
+            return false;
+        });
+        $('#addNotifActivateModal').on('hide.bs.modal', function () {
+            $('#createNotifActivateForm').find("input[type=text], textarea, select").val("");
+        });
+    </script>
+
+
+       
+    <script type="text/javascript">
+        //FOR THE SILENCE NOTIF MODAL POPUP
+        $('#submitNotifCreate').click(function (event) {
+            event.preventDefault();
+            var form = $('#createNotifForm');
+            if (form.valid()) {
+                $.ajax({
+                    type: "POST",
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function () {
+                        $('#addNotifModal').modal('hide');
+                    },
+                    error: function () {
+                        $('#addNotifModal').modal('hide');
+                        @TempData["NotifFromPopupStatus"] = "";
+                        window.location.reload();
+                    }
+                });
+            }
+            return false;
+        });
+        $('#addNotifModal').on('hide.bs.modal', function () {
+            $('#createNotifForm').find("input[type=text], textarea, select").val("");
+        });
+    </script>
+}
+
+
+
+<style>
+    .mynotification {
+     /*background-color: #f60;
+     color: white;*/
+     text-decoration: none;
+     /*padding: 15px 26px;*/
+     position: relative;
+     display: inline-block;
+     /*border-radius: 2px;
+	 margin-top:10px;*/
+}
+
+.mynotification:hover {
+  background:#333;
+}
+
+.notivalue {
+  position: absolute;
+  top: -10px;
+  right: -6px;
+  padding: 2px 7px;
+  border-radius: 75%;
+  background: red;
+  color: white;
+  
+}
+
+
+.WhiteClass {
+  position: absolute;
+  top: -10px;
+  right: -6px;
+  padding: 2px 4px;
+  border-radius: 75%;
+  background: green;
+  color: white;
+  
+}
+
+
+.checkmark {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  -ms-transform: rotate(45deg); /* IE 9 */
+  -webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
+  transform: rotate(45deg);
+}
+
+ </style>
+            

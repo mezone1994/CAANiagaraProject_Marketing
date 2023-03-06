@@ -94,6 +94,7 @@ namespace CAAMarketing.Controllers
                 .Include(i => i.Item.Employee)
                 .Include(i => i.Location)
                 .Include(i => i.Item).ThenInclude(i => i.Category)
+                .Include(i=>i.Item.ItemLocations).ThenInclude(i=>i.Location)
             .AsNoTracking();
 
 
@@ -249,6 +250,7 @@ namespace CAAMarketing.Controllers
                 .Include(i => i.Item.ItemImages)
                 .Include(i => i.Location)
                 .Include(i => i.Item.Employee)
+                .Include(i => i.Item.ItemLocations).ThenInclude(i => i.Location)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (inventory == null)
             {
@@ -446,6 +448,7 @@ namespace CAAMarketing.Controllers
                 .Include(i => i.Item)
                 .Include(i => i.Location)
                 .Include(i => i.Item.Employee)
+                .Include(i => i.Item.ItemLocations).ThenInclude(i => i.Location)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (inventory == null)
             {
@@ -456,6 +459,7 @@ namespace CAAMarketing.Controllers
                 .Include(i => i.Category)
                 .Include(i => i.Supplier)
                 .Include(i => i.Employee)
+                .Include(i => i.ItemLocations).ThenInclude(i => i.Location)
                 .FirstOrDefaultAsync(m => m.ID == inventory.ItemID);
 
             if (item == null)
@@ -562,6 +566,7 @@ namespace CAAMarketing.Controllers
                         .Include(i => i.Item.Category)
                         .Include(i => i.Item.Employee)
                         .Include(i => i.Location)
+
                        orderby i.Item.Name ascending
                        select new InventoryReportVM
                        {
@@ -1564,11 +1569,6 @@ namespace CAAMarketing.Controllers
 
                     }
 
-
-
-                    
-
-
                 }
                 if (days <= 0)
                 { inventoryToUpdate.DismissNotification = null; }
@@ -1652,7 +1652,7 @@ namespace CAAMarketing.Controllers
                 throw;
             }
             TempData["RecoverNotifMessageBool"] = "true";
-            return RedirectToAction("Index", "Inventories");
+            return RedirectToAction("Index", "Items");
         }
 
 
@@ -1662,7 +1662,9 @@ namespace CAAMarketing.Controllers
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
             int records = 0;
-            var inventories = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category).Where(t => t.Item.Archived == false).ToList();
+            var inventories = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category)
+                .Include(i => i.Item.ItemLocations).ThenInclude(i => i.Location)
+                .Where(t => t.Item.Archived == false).ToList();
             try
             {
 
@@ -1698,7 +1700,7 @@ namespace CAAMarketing.Controllers
 
                 throw;
             }
-            return RedirectToAction("Index", "Inventories");
+            return RedirectToAction("Index", "Items");
         }
 
         //Method for Viewing Silenced Messages
@@ -1707,7 +1709,9 @@ namespace CAAMarketing.Controllers
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
             int records = 0;
-            var inventories = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category).Where(t => t.Item.Archived == false).ToList();
+            var inventories = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category)
+                .Include(i => i.Item.ItemLocations).ThenInclude(i => i.Location)
+                .Where(t => t.Item.Archived == false).ToList();
             try
             {
                 foreach (var inventory in inventories)
@@ -1777,7 +1781,7 @@ namespace CAAMarketing.Controllers
                 _toastNotification.AddSuccessToastMessage(
             $@"No Silent Messages At This Time");
             }
-            return RedirectToAction("Index", "Inventories");
+            return RedirectToAction("Index", "Items");
         }
 
         //Method for Viewing Silenced Messages
@@ -1787,7 +1791,9 @@ namespace CAAMarketing.Controllers
             ViewDataReturnURL();
             int itemID = 0;
             int norecords = 0;
-            var inventories = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category).Where(t => t.Item.Archived == false).ToList();
+            var inventories = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category)
+                .Include(i => i.Item.ItemLocations).ThenInclude(i => i.Location)
+                .Where(t => t.Item.Archived == false).ToList();
             foreach (var inventory in inventories)
             {
 
@@ -1823,7 +1829,7 @@ namespace CAAMarketing.Controllers
                 _toastNotification.AddSuccessToastMessage(
                             $@"All Caught Up!");
             }
-            return RedirectToAction("Index", "Inventories");
+            return RedirectToAction("Index", "Items");
         }
         private string ControllerName()
         {

@@ -57,6 +57,10 @@ namespace CAAMarketing.Data
 
         public DbSet<Location> Locations { get; set; }
 
+
+        public DbSet<ItemLocation> ItemLocations { get; set; }
+
+
         public DbSet<Inventory> Inventories { get; set; }
 
         public DbSet<Equipment> Equipments { get; set; }
@@ -82,6 +86,13 @@ namespace CAAMarketing.Data
 
             modelBuilder.Entity<ItemReservation>()
         .HasQueryFilter(p => !p.IsDeleted);
+
+
+
+            //Many to Many for Play Table to Musician
+            modelBuilder.Entity<ItemLocation>()
+                .HasKey(p => new { p.LocationID, p.ItemID });
+
 
             //Many to Many for Play Table to Musician
             modelBuilder.Entity<ItemEvent>()
@@ -127,6 +138,15 @@ namespace CAAMarketing.Data
                 .Entity<InventoryReportVM>()
                 .ToView(nameof(InventoryReports))
                 .HasKey(a => a.ID);
+
+
+            //Prevents cascade delete from Introment class to musician
+            modelBuilder.Entity<ItemLocation>()
+                .HasOne<Location>(i => i.Location)
+                .WithMany(m => m.ItemLocations)
+                .HasForeignKey(m => m.LocationID)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
             //Prevent Cascade Delete from Location to Inventory
             //so we are prevented from deleting a location with Inventory

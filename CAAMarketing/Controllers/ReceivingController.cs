@@ -194,10 +194,12 @@ namespace CAAMarketing.Controllers
             if (id != null)
             {
                 ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", id);
+                ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", id);
             }
             else
             {
                 ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name");
+                ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", id);
             }
 
             _toastNotification.AddSuccessToastMessage($"Item Created!");
@@ -213,7 +215,7 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Quantity,DateMade,DeliveryDate,Cost,ItemID")] Receiving order)
+        public async Task<IActionResult> Create([Bind("ID,Quantity,DateMade,DeliveryDate,Cost,ItemID,LocationID")] Receiving order)
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
@@ -226,9 +228,10 @@ namespace CAAMarketing.Controllers
                 {
                     // If item doesn't exist, create a new item
                     item = new Item { ID = order.ItemID };
-                    _context.Add(item);
+                    //_context.Add(item);
                 }
                 newOrder.ItemID = order.ItemID;
+                newOrder.LocationID = order.LocationID;
                 newOrder.Cost = order.Cost;
                 newOrder.DateMade = order.DateMade;
                 newOrder.DeliveryDate = order.DeliveryDate;
@@ -252,19 +255,27 @@ namespace CAAMarketing.Controllers
                 }
                 else
                 {
-                    // If inventory for the item doesn't exist, create a new inventory
-                    inventory = new Inventory { ItemID = order.ItemID, Quantity = order.Quantity, Cost = order.Cost };
-                    _context.Add(inventory);
+
+                    Inventory invCreate = new Inventory();
+
+                    invCreate.LocationID = order.LocationID;
+                    invCreate.ItemID = item.ID;
+                    invCreate.Quantity = order.Quantity;
+                    invCreate.Cost = order.Cost;    
+                    _context.Add(invCreate);
+
                     await _context.SaveChangesAsync();
                 }
                 // return RedirectToAction(nameof(Index));
                 ViewBag.Message = "This is a message from Controller 1.";
                 //Send on to add orders
-                return RedirectToAction("Index", "OrderItems", new { ItemID = order.ItemID });
+                return RedirectToAction("Index", "OrderItems", new { order.ItemID });
                 //return RedirectToAction("Details", new { order.ID });
 
             }
             ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", order.ItemID);
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", order.LocationID);
+             
             return View(order);
         }
 
@@ -285,6 +296,7 @@ namespace CAAMarketing.Controllers
                 return NotFound();
             }
             ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", order.ItemID);
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", order.LocationID);
             return View(order);
         }
 
@@ -372,6 +384,7 @@ namespace CAAMarketing.Controllers
 
             }
             ViewData["ItemID"] = new SelectList(_context.Items, "ID", "Name", orderToUpdate.ItemID);
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", orderToUpdate.LocationID);
             return View(orderToUpdate);
         }
 

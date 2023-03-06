@@ -47,6 +47,16 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Location.Name)
         </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Location)
+            </dt>
+            <dd class="col-sm-10">
+                    @foreach (var c in Model.Item.ItemLocations)
+                    {
+                        @c.Location.Name <br />
+                    }
+            </dd>
+
     </dl>
 
     <form asp-action="Delete">

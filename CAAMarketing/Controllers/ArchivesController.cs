@@ -45,6 +45,7 @@ namespace CAAMarketing.Controllers
                 .Include(i => i.Item.ItemThumbNail)
                 .Include(i => i.Item.Employee)
                 .Include(i => i.Location)
+                .Include(i => i.Item.ItemLocations).ThenInclude(i => i.Location)
             .AsNoTracking();
 
 

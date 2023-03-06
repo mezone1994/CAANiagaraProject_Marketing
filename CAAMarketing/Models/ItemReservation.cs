@@ -7,21 +7,26 @@ namespace CAAMarketing.Models
     {
         public int Id { get; set; }
 
+        [Required]
         [Display(Name = "Event")]
         public int EventId { get; set; }
         public Event Event { get; set; }
 
+        [Required]
         [Display(Name = "Item")]
         public int ItemId { get; set; }
         public Item Item { get; set; }
 
+        [Required]
         [Display(Name = "Quantity")]
         public int Quantity { get; set; }
 
+        [Required]
         [Display(Name = "Reserved Date")]
         [DataType(DataType.Date)]
         public DateTime? ReservedDate { get; set; }
 
+        [Required]
         [Display(Name = "Return Date")]
         [DataType(DataType.Date)]
         public DateTime? ReturnDate { get; set; }

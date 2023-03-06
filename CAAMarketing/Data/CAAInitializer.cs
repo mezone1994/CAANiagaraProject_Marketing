@@ -307,23 +307,33 @@ public static class CAAInitializer
                 context.Locations.AddRange(
                 new Location
                 {
-                    Name = "Niagara Falls"
+                    Name = "Niagara Falls",
+                    Phone = "8002637272",
+                    Address = "6788 Regional Rd 57"
                 },
                 new Location
                 {
-                    Name = "Thorold"
+                    Name = "Thorold",
+                    Phone = "9059848585",
+                    Address = "3271 Schmon Pkwy"
                 },
                 new Location
                 {
-                    Name = "Welland"
+                    Name = "Welland",
+                    Phone = "8002637272",
+                    Address = "800 Niagara St"
                 },
                 new Location
                 {
-                    Name = "Fort Erie"
+                    Name = "Grimsby",
+                    Phone = "8002637272",
+                    Address = "155 Main Street East"
                 },
                 new Location
                 {
-                    Name = "St. Catharines"
+                    Name = "St. Catharines",
+                    Phone = "8002637272",
+                    Address = "76 Lake St"
                 }
                 );
                 context.SaveChanges();
@@ -376,14 +386,16 @@ public static class CAAInitializer
                     DateMade = DateTime.Now,
                     DeliveryDate = DateTime.Parse("2022/03/20"),
                     Cost = 45,
-                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Carry-on Bag Nike").ID
+                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Carry-on Bag Nike").ID,
+                    LocationID = context.Locations.FirstOrDefault(d => d.Name == "Niagara Falls").Id,
                 },
                 new Receiving
                 {
                     Quantity = 70,
                     DateMade = DateTime.Now,
                     DeliveryDate = DateTime.Parse("2022/01/20"),
-                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Nike Solo Backpack").ID
+                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Nike Solo Backpack").ID,
+                    LocationID = context.Locations.FirstOrDefault(d => d.Name == "Niagara Falls").Id,
                 },
                 new Receiving
                 {
@@ -391,7 +403,8 @@ public static class CAAInitializer
                     DateMade = DateTime.Now,
                     DeliveryDate = DateTime.Parse("2022/02/20"),
                     Cost = 55,
-                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Stainless-Steel Water Bottles").ID
+                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Stainless-Steel Water Bottles").ID,
+                    LocationID = context.Locations.FirstOrDefault(d => d.Name == "Niagara Falls").Id,
                 },
                 new Receiving
                 {
@@ -399,7 +412,8 @@ public static class CAAInitializer
                     DateMade = DateTime.Now,
                     DeliveryDate = DateTime.Parse("2022/03/20"),
                     Cost = 35,
-                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Studio Pens").ID
+                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Studio Pens").ID,
+                    LocationID = context.Locations.FirstOrDefault(d => d.Name == "Niagara Falls").Id,
                 });
                 context.SaveChanges();
             }
@@ -418,6 +432,28 @@ public static class CAAInitializer
                         });
                 }
 
+                context.SaveChanges();
+            }
+
+            // Seed orders if there aren't any.
+            if (!context.ItemLocations.Any())
+            {
+                context.ItemLocations.AddRange(
+                new ItemLocation
+                {
+                    LocationID = context.Locations.FirstOrDefault(d => d.Name == "Welland").Id,
+                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Carry-on Bag Nike").ID
+                },
+                new ItemLocation
+                {
+                    LocationID = context.Locations.FirstOrDefault(d => d.Name == "Thorold").Id,
+                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Carry-on Bag Nike").ID
+                },
+                new ItemLocation
+                {
+                    LocationID = context.Locations.FirstOrDefault(d => d.Name == "Niagara Falls").Id,
+                    ItemID = context.Items.FirstOrDefault(d => d.Name == "Carry-on Bag Nike").ID
+                });
                 context.SaveChanges();
             }
         }

@@ -184,7 +184,7 @@ namespace CAAMarketing.Controllers
 
             //Try updating it with the values posted
             if (await TryUpdateModelAsync<Location>(locationToUpdate, "",
-                l => l.Name))
+                l => l.Name, l => l.Phone , l => l.Address))
             {
                 try
                 {

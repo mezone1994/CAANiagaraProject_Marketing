@@ -12,11 +12,10 @@ namespace CAAMarketing.Models
         public string Name { get; set; }
 
         [Display(Name = "Description")]
-        [Required(ErrorMessage = "You cannot leave it blank.")]
         [StringLength(50, ErrorMessage = " cannot be more than 50 characters long.")]
         public string Description { get; set; }
 
-        [Required(ErrorMessage = "You cannot leave the notes blank.")]
+
         [MinLength(10, ErrorMessage = "notes must be at least 10 characters.")]
         [MaxLength(4000, ErrorMessage = "notes cannot be more than 4,000 characters.")]
         [DataType(DataType.MultilineText)]
@@ -54,6 +53,8 @@ namespace CAAMarketing.Models
 
         public ICollection<InventoryTransfer> InventoryTransfers { get; set; }
 
+        public ICollection<Inventory> Inventories { get; set; }
+
         public int EmployeeID { get; set; }
         public Employee Employee { get; set; }
 
@@ -71,6 +72,10 @@ namespace CAAMarketing.Models
         [Display(Name = "Quantity")]
         [Required(ErrorMessage = "You must enter a quantity.")]
         public int Quantity { get; set; }
+
+
+
+        public ICollection<ItemLocation> ItemLocations { get; set; } = new HashSet<ItemLocation>();
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

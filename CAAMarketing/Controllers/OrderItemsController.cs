@@ -62,10 +62,11 @@ namespace CAAMarketing.Controllers
 
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
-            string[] sortOptions = new[] { "OrderItem", "UPC", "Quantity", "Cost", "DateMade", "DeliveryDate" };
+            string[] sortOptions = new[] { "OrderItem", "UPC", "Quantity", "Cost", "DateMade", "DeliveryDate", "Location" };
 
             var orders = _context.Orders
                 .Include(o => o.Item)
+                .Include(i=>i.Location)
                 .Where(p => p.ItemID == ItemID.GetValueOrDefault())
                 .AsNoTracking();
 
@@ -161,6 +162,19 @@ namespace CAAMarketing.Controllers
                         .OrderByDescending(p => p.Quantity);
                 }
             }
+            else if (sortField == "Location")
+            {
+                if (sortDirection == "asc")
+                {
+                    orders = orders
+                        .OrderBy(p => p.Location);
+                }
+                else
+                {
+                    orders = orders
+                        .OrderByDescending(p => p.Location);
+                }
+            }
             else //Sorting by Patient Name
             {
                 if (sortDirection == "asc")
@@ -190,6 +204,7 @@ namespace CAAMarketing.Controllers
                .Include(i => i.Employee)
                .Include(p => p.ItemThumbNail)
                .Include(i=>i.ItemReservations)
+               .Include(i => i.ItemLocations).ThenInclude(i => i.Location)
                .Where(p => p.ID == ItemID.GetValueOrDefault())
                .AsNoTracking()
                .FirstOrDefault();
@@ -208,8 +223,8 @@ namespace CAAMarketing.Controllers
 
 
             var itemReservations = await _context.ItemReservations
-    .Where(ir => ir.ItemId == ItemID.GetValueOrDefault() && !ir.IsDeleted)
-    .ToListAsync();
+            .Where(ir => ir.ItemId == ItemID.GetValueOrDefault() && !ir.IsDeleted)
+            .ToListAsync();
 
             ViewBag.ItemReservations = itemReservations;
 
@@ -233,6 +248,10 @@ namespace CAAMarketing.Controllers
             {
                 ItemID = ItemID.GetValueOrDefault()
             };
+
+
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
+
             return View(a);
         }
 
@@ -241,7 +260,7 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add([Bind("ID,Quantity,DateMade,DeliveryDate,Cost,ItemID")] Receiving order
+        public async Task<IActionResult> Add([Bind("ID,Quantity,DateMade,DeliveryDate,Cost,ItemID, LocationID")] Receiving order
     , string ItemName, int ItemID)
         {
             //Get the URL with the last filter, sort and page parameters
@@ -267,7 +286,7 @@ namespace CAAMarketing.Controllers
                         _context.Update(inventoryItem);
                         await _context.SaveChangesAsync();
                     }
-
+                    ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", order.LocationID);
                     return RedirectToAction("Index", "OrderItems", new { ItemID = order.ItemID });
                 }
             }
@@ -290,8 +309,9 @@ namespace CAAMarketing.Controllers
 
             ViewDataReturnURL();
 
-            var order = _context.Orders
+            var order = await _context.Orders
                 .Include(o => o.Item)
+                .Include(i=>i.Location)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ID == id);
 
@@ -299,7 +319,9 @@ namespace CAAMarketing.Controllers
             {
                 return NotFound();
             }
-            return View(await order);
+
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", order.LocationID);
+            return View(order);
         }
 
 
@@ -378,6 +400,7 @@ namespace CAAMarketing.Controllers
                         "persists see your system administrator.");
                 }
             }
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", orderToUpdate.LocationID);
             return View(orderToUpdate);
         }
 

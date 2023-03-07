@@ -835,7 +835,7 @@ namespace CAAMarketing.Controllers
                             }
                             else if ((qty <= 10) && (qty > 0))
                             {
-                                workSheet.Cells[row, 5].Style.Font.Color.SetColor(Color.Yellow);
+                                workSheet.Cells[row, 5].Style.Font.Color.SetColor(Color.Orange);
                                 row++;
                             }
                             else if (qty > 10)
@@ -1125,7 +1125,7 @@ namespace CAAMarketing.Controllers
                             }
                             else if ((qty <= 10) && (qty > 0))
                             {
-                                workSheet.Cells[row, 3].Style.Font.Color.SetColor(Color.Yellow);
+                                workSheet.Cells[row, 3].Style.Font.Color.SetColor(Color.Orange);
                                 row++;
                             }
                             else if (qty > 10)
@@ -1413,7 +1413,7 @@ namespace CAAMarketing.Controllers
                             }
                             else if ((qty <= 10) && (qty > 0))
                             {
-                                workSheet.Cells[row, 4].Style.Font.Color.SetColor(Color.Yellow);
+                                workSheet.Cells[row, 4].Style.Font.Color.SetColor(Color.Orange);
                                 row++;
                             }
                             else if (qty > 10)

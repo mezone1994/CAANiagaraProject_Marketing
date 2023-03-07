@@ -5,26 +5,34 @@
 }
 
         <form asp-action="Create">
+    <input type="hidden" name="ItemId" value="@Model.ItemId" />
+
             <div class="cont">
                     <div class="deimage">
                     <h1>Create Inventory Transfer</h1>
                         <hr />
                         <div class="deimage2">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
+@*
             <div class="form-group">
                 <label asp-for="Item" class="control-label"></label>
                 <select asp-for="ItemId" class="form-control" asp-items="ViewBag.ItemId"></select>
-            </div>
+            </div>*@
+                <div class="form-group">
+                    <label asp-for="FromLocation" class="control-label"></label>
+                    <select asp-for="FromLocationId" class="form-control" asp-items="ViewBag.FromLocationId" id="fromLocationDropdown" required>
+                        <option value="" disabled selected>Please choose</option>
+                    </select>
+                    @*<input type="hidden" asp-for="Quantity"/>*@
+                    <label id="quantityText"></label>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="FromLocation" class="control-label"></label>
-                <select asp-for="FromLocationId" class="form-control" asp-items="ViewBag.FromLocationId"></select>
-            </div>
 
-            <div class="form-group">
+                <div class="form-group">
                 <label asp-for="ToLocation" class="control-label"></label>
-                <select asp-for="ToLocationId" asp-items="@ViewBag.ToLocationId" class="form-control"></select>
+                    <select asp-for="ToLocationId" asp-items="@ViewBag.ToLocationId" class="form-control" id="toLocationDropdown" required>
+                        <option value="" disabled selected>Please choose</option>
+                    </select>
             </div>
 
             <div class="form-group">
@@ -49,4 +57,62 @@
 </form>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+
+    <script type="text/javascript">
+        
+$(document).ready(function() {
+  $("#fromLocationDropdown").on("change", function() {
+    // Get the selected value and text
+    var selectedValue = $(this).val();
+    var selectedText = $(this).find("option:selected").text();
+
+                  // Log the selected value
+                console.log(selectedValue);
+
+    // Disable the corresponding option in the ToLocation dropdown
+    $("#toLocationDropdown option").each(function() {
+      if ($(this).text() === selectedText) {
+        $(this).prop("disabled", true);
+      } else {
+        $(this).prop("disabled", false);
+      }
+    });
+  });
+});
+    </script>
+    <script>
+        var tempData = @Html.Raw(Json.Serialize(TempData));
+
+        $(document).ready(function () {
+            $('#fromLocationDropdown').on('change', function () {
+                var selectedOption = $(this).val();
+                var quantityText = $('#quantityText');
+
+                if (selectedOption != null && selectedOption != '') {
+
+                    var selectedOptionData = tempData[selectedOption];
+                    console.log( tempData[selectedOption])
+                    if (selectedOptionData != null) {
+
+                        quantityText.text("Current Quanity: " + selectedOptionData );
+                    }
+                } else {
+                    quantityText.text('');
+                }
+            });
+        });
+    </script>
+
+
+
 }
+<style>
+    .label {
+  display: inline-block;
+  width: 140px;
+  text-align: right;
+}​
+</style>

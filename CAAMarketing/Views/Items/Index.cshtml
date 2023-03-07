@@ -7,11 +7,6 @@
 <partial name="_silentNotifModal" />
 <partial name="_activateNotifModal" />
 
-
-<p>Number of Locations Selected: @HttpContextAccessor.HttpContext.Session.GetString("NumOfLocationsSelected")</p>
-<p>Names of Locations Selected: @HttpContextAccessor.HttpContext.Session.GetString("LocationNames")</p>
-<p>If Statemtn: @HttpContextAccessor.HttpContext.Session.GetString("IfStatement")</p>
-
  
 @*FOR THE RECOVER ALL NOTIF BUTTON*@
     @{
@@ -133,9 +128,7 @@
                             <th>
                                 <input type="submit" name="actionButton" title="click here to sort by quantity" value="Quantity" class="btn btn-link" />
                             </th>
-                            <th>
-                                <input type="submit" name="actionButton" disabled="disabled" title="click here to sort by quantity" value="Locations" class="btn btn-link" />
-                            </th>
+
                             
                             <th>
 
@@ -180,27 +173,37 @@
                                     @TotalStock
                                     </td>
                                    <td>
+                                    @{
+                                        if(item.Inventories.Count() == 0)
+                                        {
+                                            <p>None</p>
+                                        }
+                                        else
+                                        {
+                                            @foreach(var c in item.Inventories)
+                                            {
+                                                @c.Location.Name <br />
+                                            }
+                                        }
 
-                                    @foreach(var c in item.Inventories)
-                                    {
-                                        @c.Location.Name <br />
                                     }
                                 </td>
                                 <td>
-                                    @foreach(var c in item.Inventories)
-                                    {
-                                        @c.Quantity <br />
-                                    }
-                                </td>
-                                 <td>
-                                    @foreach(var c in item.ItemLocations)
-                                    {
-                                        @c.Location.Name <br />
-                                    }
-                                </td>
-                                   
+                                    @{
+                                        if(item.Inventories.Count() == 0)
+                                        {
+                                            <p>None</p>
+                                        }
+                                        else
+                                        {
+                                            @foreach(var c in item.Inventories)
+                                            {
+                                                @c.Quantity <br />
+                                            }
+                                        }
 
-                                
+                                    }
+                                </td>
 
  						        <td>
                                    <a asp-controller="Items" asp-action="Edit" title="Click this to edit" class="padding-for-actions" asp-route-id="@item.ID"> Edit </a> |
@@ -266,7 +269,6 @@ function setItemIdForPartialNotifActivate(itemId) {
     </script>
 
     
-    //FOR THE SILENCE NOTIF MODAL POPUP
     <script type="text/javascript">
         $('#submitNotifActivate').click(function (event) {
             event.preventDefault();

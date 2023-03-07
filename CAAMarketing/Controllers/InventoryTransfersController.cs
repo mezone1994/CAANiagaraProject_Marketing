@@ -181,21 +181,51 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: InventoryTransfers/Create
-        public IActionResult Create(int itemId, int fromLocationId,int ToLocationId, DateTime TransferDate)
+        public IActionResult Create(int? ItemId, int FromLocationId, int ToLocationId, DateTime TransferDate)
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
 
+            if (!ItemId.HasValue)
+            {
+                return Redirect(ViewData["returnURL"].ToString());
+            }
+            ViewData["ItemName"] = ItemId;
+            InventoryTransfer a = new InventoryTransfer()
+            {
+                ItemId = ItemId.GetValueOrDefault()
+            };
+
+
+            var quantity = 0;
+            // Get the quantity value from TempData
             
 
 
-            // Pre-populate the fields with the specified item and location IDs
-            ViewData["FromLocationId"] = new SelectList(_context.Locations, "Id", "Name", fromLocationId);
-            ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", itemId);
+            var existingLocationIds = _context.Inventories.Where(i => i.ItemID == ItemId).Select(i => i.LocationID).Distinct().ToList();
+            var locations = _context.Locations.Where(l => existingLocationIds.Contains(l.Id)).ToList();
+            var GetTotalStock = _context.Items
+            .Where(i => i.ID == ItemId)
+            .SelectMany(i => i.Inventories)
+            .ToList();
+            TempData["numOfLocations"] = locations.Count();
+            foreach (var loc in locations)
+            {
+                var tempname = _context.Locations.Where(i=>i.Id == loc.Id).Select(i=>i.Name).First();
+                quantity = 0;
+                quantity += GetTotalStock
+                    .Where(i => i.LocationID == loc.Id)
+                    .Sum(i => i.Quantity);
+                TempData[loc.Id.ToString()] = quantity;
+            }
+
+            ViewData["FromLocationId"] = new SelectList(locations, "Id", "Name", FromLocationId);
+
+            ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", ItemId);
             ViewData["ToLocationId"] = new SelectList(_context.Locations, "Id", "Name", ToLocationId);
 
 
-            return View();
+            return View(a);
         }
 
         // POST: InventoryTransfers/Create
@@ -259,7 +289,7 @@ namespace CAAMarketing.Controllers
                 await _context.AddAsync(inventoryTransfer);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "OrderItems", new { inventoryTransfer.ItemId });
             }
 
             // If ModelState is invalid, return the view with the input inventoryTransfer

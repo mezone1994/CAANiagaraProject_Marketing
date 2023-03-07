@@ -67,7 +67,7 @@
                         @Html.DisplayFor(modelItem => item.Date)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.location)
+                        @Html.DisplayFor(modelItem => item.Location.Name)
                     </td>
                     <td>
                                     <a asp-action="Edit" title="Click this to edit" class="padding-for-actions" asp-route-id="@item.ID">Edit</a> |

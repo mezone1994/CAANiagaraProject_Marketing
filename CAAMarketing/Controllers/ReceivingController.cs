@@ -249,6 +249,7 @@ namespace CAAMarketing.Controllers
                 {
                     inventory.Quantity += order.Quantity;
                     inventory.Cost = order.Cost;
+                    inventory.LocationID = order.LocationID;
                     inventory.Item.DateReceived = order.DeliveryDate.Value;
                     _context.Update(inventory);
                     await _context.SaveChangesAsync();
@@ -261,13 +262,16 @@ namespace CAAMarketing.Controllers
                     invCreate.LocationID = order.LocationID;
                     invCreate.ItemID = item.ID;
                     invCreate.Quantity = order.Quantity;
-                    invCreate.Cost = order.Cost;    
+                    invCreate.Cost = order.Cost;
+
+                    item.ItemInvCreated = true;
+                    item.Quantity += newOrder.Quantity;
                     _context.Add(invCreate);
+                    _context.Update(item);
 
                     await _context.SaveChangesAsync();
                 }
                 // return RedirectToAction(nameof(Index));
-                ViewBag.Message = "This is a message from Controller 1.";
                 //Send on to add orders
                 return RedirectToAction("Index", "OrderItems", new { order.ItemID });
                 //return RedirectToAction("Details", new { order.ID });

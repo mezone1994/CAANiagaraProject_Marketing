@@ -73,7 +73,7 @@ namespace CAAMarketing.Models
         [Required(ErrorMessage = "You must enter a quantity.")]
         public int Quantity { get; set; }
 
-
+        public bool ItemInvCreated { get; set; } = false;
 
         public ICollection<ItemLocation> ItemLocations { get; set; } = new HashSet<ItemLocation>();
 

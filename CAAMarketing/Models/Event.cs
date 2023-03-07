@@ -22,9 +22,8 @@ namespace CAAMarketing.Models
         public DateTime Date { get; set; }
 
         [Display(Name = "Location")]
-        [Required(ErrorMessage = "You cannot leave it blank.")]
-        [StringLength(50, ErrorMessage = "cannot be more than 50 characters long.")]
-        public string location { get; set; }
+        public int LocationID { get; set; }
+        public Location Location { get; set; }
 
     }
 }

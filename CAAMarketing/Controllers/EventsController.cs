@@ -42,6 +42,7 @@ namespace CAAMarketing.Controllers
 
 
             var events = _context.Events
+                .Include(p=>p.Location)
                 .AsNoTracking();
 
             if (!String.IsNullOrEmpty(SearchString))
@@ -69,12 +70,12 @@ namespace CAAMarketing.Controllers
                 if (sortDirection == "asc")
                 {
                     events = events
-                        .OrderBy(p => p.location);
+                        .OrderBy(p => p.LocationID);
                 }
                 else
                 {
                     events = events
-                        .OrderByDescending(p => p.location);
+                        .OrderByDescending(p => p.LocationID);
                 }
             }
             else if (sortField == "Date")
@@ -122,7 +123,7 @@ namespace CAAMarketing.Controllers
                 return NotFound();
             }
 
-            var @event = await _context.Events
+            var @event = await _context.Events.Include(p => p.Location)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (@event == null)
             {
@@ -137,7 +138,7 @@ namespace CAAMarketing.Controllers
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
-
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
             return View();
         }
 
@@ -146,7 +147,7 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Description,Date,location")] Event @event)
+        public async Task<IActionResult> Create([Bind("ID,Name,Description,Date,LocationID")] Event @event)
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
@@ -157,6 +158,7 @@ namespace CAAMarketing.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
             return View(@event);
         }
 
@@ -176,7 +178,10 @@ namespace CAAMarketing.Controllers
             {
                 return NotFound();
             }
+
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
             return View(@event);
+
         }
 
         // POST: Events/Edit/5
@@ -190,7 +195,7 @@ namespace CAAMarketing.Controllers
             ViewDataReturnURL();
 
             //Go get the Event to update
-            var eventToUpdate = await _context.Events.FirstOrDefaultAsync(e => e.ID == id);
+            var eventToUpdate = await _context.Events.Include(p => p.Location).FirstOrDefaultAsync(e => e.ID == id);
 
             if (eventToUpdate == null)
             {
@@ -198,11 +203,11 @@ namespace CAAMarketing.Controllers
             }
 
             //Put the original RowVersion value in the OriginalValues collection for the entity
-            _context.Entry(eventToUpdate).Property("RowVersion").OriginalValue = RowVersion;
+            //_context.Entry(eventToUpdate).Property("RowVersion").OriginalValue = RowVersion;
 
             //Try updating it with the values posted
             if (await TryUpdateModelAsync<Event>(eventToUpdate, "",
-                e => e.Name, e => e.Description, e => e.Date, e => e.location))
+                e => e.Name, e => e.Description, e => e.Date, e => e.LocationID))
             {
                 try
                 {
@@ -229,7 +234,19 @@ namespace CAAMarketing.Controllers
 
                 }
             }
-            return View(eventToUpdate);
+            try
+            {
+
+                _context.Update(eventToUpdate);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+
+                ModelState.AddModelError("", ex.Message.ToString());
+            }
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
+            return RedirectToAction("Details", new { eventToUpdate.ID });
         }
 
         // GET: Events/Delete/5
@@ -240,7 +257,7 @@ namespace CAAMarketing.Controllers
                 return NotFound();
             }
 
-            var @event = await _context.Events
+            var @event = await _context.Events.Include(p => p.Location)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (@event == null)
             {

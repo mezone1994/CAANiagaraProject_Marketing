@@ -74,28 +74,6 @@ namespace CAAMarketing.Data.CAMigrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Events",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    location = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true),
-                    EmployeeNameUser = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Events", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Locations",
                 columns: table => new
                 {
@@ -167,6 +145,34 @@ namespace CAAMarketing.Data.CAMigrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Events",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
+                    Description = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    LocationID = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true),
+                    EmployeeNameUser = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Events", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Events_Locations_LocationID",
+                        column: x => x.LocationID,
+                        principalTable: "Locations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Items",
                 columns: table => new
                 {
@@ -183,6 +189,7 @@ namespace CAAMarketing.Data.CAMigrations
                     Archived = table.Column<bool>(type: "INTEGER", nullable: false),
                     Cost = table.Column<decimal>(type: "TEXT", nullable: false),
                     Quantity = table.Column<int>(type: "INTEGER", nullable: false),
+                    ItemInvCreated = table.Column<bool>(type: "INTEGER", nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -513,6 +520,11 @@ namespace CAAMarketing.Data.CAMigrations
                 column: "ItemReservationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Events_LocationID",
+                table: "Events",
+                column: "LocationID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Inventories_ItemID",
                 table: "Inventories",
                 column: "ItemID");
@@ -600,7 +612,6 @@ namespace CAAMarketing.Data.CAMigrations
                 column: "EmployeeID");
 
             ExtraMigration.Steps(migrationBuilder);
-
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -642,13 +653,13 @@ namespace CAAMarketing.Data.CAMigrations
                 name: "ItemReservations");
 
             migrationBuilder.DropTable(
-                name: "Locations");
-
-            migrationBuilder.DropTable(
                 name: "Events");
 
             migrationBuilder.DropTable(
                 name: "Items");
+
+            migrationBuilder.DropTable(
+                name: "Locations");
 
             migrationBuilder.DropTable(
                 name: "Category");

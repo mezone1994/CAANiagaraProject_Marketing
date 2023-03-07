@@ -4,8 +4,10 @@
 @{
     ViewData["Title"] = "Edit";
 }
-<p>The Locations are: @{HttpContextAccessor.HttpContext.Session.GetString("EditedLocations");} @ViewData["EditedLocations"] </p>
-<p> The amount are: @{HttpContextAccessor.HttpContext.Session.GetString("EditCount");} @ViewData["count"]</p>
+
+@{
+    HttpContextAccessor.HttpContext.Session.SetString("OrderandItemCreated", "False");
+}
 <div class="cont">
     <div class="deimage">
     <h3>Edit:(@Model.Name)</h3>
@@ -46,6 +48,7 @@
             <partial name="_addSupplierModal" />
             <partial name="_addCategoryModal" />
             <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                <input type="hidden" id="removeImage" name="removeImage" />
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="ID" />
                 <input type="hidden" asp-for="RowVersion" />
@@ -112,70 +115,6 @@
                     <textarea asp-for="Notes" class="form-control"></textarea>
                     <span asp-validation-for="Notes" class="text-danger"></span>
                 </div>
-
-                @{
-                    int[] LocationID = { };
-                }
-                @foreach (var inventory in Model.Inventories)
-                {
-                    LocationID.Append(inventory.LocationID);
-                    <div class="form-group">
-                    <table>
-                        <tr>
-
-                            <tr>
-                                <label for="quantity_@inventory.LocationID" class="control-label">@inventory.Location.Name</label>
-                                <input type="checkbox" name="selectedOptions") />
-                            </tr>
-                            <td>
-
-                                    <input type="text" class="form-control" id="quantity_@inventory.LocationID" name="quantity_@inventory.LocationID" value="@inventory.Quantity" />
-                                
-                            </td>
-
-                        </tr>
-
-                    </table>
-                    </div>
-                    
-                }
-
-
-
-
-                <div class="form-group">
-                <label class="control-label">@Html.DisplayNameFor(model => model.ItemLocations)</label>
-                <div class="m-2">
-                    <table>
-                        <tr>
-                            @{
-                                int cnt = 0;
-                                List<CAAMarketing.ViewModels.CheckOptionsManyToManyVM> checkboxes = ViewBag.LocationOptions;
-                                foreach (var checkbox in checkboxes)
-                                {
-                                    if (cnt++ % 1 == 0)
-                                    {
-                                    @:</tr><tr>
-                                    }
-                                    @:<td>
-                                        <input type="checkbox"
-                                               name="selectedOptions"
-                                               value="@checkbox.ID"
-                                               @(Html.Raw(checkbox.Assigned ? "checked=\"checked\"" : "")) />
-                                        @checkbox.DisplayText @:&nbsp;&nbsp;
-                                        <input type="number"
-                                           name="quantity_@checkbox.ID"
-                                           value="0"
-                                           min="0"
-                                           max="1000" />
-                                    @:</td>
-                                }
-                            @:</tr>
-                            }
-                        </table>
-                    </div>
-                </div>
-
 
                 <div class="cols">
                    @* <label for="sub" >Buttons </label>*@<br/>
@@ -250,4 +189,20 @@
             refreshDDL('SupplierID', '/Items/GetSuppliers', false, null, true, 'None', true);
         });
     </script>
+
+
+
+    @*Script to add the checkbox value to the form action since the chkremove is*@
+    <script type="text/javascript">
+    var chkRemoveImage = document.getElementById("chkRemoveImage");
+    var removeImage = document.getElementById("removeImage");
+
+    chkRemoveImage.addEventListener("click", function() {
+        if (chkRemoveImage.checked) {
+            removeImage.value = "true";
+        } else {
+            removeImage.value = "";
+        }
+    });
+</script>
 }

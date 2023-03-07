@@ -42,7 +42,7 @@ namespace CAAMarketing.Controllers
             }
 
             //Get the URL with the last filter, sort and page parameters from THE PATIENTS Index View
-            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Inventories");
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Items");
 
 
             if (!ItemID.HasValue)
@@ -199,26 +199,44 @@ namespace CAAMarketing.Controllers
 
 
             Item item = _context.Items
+                .Include(i=>i.Inventories).ThenInclude(i=>i.Location)
                .Include(i => i.Category)
                .Include(i => i.Supplier)
                .Include(i => i.Employee)
                .Include(p => p.ItemThumbNail)
+               .Include(i=>i.ItemImages)
                .Include(i=>i.ItemReservations)
-               .Include(i => i.ItemLocations).ThenInclude(i => i.Location)
+               .Include(I=>I.InventoryTransfers).ThenInclude(i=>i.FromLocation)
+               .Include(I => I.InventoryTransfers).ThenInclude(i => i.ToLocation)
                .Where(p => p.ID == ItemID.GetValueOrDefault())
                .AsNoTracking()
                .FirstOrDefault();
 
+
+            Item itemUpdate = _context.Items
+               .Include(i => i.Category)
+               .Include(i => i.Supplier)
+               .Include(i => i.Employee)
+               .Include(p => p.ItemThumbNail)
+               .Include(i => i.ItemImages)
+               .Include(i => i.ItemReservations)
+               .Where(p => p.ID == ItemID.GetValueOrDefault())
+               .AsNoTracking()
+               .FirstOrDefault();
+
+
             Inventory inventory = _context.Inventories
+                .Include(i=>i.Location)
                  .Where(p => p.ItemID == ItemID.GetValueOrDefault())
                  .FirstOrDefault();
 
-            
 
-            item.Cost = inventory.Cost;
-            item.Quantity = inventory.Quantity;
+            if (inventory == null)
+            {
+                item.Quantity = 0;
+            }
 
-            _context.Update(item);
+            _context.Update(itemUpdate);
             _context.SaveChanges();
 
 
@@ -229,7 +247,6 @@ namespace CAAMarketing.Controllers
             ViewBag.ItemReservations = itemReservations;
 
             ViewBag.Item = item;
-            ViewBag.Inventory = inventory;
 
 
             return View(pagedData);
@@ -273,21 +290,35 @@ namespace CAAMarketing.Controllers
                     _context.Add(order);
                     await _context.SaveChangesAsync();
 
+                    
                     // Get the corresponding inventory item
-                    var inventoryItem = _context.Inventories.Find(order.ItemID);
+                    var inventoryItem = await _context.Inventories.Include(i=>i.Item).Where(i=>i.LocationID == order.LocationID).FirstOrDefaultAsync(i => i.ItemID == order.ItemID);
                     if (inventoryItem != null)
                     {
                         // Update the inventory with the ordered quantity and cost
+
                         inventoryItem.Quantity += order.Quantity;
                         inventoryItem.Cost = order.Cost;
-                        //inventoryItem.Item.DateReceived = order.DeliveryDate.Value;
-
+                        inventoryItem.Item.DateReceived = DateTime.Today;
                         // Save changes to the inventory
                         _context.Update(inventoryItem);
                         await _context.SaveChangesAsync();
                     }
+                    else
+                    {
+
+                        Inventory invCreate = new Inventory();
+
+                        invCreate.LocationID = order.LocationID;
+                        invCreate.ItemID = order.ItemID;
+                        invCreate.Quantity = order.Quantity;
+                        invCreate.Cost = order.Cost;
+                        _context.Add(invCreate);
+
+                        await _context.SaveChangesAsync();
+                    }
                     ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", order.LocationID);
-                    return RedirectToAction("Index", "OrderItems", new { ItemID = order.ItemID });
+                    return RedirectToAction("Index", "OrderItems", new { order.ItemID });
                 }
             }
             catch (DbUpdateException)
@@ -334,7 +365,7 @@ namespace CAAMarketing.Controllers
         {
             ViewDataReturnURL();
 
-            var orderToUpdate = await _context.Orders.FirstOrDefaultAsync(o => o.ID == id);
+            var orderToUpdate = await _context.Orders.Include(i=>i.Item).FirstOrDefaultAsync(o => o.ID == id);
 
             if (orderToUpdate == null)
             {
@@ -342,17 +373,17 @@ namespace CAAMarketing.Controllers
             }
             var oldOrderQuantity = orderToUpdate.Quantity;
             if (await TryUpdateModelAsync<Receiving>(orderToUpdate, "",
-                o => o.Quantity, o => o.DateMade, o => o.DeliveryDate, o => o.Cost, o => o.ItemID))
+                o => o.Quantity, o => o.DateMade, o => o.DeliveryDate, o => o.Cost, o => o.ItemID, o => o.LocationID))
             {
                 try
                 {
                     _context.Update(orderToUpdate);
 
-                    var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == orderToUpdate.ItemID);
+                    var inventory = await _context.Inventories.Where(i=>i.ItemID == orderToUpdate.ItemID && i.LocationID == orderToUpdate.LocationID).FirstOrDefaultAsync();
                     if (inventory != null)
                     {
                         var newInventoryQuantity = inventory.Quantity + (orderToUpdate.Quantity - oldOrderQuantity);
-                        if (newInventoryQuantity > 0)
+                        if (newInventoryQuantity >= 0)
                         {
                             inventory.Quantity = newInventoryQuantity;
                             inventory.Cost = orderToUpdate.Cost;
@@ -394,10 +425,10 @@ namespace CAAMarketing.Controllers
                         throw;
                     }
                 }
-                catch (DbUpdateException)
+                catch (DbUpdateException ex)
                 {
                     ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem " +
-                        "persists see your system administrator.");
+                        "persists see your system administrator." + ex.Message.ToString()) ;
                 }
             }
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", orderToUpdate.LocationID);
@@ -441,7 +472,8 @@ namespace CAAMarketing.Controllers
 
             try
             {
-                var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == order.ItemID);
+                var inventory = await _context.Inventories.Where(i => i.ItemID == order.ItemID && i.LocationID == order.LocationID).FirstOrDefaultAsync();
+                
                 if (inventory != null)
                 {
                     var newInventoryQuantity = inventory.Quantity - order.Quantity;
@@ -519,6 +551,137 @@ namespace CAAMarketing.Controllers
 
             // Redirect back to the event details page
             return RedirectToAction("Details", "Event", new { id = eventId });
+        }
+
+
+        // GET: orderitems/EditItemLocations/5
+        public async Task<IActionResult> EditItemLocations(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            ViewDataReturnURL();
+
+            var inventory = await _context.Inventories
+                .Include(o => o.Item)
+                .Include(i => i.Location)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (inventory == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", inventory.LocationID);
+            ViewData["ItemID"] = new SelectList(_context.Locations, "ID", "Name", inventory.ItemID);
+            return View(inventory);
+        }
+
+
+        // POST: orderitems/EditItemLocations/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditItemLocations(int id)
+        {
+            ViewDataReturnURL();
+
+            var ItemLocatToUpdate = await _context.Inventories
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (ItemLocatToUpdate == null)
+            {
+                return NotFound();
+            }
+            if (await TryUpdateModelAsync<Inventory>(ItemLocatToUpdate, "",
+            o => o.Quantity))
+            {
+                try
+                {
+                    _context.Entry(ItemLocatToUpdate).Property(x => x.Quantity).IsModified = true;
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    _toastNotification.AddErrorToastMessage(ex.Message);
+                }
+                catch (DbUpdateException)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem " +
+                        "persists see your system administrator.");
+                }
+                return Redirect(ViewData["returnURL"].ToString());
+            }
+
+            if (!ModelState.IsValid)
+            {
+                foreach (var modelError in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    _toastNotification.AddErrorToastMessage(modelError.ErrorMessage);
+                }
+            }
+
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", ItemLocatToUpdate.LocationID);
+            return View(ItemLocatToUpdate);
+        }
+
+        // GET: orderitems/Remove/5
+        public async Task<IActionResult> RemoveLocationInv(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            //Get the URL with the last filter, sort and page parameters
+            ViewDataReturnURL();
+
+            var inventory = await _context.Inventories
+                .Include(o => o.Item)
+                .Include(i => i.Location)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (inventory == null)
+            {
+                return NotFound();
+            }
+            return View(inventory);
+        }
+
+        // POST: orderitems/Remove/5
+        [HttpPost, ActionName("RemoveLocationInv")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveLocationInvConfirmed(int id)
+        {
+            var inventory = await _context.Inventories
+                .Include(o => o.Item)
+                .Include(i => i.Location)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            //Get the URL with the last filter, sort and page parameters
+            ViewDataReturnURL();
+
+            try
+            {
+               
+            _context.Inventories.Remove(inventory);
+                    
+                await _context.SaveChangesAsync();
+                return Redirect(ViewData["returnURL"].ToString());
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem " +
+                    "persists see your system administrator.");
+            }
+
+            return View(inventory);
         }
         private bool CategoryExists(int id)
         {

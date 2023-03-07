@@ -287,7 +287,7 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Description,Notes,CategoryID,UPC,DateReceived,SupplierID")] Item item, Inventory inventory, IFormFile thePicture, string[] selectedOptions)
+        public async Task<IActionResult> Create([Bind("ID,Name,Description,Notes,CategoryID,UPC,DateReceived,SupplierID,Cost")] Item item, IFormFile thePicture, string[] selectedOptions)
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
@@ -295,19 +295,6 @@ namespace CAAMarketing.Controllers
 
             try
             {
-                ////Add the selected conditions
-                //if (selectedOptions != null)
-                //{
-                //    foreach (var location in selectedOptions)
-                //    {
-                //        var locationToAdd = new ItemLocation { ItemID = item.ID, LocationID = int.Parse(location) };
-                //        item.ItemLocations.Add(locationToAdd);
-                //    }
-                //}
-                //else
-                //{
-                //    _toastNotification.AddErrorToastMessage($"Oops, you have selected any locations for this item. Please Select one or more locations ");
-                //}
 
                 var email = User.Identity.Name;
 
@@ -323,55 +310,11 @@ namespace CAAMarketing.Controllers
                 _context.SaveChanges();
 
 
-
+                
 
                 //FOR THE INVENTORY ADD
 
-                int locationCount = 0;
-                string LocationName = "";
-
-
-                //var selectedOptionsHS = new HashSet<string>(selectedOptions);
-                //var inventories = _context.Inventories
-                //    .Where(p => p.ItemID == item.ID && p.Item.Archived == false)
-                //    .ToArray();
-
-
-
-                //foreach (var locationoption in _context.Locations)
-                //{
-                //    if (selectedOptionsHS.Contains(locationoption.Id.ToString())) //It is checked
-                //    {
-                //        HttpContext.Session.SetString("IfStatement", "I made it past this if statement");
-                //        //foreach (var inv in inventories)
-                //        //{
-                //        //if (!inv.LocationID.Equals(locationoption.Id))  //but not currently in the history
-                //        // {
-                //        locationCount++;
-                //                var location = _context.Locations.FirstOrDefault(c => c.Id == locationoption.Id);
-                //                if (location != null)
-                //                {
-                //                    LocationName += location.Name + ", ";
-                //                }
-                //            var quantity = int.Parse(Request.Form[$"quantity_{locationoption.Id}"]);
-                //            Inventory invCreate = new Inventory();
-
-                //                invCreate.LocationID = locationoption.Id;
-                //                invCreate.ItemID = item.ID;
-                //                invCreate.Quantity = quantity;
-                //                _context.Add(invCreate);
-
-                //                _context.SaveChanges();
-
-
-                //           // }
-                //       // }
-                //    }
-                //}
-                //HttpContext.Session.SetString("LocationNames", LocationName);
-                //HttpContext.Session.SetString("NumOfLocationsSelected", locationCount.ToString());
-
-
+                
                 ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name", item.CategoryID);
                 ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name", item.SupplierID);
 
@@ -418,7 +361,7 @@ namespace CAAMarketing.Controllers
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
 
             //Get the URL with the last filter, sort and page parameters from THE itemS Index View
-            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Inventories");
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Items");
 
 
             if (!id.HasValue)
@@ -441,34 +384,8 @@ namespace CAAMarketing.Controllers
                 return NotFound();
             }
 
-            // Go get the item to update
-            var inventoryToUpdate = await _context.Inventories
-                .Include(i => i.Location)
-                .Include(i => i.Item).ThenInclude(i => i.Inventories).ThenInclude(i => i.Location)
-                .FirstOrDefaultAsync(p => p.ItemID == id);
-
-            var locationQuantities = new Dictionary<int, int>();
-            string editedlocations = "";
-            int count = 10;  
-            foreach (var inventoryLocation in inventoryToUpdate.Item.Inventories)
-            {
-                locationQuantities[inventoryLocation.LocationID] = inventoryLocation.Quantity;
-                editedlocations += inventoryLocation.Location.Name + ", ";
-                count++;
-
-            }
-            HttpContext.Session.SetString("EditedLocations", editedlocations);
-            HttpContext.Session.SetString("EditCount", count.ToString());
-
-            ViewBag.LocationQuantities = locationQuantities;
-
-
-            //item.Quantity = inventoryToUpdate.Quantity;
-            //item.Cost = inventoryToUpdate.Cost;
-
             ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name", item.CategoryID);
             ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name", item.SupplierID);
-            PopulateAssignedLocationData(inventoryToUpdate.Item);
             return View(item);
         }
 
@@ -477,7 +394,7 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Byte[] RowVersion, string chkRemoveImage, IFormFile thePicture,
+        public async Task<IActionResult> Edit(int id, Byte[] RowVersion, string removeImage, IFormFile thePicture,
             string InvCost, string InvQty, string[] selectedOptions)
         {
             //Get the URL with the last filter, sort and page parameters from THE itemS Index View
@@ -505,7 +422,7 @@ namespace CAAMarketing.Controllers
             //Put the original RowVersion value in the OriginalValues collection for the entity
             _context.Entry(itemToUpdate).Property("RowVersion").OriginalValue = RowVersion;
 
-            UpdateItemLocations(selectedOptions, itemToUpdate);
+            
 
 
             //Try updating it with the values posted
@@ -519,26 +436,27 @@ namespace CAAMarketing.Controllers
                     if (inventory != null)
                     {
                         inventory.Quantity = itemToUpdate.Quantity;
-                        inventory.Cost = itemToUpdate.Cost;
+                        //inventory.Cost = itemToUpdate.Cost;
 
                         _context.Update(inventory);
                         await _context.SaveChangesAsync();
 
+                    }
 
                         var email = User.Identity.Name;
 
                         var employee = _context.Employees.FirstOrDefault(e => e.Email == email);
 
-                        itemToUpdate.EmployeeNameUser = employee.FullName;
+                     if (employee != null) { itemToUpdate.EmployeeNameUser = employee.FullName; }
+                        
 
 
                         //inventoryToUpdate.Cost = Convert.ToDecimal(InvCost);
                         //inventoryToUpdate.Quantity = Convert.ToInt32(InvQty);
 
 
-
                         //For the image
-                        if (chkRemoveImage != null)
+                        if (removeImage != null)
                         {
                             //If we are just deleting the two versions of the photo, we need to make sure the Change Tracker knows
                             //about them both so go get the Thumbnail since we did not include it.
@@ -559,7 +477,8 @@ namespace CAAMarketing.Controllers
                         // return RedirectToAction(nameof(Index));
                        return RedirectToAction("Index", "OrderItems", new { ItemID = itemToUpdate.ID });
 
-                    }
+                    
+                    
                 }
                 catch (RetryLimitExceededException /* dex */)
                 {
@@ -588,6 +507,12 @@ namespace CAAMarketing.Controllers
                     {
                         ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
                     }
+                }
+                catch (Exception ex)
+                {
+
+                        ModelState.AddModelError("", ex.Message.ToString());
+
                 }
             }
             ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name", itemToUpdate.CategoryID);
@@ -646,7 +571,7 @@ namespace CAAMarketing.Controllers
                 await _context.SaveChangesAsync();
                 // return RedirectToAction(nameof(Index));
                 //return Redirect(ViewData["returnURL"].ToString());
-                return RedirectToAction("Index", "Inventories");
+                return RedirectToAction("Index", "Items");
 
             }
             catch (DbUpdateException)

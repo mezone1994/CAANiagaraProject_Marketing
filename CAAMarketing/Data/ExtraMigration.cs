@@ -69,27 +69,7 @@ namespace CAAMarketing.Data
                         WHERE rowid = NEW.rowid;
                     END
                 ");
-            //For Events table
-            migrationBuilder.Sql(
-                @"
-                    CREATE TRIGGER SetEventTimestampOnUpdate
-                    AFTER UPDATE ON Events
-                    BEGIN
-                        UPDATE Events
-                        SET RowVersion = randomblob(8)
-                        WHERE rowid = NEW.rowid;
-                    END
-                ");
-            migrationBuilder.Sql(
-                @"
-                    CREATE TRIGGER SetEventTimestampOnInsert
-                    AFTER INSERT ON Events
-                    BEGIN
-                        UPDATE Events
-                        SET RowVersion = randomblob(8)
-                        WHERE rowid = NEW.rowid;
-                    END
-                ");
+            
             //For Inventories table
             migrationBuilder.Sql(
                 @"
@@ -103,7 +83,7 @@ namespace CAAMarketing.Data
                 ");
             migrationBuilder.Sql(
                 @"
-                    CREATE TRIGGER SetInventoryeTimestampOnInsert
+                    CREATE TRIGGER SetInventoryTimestampOnInsert
                     AFTER INSERT ON Inventories
                     BEGIN
                         UPDATE Inventories
@@ -132,27 +112,7 @@ namespace CAAMarketing.Data
                         WHERE rowid = NEW.rowid;
                     END
                 ");
-            //For ItemEvents table
-            migrationBuilder.Sql(
-                @"
-                    CREATE TRIGGER SetItemEventTimestampOnUpdate
-                    AFTER UPDATE ON ItemEvents
-                    BEGIN
-                        UPDATE ItemEvents
-                        SET RowVersion = randomblob(8)
-                        WHERE rowid = NEW.rowid;
-                    END
-                ");
-            migrationBuilder.Sql(
-                @"
-                    CREATE TRIGGER SetItemEventTimestampOnInsert
-                    AFTER INSERT ON ItemEvents
-                    BEGIN
-                        UPDATE ItemEvents
-                        SET RowVersion = randomblob(8)
-                        WHERE rowid = NEW.rowid;
-                    END
-                ");
+            
 
             //For Items table
             migrationBuilder.Sql(
@@ -192,6 +152,50 @@ namespace CAAMarketing.Data
                     AFTER INSERT ON Locations
                     BEGIN
                         UPDATE Locations
+                        SET RowVersion = randomblob(8)
+                        WHERE rowid = NEW.rowid;
+                    END
+                ");
+
+            //For Events table
+            migrationBuilder.Sql(
+                @"
+                    CREATE TRIGGER SetEventTimestampOnUpdate
+                    AFTER UPDATE ON Events
+                    BEGIN
+                        UPDATE Events
+                        SET RowVersion = randomblob(8)
+                        WHERE rowid = NEW.rowid;
+                    END
+                ");
+            migrationBuilder.Sql(
+                @"
+                    CREATE TRIGGER SetEventTimestampOnInsert
+                    AFTER INSERT ON Events
+                    BEGIN
+                        UPDATE Events
+                        SET RowVersion = randomblob(8)
+                        WHERE rowid = NEW.rowid;
+                    END
+                ");
+
+            //For ItemEvents table
+            migrationBuilder.Sql(
+                @"
+                    CREATE TRIGGER SetItemEventTimestampOnUpdate
+                    AFTER UPDATE ON ItemEvents
+                    BEGIN
+                        UPDATE ItemEvents
+                        SET RowVersion = randomblob(8)
+                        WHERE rowid = NEW.rowid;
+                    END
+                ");
+            migrationBuilder.Sql(
+                @"
+                    CREATE TRIGGER SetItemEventTimestampOnInsert
+                    AFTER INSERT ON ItemEvents
+                    BEGIN
+                        UPDATE ItemEvents
                         SET RowVersion = randomblob(8)
                         WHERE rowid = NEW.rowid;
                     END

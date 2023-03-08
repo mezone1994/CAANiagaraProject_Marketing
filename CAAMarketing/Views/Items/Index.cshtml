@@ -58,15 +58,15 @@
 
     <div class="form-horizontal">
         <a asp-controller="Items" asp-action="Create" title="Click here to create a new item" class="btn btn-primary btn-color-Create">Create New Item</a>
-        <button class="btn btn-filter" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
+        <button class="btn btn-success @(ViewData["Filtering"])" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
             <i class="material-icons">Filter/Search</i>
         </button>
     </div>
-    <div class="collapse @(ViewData["Filtering"])" id="collapseFilter">
+    <div class="collapse" id="collapseFilter">
         <div class="card card-body">
             <div class="row">
                 <div class="form-group col-md-4">
-                        <label class="control-label">Filter by Locations: (Ctrl + click to multiselect)</label>
+                        <label class="control-label">Filter by Locations: <small>(Ctrl + click to multiselect)</small></label>
                         @Html.ListBox("LocationID", null, htmlAttributes: new { @class = "form-control", @size = 8 })
                     </div>
                 @*                            <div class="form-group">
@@ -79,7 +79,7 @@
                     @Html.TextBox("SearchString", null, new { @class = "form-control" })
                 </div>
                 <div class="form-group col-md-4 align-self-end">
-                    <input type="submit" name="actionButton" value="Filter" title="click here to filter" class="btn btn-outline-primary btn-color" />
+                    <input type="submit" name="actionButton" value="Filter" class="btn btn-success" />
                     <a asp-action="Index" title="Click here to clear the filter" class="btn btn-outline-dark">Clear</a>
                 </div>
             </div>

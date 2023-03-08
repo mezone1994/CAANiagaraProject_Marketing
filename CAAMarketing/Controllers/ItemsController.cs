@@ -14,9 +14,12 @@ using System.Drawing;
 using NToastNotify;
 using CAAMarketing.ViewModels;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Cryptography.Xml;
 
 namespace CAAMarketing.Controllers
 {
+    [Authorize]
     public class ItemsController : Controller
     {
         private readonly CAAContext _context;
@@ -78,18 +81,6 @@ namespace CAAMarketing.Controllers
 
             //Toggle the Open/Closed state of the collapse depending on if we are filtering
             ViewData["Filtering"] = ""; //Assume not filtering
-            //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
-            //var inventories = _context.Inventories
-            //    .Include(i => i.Item.ItemThumbNail)
-            //    .Include(i => i.Item.Employee)
-            //    .Include(i => i.Location)
-            //    .Include(i => i.Item).ThenInclude(i => i.Category)
-            //    .Include(i=>i.Item.ItemLocations).ThenInclude(i=>i.Location)
-            //.AsNoTracking();
-
-
-            //inventories = inventories.Where(p => p.Item.Archived == false);
-            //CheckInventoryLevel(inventories.ToList());
 
             var inventories = _context.Items
                 .Include(p => p.Inventories).ThenInclude(p => p.Location)
@@ -106,9 +97,6 @@ namespace CAAMarketing.Controllers
             //Populating the DropDownLists for the Search/Filtering criteria, which are the Location
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
 
-
-
-
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
             string[] sortOptions = new[] { "Item", "Location", "UPC", "Quantity", "Cost" };
@@ -116,25 +104,17 @@ namespace CAAMarketing.Controllers
             //Add as many filters as needed
             if (LocationID.Length > 0)
             {
-                inventories = inventories.Where(p => p.Inventories.Any(i => i.LocationID.Equals(LocationID)));
+                inventories = inventories.Where(p => p.Inventories.Any(i => LocationID.Contains(i.LocationID)));
 
                 ViewData["Filtering"] = "btn-danger";
             }
-            //if (LowQty.HasValue)
-            //{
-            //    inventories = inventories.Where(p => p.Quantity <= 10);
-            //    ViewData["Filtering"] = " show";
-            //}
-            //if (!LowQty.HasValue)
-            //{
-            //    inventories = inventories.Where(p => p.Quantity >= 0);
-            //    ViewData["Filtering"] = " show";
-            //}
             if (!String.IsNullOrEmpty(SearchString))
             {
+                long searchUPC;
+                bool isNumeric = long.TryParse(SearchString, out searchUPC);
                 inventories = inventories.Where(p => p.Name.ToUpper().Contains(SearchString.ToUpper())
-                                       || p.UPC.Contains(SearchString.ToUpper()));
-                ViewData["Filtering"] = " show";
+                                       || (isNumeric && p.UPC == searchUPC));
+                ViewData["Filtering"] = " btn-danger";
             }
 
 
@@ -157,31 +137,17 @@ namespace CAAMarketing.Controllers
                 }
             }
 
-            //Now we know which field and direction to sort by
-            //if (sortField == "Costs")
-            //{
-            //    if (sortDirection == "asc")
-            //    {
-            //        inventories = inventories
-            //            .OrderBy(p => p.Cost);
-            //    }
-            //    else
-            //    {
-            //        inventories = inventories
-            //            .OrderByDescending(p => p.Cost);
-            //    }
-            //}
             if (sortField == "Quantity")
             {
                 if (sortDirection == "asc")
                 {
                     inventories = inventories
-                        .OrderByDescending(i => i.Quantity);
+                        .OrderByDescending(i => i.Inventories.FirstOrDefault().Quantity);
                 }
                 else
                 {
                     inventories = inventories
-                        .OrderBy(i => i.Quantity);
+                        .OrderBy(i => i.Inventories.FirstOrDefault().Quantity);
                 }
             }
             else if (sortField == "UPC")
@@ -263,22 +229,25 @@ namespace CAAMarketing.Controllers
             return View(item);
         }
 
-        // GET: Items/Create
-        public IActionResult Create()
+        public IActionResult Create(string searchString)
         {
-            //Add all (unchecked) options for the locations
+            // Add all (unchecked) options for the locations
             var item = new Item();
             PopulateAssignedLocationData(item);
 
             _toastNotification.AddAlertToastMessage($"Please Start By Entering Information Of The Item, You Can Cancel By Clicking The Exit Button.");
-            
 
-
-            //URL with the last filter, sort and page parameters for this controller
+            // URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
 
-            ViewData["CategoryID"] = new SelectList(_context.Category, "Id", "Name");
-            ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name");
+            ViewData["SupplierID"] = new SelectList(_context.Suppliers
+                .Where(s => string.IsNullOrEmpty(searchString) || s.Name.Contains(searchString))
+                .OrderBy(s => s.Name), "ID", "Name");
+
+            ViewData["CategoryID"] = new SelectList(_context.Categories
+                .Where(c => string.IsNullOrEmpty(searchString) || c.Name.Contains(searchString))
+                .OrderBy(c => c.Name), "Id", "Name");
+
             return View();
         }
 
@@ -287,7 +256,7 @@ namespace CAAMarketing.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Description,Notes,CategoryID,UPC,DateReceived,SupplierID,Cost")] Item item, IFormFile thePicture, string[] selectedOptions)
+        public async Task<IActionResult> Create([Bind("ID,Name,Description,Notes,CategoryID,UPC,DateReceived,SupplierID")] Item item, IFormFile thePicture, string[] selectedOptions)
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
@@ -427,21 +396,21 @@ namespace CAAMarketing.Controllers
 
             //Try updating it with the values posted
             if (await TryUpdateModelAsync<Item>(itemToUpdate, "",
-                p => p.Name, p => p.Description, p => p.Notes, p => p.CategoryID, p => p.UPC, p => p.Cost, p => p.Quantity,
+                p => p.Name, p => p.Description, p => p.Notes, p => p.CategoryID, p => p.UPC, p => p.Cost,
                 p => p.DateReceived, p => p.SupplierID))
             {
                 try
                 {
-                    var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == itemToUpdate.ID);
-                    if (inventory != null)
-                    {
-                        inventory.Quantity = itemToUpdate.Quantity;
-                        //inventory.Cost = itemToUpdate.Cost;
+                    //var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == itemToUpdate.ID);
+                    //if (inventory != null)
+                    //{
+                    //    inventory.Quantity = itemToUpdate.Quantity;
+                    //    //inventory.Cost = itemToUpdate.Cost;
 
-                        _context.Update(inventory);
-                        await _context.SaveChangesAsync();
+                    //    _context.Update(inventory);
+                    //    await _context.SaveChangesAsync();
 
-                    }
+                    //}
 
                         var email = User.Identity.Name;
 

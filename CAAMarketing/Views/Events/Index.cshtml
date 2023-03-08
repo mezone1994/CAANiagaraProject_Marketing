@@ -9,7 +9,7 @@
 
     <div class="form-horizontal">
        <a asp-action="Create" title="Click here to create a new event" class="btn btn-primary btn-color-Create">Create New Event</a>
-        <button class="btn btn-filter" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
+        <button class="btn btn-success @(ViewData["Filtering"])" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
             <i class="material-icons">Filter/Search</i>
         </button>
         </div>
@@ -21,7 +21,7 @@
                         @Html.TextBox("SearchString", null, new { @class = "form-control" })
                     </div>
                     <div class="form-group col-md-4 align-self-end">
-                        <input type="submit" name="actionButton" value="Filter" title="click here to filter" class="btn btn-outline-primary btn-color" />
+                        <input type="submit" name="actionButton" value="Filter" title="click here to filter" class="btn btn-success" />
                     <a asp-action="Index" title="Click here to clear the filter" class="btn btn-outline-dark">Clear</a>
                     </div>
                 </div>
@@ -67,7 +67,7 @@
                         @Html.DisplayFor(modelItem => item.Date)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Location.Name)
+                        @Html.DisplayFor(modelItem => item.location)
                     </td>
                     <td>
                                     <a asp-action="Edit" title="Click this to edit" class="padding-for-actions" asp-route-id="@item.ID">Edit</a> |

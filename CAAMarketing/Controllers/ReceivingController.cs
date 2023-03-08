@@ -9,9 +9,11 @@ using CAAMarketing.Data;
 using CAAMarketing.Models;
 using CAAMarketing.Utilities;
 using NToastNotify;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CAAMarketing.Controllers
 {
+    [Authorize]
     public class ReceivingController : Controller
     {
         private readonly CAAContext _context;
@@ -51,13 +53,16 @@ namespace CAAMarketing.Controllers
             if (SupplierID.HasValue)
             {
                 orders = orders.Where(p => p.Item.SupplierID == SupplierID);
-                ViewData["Filtering"] = " show";
+                ViewData["Filtering"] = "btn-danger";
             }
             if (!String.IsNullOrEmpty(SearchString))
             {
+                long searchUPC;
+                bool isNumeric = long.TryParse(SearchString, out searchUPC);
+
                 orders = orders.Where(p => p.Item.Name.ToUpper().Contains(SearchString.ToUpper())
-                                       || p.Item.UPC.Contains(SearchString.ToUpper()));
-                ViewData["Filtering"] = " show";
+                                       || (isNumeric && p.Item.UPC == searchUPC));
+                ViewData["Filtering"] = "btn-danger";
             }
 
             //Before we sort, see if we have called for a change of filtering or sorting
@@ -265,7 +270,8 @@ namespace CAAMarketing.Controllers
                     invCreate.Cost = order.Cost;
 
                     item.ItemInvCreated = true;
-                    item.Quantity += newOrder.Quantity;
+                    //item.Quantity += newOrder.Quantity;
+                    item.Cost = newOrder.Cost;
                     _context.Add(invCreate);
                     _context.Update(item);
 
@@ -326,7 +332,7 @@ namespace CAAMarketing.Controllers
 
             //Put the original RowVersion value in the OriginalValues collection for the entity
             _context.Entry(orderToUpdate).Property("RowVersion").OriginalValue = RowVersion;
-
+            var item = await _context.Items.FirstOrDefaultAsync(i => i.ID == orderToUpdate.ItemID);
             var oldOrderQuantity = orderToUpdate.Quantity;
             if (await TryUpdateModelAsync<Receiving>(orderToUpdate, "",
                 o => o.Quantity, o => o.DateMade, o => o.DeliveryDate, o => o.Cost, o => o.ItemID))
@@ -334,8 +340,10 @@ namespace CAAMarketing.Controllers
                 try
                 {
                     var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ItemID == orderToUpdate.ItemID);
+                   
                     if (inventory != null)
                     {
+                        
                         var newInventoryQuantity = inventory.Quantity + (orderToUpdate.Quantity - oldOrderQuantity);
                         if (newInventoryQuantity > 0)
                         {
@@ -364,6 +372,20 @@ namespace CAAMarketing.Controllers
                         }
                     }
                     await _context.SaveChangesAsync();
+
+                    var newOrderValues = await _context.Orders.FirstOrDefaultAsync(o => o.ID == id);
+                    try
+                    {
+                        item.Cost = newOrderValues.Cost;
+                        _context.Update(item);
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (Exception)
+                    {
+
+                        throw;
+                    }
+
                     //return RedirectToAction(nameof(Index));
                     return RedirectToAction("Details", new { orderToUpdate.ID });
 

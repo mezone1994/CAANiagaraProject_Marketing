@@ -9,9 +9,11 @@ using CAAMarketing.Data;
 using CAAMarketing.Models;
 using CAAMarketing.Utilities;
 using NToastNotify;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CAAMarketing.Controllers
 {
+    [Authorize]
     public class OrderItemsController : Controller
     {
         private readonly CAAContext _context;
@@ -74,13 +76,16 @@ namespace CAAMarketing.Controllers
             if (SupplierID.HasValue)
             {
                 orders = orders.Where(p => p.Item.SupplierID == SupplierID);
-                ViewData["Filtering"] = " show";
+                ViewData["Filtering"] = "btn-danger";
             }
             if (!String.IsNullOrEmpty(SearchString))
             {
+                long searchUPC;
+                bool isNumeric = long.TryParse(SearchString, out searchUPC);
+
                 orders = orders.Where(p => p.Item.Name.ToUpper().Contains(SearchString.ToUpper())
-                                       || p.Item.UPC.Contains(SearchString.ToUpper()));
-                ViewData["Filtering"] = " show";
+                                       || (isNumeric && p.Item.UPC == searchUPC));
+                ViewData["Filtering"] = "btn-danger";
             }
 
             //Before we sort, see if we have called for a change of filtering or sorting
@@ -205,9 +210,11 @@ namespace CAAMarketing.Controllers
                .Include(i => i.Employee)
                .Include(p => p.ItemThumbNail)
                .Include(i=>i.ItemImages)
-               .Include(i=>i.ItemReservations)
+               .Include(i=>i.ItemReservations).ThenInclude(i=>i.Event)
+               .Include(i => i.ItemReservations).ThenInclude(i => i.Location)
                .Include(I=>I.InventoryTransfers).ThenInclude(i=>i.FromLocation)
                .Include(I => I.InventoryTransfers).ThenInclude(i => i.ToLocation)
+
                .Where(p => p.ID == ItemID.GetValueOrDefault())
                .AsNoTracking()
                .FirstOrDefault();
@@ -365,8 +372,8 @@ namespace CAAMarketing.Controllers
         {
             ViewDataReturnURL();
 
-            var orderToUpdate = await _context.Orders.Include(i=>i.Item).FirstOrDefaultAsync(o => o.ID == id);
-
+            var orderToUpdate = await _context.Orders.FirstOrDefaultAsync(o => o.ID == id);
+            
             if (orderToUpdate == null)
             {
                 return NotFound();
@@ -380,6 +387,7 @@ namespace CAAMarketing.Controllers
                     _context.Update(orderToUpdate);
 
                     var inventory = await _context.Inventories.Where(i=>i.ItemID == orderToUpdate.ItemID && i.LocationID == orderToUpdate.LocationID).FirstOrDefaultAsync();
+                    var item = await _context.Items.Where(i => i.ID == orderToUpdate.ItemID).FirstOrDefaultAsync();
                     if (inventory != null)
                     {
                         var newInventoryQuantity = inventory.Quantity + (orderToUpdate.Quantity - oldOrderQuantity);
@@ -388,12 +396,15 @@ namespace CAAMarketing.Controllers
                             inventory.Quantity = newInventoryQuantity;
                             inventory.Cost = orderToUpdate.Cost;
                             //inventory.Item.DateReceived = orderToUpdate.DeliveryDate.Value;
+                            item.Cost = orderToUpdate.Cost;
+                                    
                         }
                         else
                         {
                             _context.Inventories.Remove(inventory);
                         }
                         _context.Update(inventory);
+                        _context.Update(item);
                         await _context.SaveChangesAsync();
                     }
                     else
@@ -411,6 +422,8 @@ namespace CAAMarketing.Controllers
                         }
                     }
                     await _context.SaveChangesAsync();
+                    
+
                     return Redirect(ViewData["returnURL"].ToString());
                 }
 
@@ -431,6 +444,31 @@ namespace CAAMarketing.Controllers
                         "persists see your system administrator." + ex.Message.ToString()) ;
                 }
             }
+            if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors);
+                foreach(var err in errors)
+                {
+                    // loop through the errors and display them to the user
+                    _toastNotification.AddErrorToastMessage($"{err.ErrorMessage.ToString()}");
+                }
+
+            }
+            //else
+            //{
+            //    try
+            //    {
+            //        var newOrderValues = await _context.Orders.FirstOrDefaultAsync(o => o.ID == id);
+            //        item.Cost = newOrderValues.Cost;
+            //        _context.Update(item);
+            //        await _context.SaveChangesAsync();
+            //    }
+            //    catch (Exception)
+            //    {
+
+            //        throw;
+            //    }
+            //}
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name", orderToUpdate.LocationID);
             return View(orderToUpdate);
         }
@@ -683,6 +721,175 @@ namespace CAAMarketing.Controllers
 
             return View(inventory);
         }
+
+
+        // GET: AddItemReservation/Add
+        public IActionResult AddItemReservation(int? ItemID, string returnUrl, string eventSearchString, string itemSearchString,int LocationID)
+        {
+
+            IQueryable<Event> events = _context.Events;
+            IQueryable<Item> items = _context.Items;
+
+            if (!string.IsNullOrEmpty(eventSearchString))
+            {
+                events = events.Where(s => s.Name.Contains(eventSearchString));
+            }
+
+            if (!string.IsNullOrEmpty(itemSearchString))
+            {
+                items = items.Where(s => s.Name.Contains(itemSearchString));
+            }
+
+            ViewData["EventId"] = new SelectList(events.OrderBy(s => s.Name), "ID", "Name");
+            ViewData["ItemId"] = new SelectList(items.OrderBy(s => s.Name), "ID", "Name");
+            var quantity = 0;
+
+            var existingLocationIds = _context.Inventories.Where(i => i.ItemID == ItemID).Select(i => i.LocationID).Distinct().ToList();
+            var locations = _context.Locations.Where(l => existingLocationIds.Contains(l.Id)).ToList();
+            var GetTotalStock = _context.Items
+            .Where(i => i.ID == ItemID)
+            .SelectMany(i => i.Inventories)
+            .ToList();
+            TempData["numOfLocations"] = locations.Count();
+            foreach (var loc in locations)
+            {
+                var tempname = _context.Locations.Where(i => i.Id == loc.Id).Select(i => i.Name).First();
+                quantity = 0;
+                quantity += GetTotalStock
+                    .Where(i => i.LocationID == loc.Id)
+                    .Sum(i => i.Quantity);
+                TempData[loc.Id.ToString()] = quantity;
+            }
+
+            ViewData["LocationID"] = new SelectList(locations, "Id", "Name", LocationID);
+
+
+            if (!string.IsNullOrEmpty(Request.Query["itemId"]))
+            {
+                int itemId;
+                if (int.TryParse(Request.Query["itemId"], out itemId) && _context.Items.Any(i => i.ID == itemId))
+                {
+                    ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", itemId);
+                    ViewBag.ReturnUrl = returnUrl;
+
+
+                    
+
+
+
+
+
+
+                    return View(new ItemReservation { ItemId = itemId });
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                ViewBag.ReturnUrl = returnUrl;
+                return View(new ItemReservation());
+            }
+
+        }
+
+        // POST: AddItemReservation/Add
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddItemReservation(int ItemID, [Bind("Id,EventId,ItemId,Quantity,ReservedDate,ReturnDate, LocationID")] ItemReservation itemReservation, bool isLogBack, string returnUrl, int LocationID)
+        {
+            if (ModelState.IsValid)
+            {
+                // Get the associated Event and Item objects
+                itemReservation.Event = await _context.Events.FindAsync(itemReservation.EventId);
+                itemReservation.Item = await _context.Items.FindAsync(itemReservation.ItemId);
+
+                // Check if the selected item is available for the event
+                bool isItemAvailable = _context.ItemReservations
+                    .Where(ir => ir.ItemId == itemReservation.ItemId)
+                    .All(ir => ir.EventId != itemReservation.EventId ||
+                               itemReservation.ReservedDate >= ir.ReturnDate ||
+                               itemReservation.ReturnDate <= ir.ReservedDate);
+
+                // Check if there is enough inventory available for the item
+                bool isInventoryAvailable = await _context.Inventories
+                    .AnyAsync(inv => inv.ItemID == itemReservation.ItemId &&
+                                      inv.Quantity >= itemReservation.Quantity);
+
+
+                // Find the inventory record for the item being transferred from the specified location
+                var fromInventory = await _context.Inventories
+                    .Include(i => i.Location)
+                    .Where(i => i.ItemID == itemReservation.ItemId && i.LocationID == LocationID).FirstOrDefaultAsync() ;
+
+                if (isItemAvailable == true && fromInventory.Quantity >= itemReservation.Quantity)
+                {
+                    // Find the inventory record for the item being transferred from the specified location
+                    var InvLocationUpdate = await _context.Inventories
+                        .Include(i => i.Location)
+                        .Where(i => i.ItemID == itemReservation.ItemId && i.LocationID == LocationID).FirstOrDefaultAsync();
+
+                    InvLocationUpdate.Quantity -= itemReservation.Quantity;
+                    _context.Add(itemReservation);
+                    _context.Update(InvLocationUpdate);
+                    await _context.SaveChangesAsync();
+
+                    // Create a new event log entry
+                    var eventLog = new EventLog
+                    {
+                        EventName = itemReservation.Event.Name,
+                        ItemName = itemReservation.Item.Name,
+                        Quantity = itemReservation.Quantity,
+                        LogDate = DateTime.Now,
+                        ItemReservation = itemReservation
+                    };
+                    _context.Add(eventLog);
+                    await _context.SaveChangesAsync();
+
+                    // Update the inventory quantity
+                    //var inventory = await _context.Inventories.Where(i => i.ItemID == itemReservation.ItemId && i.LocationID == itemReservation.LocationID).FirstOrDefaultAsync();
+                    //if (inventory != null)
+                    //{
+                    //    if (isLogBack)
+                    //    {
+                    //        inventory.Quantity += itemReservation.Quantity;
+                    //        itemReservation.LogBackInDate = DateTime.Now;
+                    //    }
+                    //    else
+                    //    {
+                    //        inventory.Quantity -= itemReservation.Quantity;
+                    //    }
+                    //}
+
+                    //await _context.SaveChangesAsync();
+                    //if (!string.IsNullOrEmpty(returnUrl))
+                    //{
+                    //    return Redirect(returnUrl);
+                    //}
+                    return RedirectToAction(nameof(Index), new { ItemID = ItemID });
+                }
+                else if (!isItemAvailable)
+                {
+                    ModelState.AddModelError("", "The selected item is already reserved for another event during the same time period.");
+                }
+                else
+                {
+                    _toastNotification.AddErrorToastMessage($"Oops, It looks like you entered a Quantity that is over the Locations Stock Limit. Pleasee enter a valid Quantity.");
+                    ModelState.AddModelError("", "There is not enough inventory available for the selected item.");
+
+                    return RedirectToAction("AddItemReservation", "OrderItems", new { itemReservation.ItemId });
+                    //return View();
+                }
+            }
+
+            ViewData["EventId"] = new SelectList(_context.Events, "ID", "Name", itemReservation.EventId);
+            ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name", itemReservation.ItemId);
+            return View(itemReservation);
+        }
+
+
         private bool CategoryExists(int id)
         {
             return _context.Category.Any(e => e.Id == id);

@@ -1,10 +1,10 @@
-﻿@model IEnumerable<CAAMarketing.ViewModels.InventoryReportVM>
+﻿@model IEnumerable<CAAMarketing.ViewModels.EventReportVM>
 
 @{
-    ViewData["Title"] = "InventoryCostsReport";
+    ViewData["Title"] = "InventoryEventsReport";
 }
 
-<form asp-controller="Inventories" asp-action="InventoryCostsReport" method="get">
+<form asp-controller="Inventories" asp-action="InventoryEventsReport" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
 
@@ -84,17 +84,17 @@
     <div class="collapse" id="collapseFilter">
         <div class="card card-body">
             <div class="row">
-                @*                <div class="form-group col-md-4">
-                <label class="control-label">Filter by Locations: (Ctrl + click to multiselect)</label>
-                @Html.ListBox("LocationID", null, htmlAttributes: new { @class = "form-control", @size = 8 })
+@*                <div class="form-group col-md-4">
+                    <label class="control-label">Filter by Locations: (Ctrl + click to multiselect)</label>
+                    @Html.ListBox("LocationID", null, htmlAttributes: new { @class = "form-control", @size = 8 })
                 </div>*@
                 <div class="form-group col-md-4">
-                    <label class="control-label">Search Item Name OR UPC:</label>
+                    <label class="control-label">Search Event Name OR Item Name:</label>
                     @Html.TextBox("SearchString", null, new { @class = "form-control" })
                 </div>
                 <div class="form-group col-md-4 align-self-end">
                     <input type="submit" name="actionButton" value="Filter" title="click here to filter" class="btn btn-success" />
-                    <a asp-action="InventoryCostsReport" title="Click here to clear the filter" class="btn btn-outline-dark">Clear</a>
+                    <a asp-action="InventoryEventsReport" title="Click here to clear the filter" class="btn btn-outline-dark">Clear</a>
                 </div>
             </div>
         </div>
@@ -104,8 +104,8 @@
         <div class="table-responsive">
             <div class="table-wrapper">
                 <div class="table-title d-flex justify-content-between align-items-center">
-                    <h2>Inventory Costs Report</h2>
-                    <a asp-action="DownloadInventoryCosts" title="Click this to downloead the inventory costs report" class="btn btn-primary btn-color-Create">
+                    <h2>Inventory Events Report</h2>
+                    <a asp-action="DownloadInventoryEvents" title="Click this to downloead the inventory events report" class="btn btn-primary btn-color-Create">
                         Download Report
                         @*<i class="material-icons">&#xE147;</i>*@
                     </a>
@@ -118,7 +118,7 @@
                 <tr>
                     <th>
                         @* @Html.DisplayNameFor(model => model.UPC)*@
-                        <input type="submit" name="actionButton" value="UPC" title="click here to sort by UPC" class="btn btn-link" />
+                        <input type="submit" name="actionButton" value="EventName" title="click here to sort by EventName" class="btn btn-link" />
                     </th>
                     <th>
                         @*  @Html.DisplayNameFor(model => model.ItemName)*@
@@ -126,15 +126,7 @@
                     </th>
                     <th>
                         @*    @Html.DisplayNameFor(model => model.Cost)*@
-                        <input type="submit" name="actionButton" value="Cost" title="click here to sort by Cost" class="btn btn-link" />
-                    </th>
-                    <th>
-                        @*    @Html.DisplayNameFor(model => model.Quantity)*@
                         <input type="submit" name="actionButton" value="Quantity" title="click here to sort by Quantity" class="btn btn-link" />
-                    </th>
-                    <th>
-                        @*  @Html.DisplayNameFor(model => model.Location)*@
-                        <input type="submit" name="actionButton" value="Location" title="click here to sort by Location" class="btn btn-link" />
                     </th>
                     <th></th>
                 </tr>
@@ -144,19 +136,13 @@
                 {
                     <tr>
                         <td>
-                            @Html.DisplayFor(modelItem => item.UPC)
+                            @Html.DisplayFor(modelItem => item.EventName)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.ItemName)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Cost)
-                        </td>
-                        <td>
                             @Html.DisplayFor(modelItem => item.Quantity)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Location)
                         </td>
                     </tr>
                 }

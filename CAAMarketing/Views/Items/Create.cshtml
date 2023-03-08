@@ -56,80 +56,34 @@
                         <input asp-for="UPC" class="form-control" />
                         <span asp-validation-for="UPC" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="Cost" class="control-label"></label>
-                        <input asp-for="Cost" class="form-control" type="number" />
-                        <span asp-validation-for="Cost" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Choose Supplier</label>
-                        <div class="input-group">
-                            <select asp-for="SupplierID" class="form-control" asp-items="ViewBag.SupplierID">
-                                <option value="">None</option>
-                            </select>
-                            <button class="btn btn-plus" id="nowAddSupplier" title="Add Supplier" data-bs-toggle="modal" data-bs-target="#addSupplierModal" type="button"></button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Choose Category</label>
-                        <div class="input-group">
-                            <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.CategoryID">
-                                <option value="">None</option>
-                            </select>
-                            <button class="btn btn-plus" id="nowAddCategory" title="Add Category" data-bs-toggle="modal" data-bs-target="#addCategoryModal" type="button"></button>
-                        </div>
-                    </div>
+<div class="form-group">
+    <label class="control-label">Choose Supplier</label>
+    <div class="input-group">
+        <select asp-for="SupplierID" class="form-control select2" asp-items="ViewBag.SupplierID">
+            <option value="">None</option>
+        </select>
+        <button class="btn btn-plus" id="nowAddSupplier" title="Add Supplier" data-bs-toggle="modal" data-bs-target="#addSupplierModal" type="button"></button>
+    </div>
+</div>
 
-
-                @*<div class="form-group">
-                <label class="control-label">@Html.DisplayNameFor(model => model.ItemLocations)</label>
-                <div class="m-2">
-                    <table>
-                        <tr>
-                            @{
-                                int cnt = 0;
-                                List<CAAMarketing.ViewModels.CheckOptionsManyToManyVM> checkboxes = ViewBag.LocationOptions;
-                                foreach (var checkbox in checkboxes)
-                                {
-                                    if (cnt++ % 1 == 0)
-                                    {
-                                    @:</tr><tr>
-                                    }
-                                    @:<td>
-                                        <input type="checkbox"
-                                               name="selectedOptions"
-                                               value="@checkbox.ID"
-                                               @(Html.Raw(checkbox.Assigned ? "checked=\"checked\"" : "")) />
-                                        @checkbox.DisplayText @:&nbsp;&nbsp;
-                                        <input type="number"
-                                           name="quantity_@checkbox.ID"
-                                           value="0"
-                                           min="0"
-                                           max="1000" />
-                                    @:</td>
-                                }
-                            @:</tr>
-                            }
-                        </table>
-                    </div>
-                </div>*@
-
-
-
-
+<div class="form-group">
+    <label class="control-label">Choose Category</label>
+    <div class="input-group">
+        <select asp-for="CategoryID" class="form-control select2" asp-items="ViewBag.CategoryID">
+            <option value="">None</option>
+        </select>
+        <button class="btn btn-plus" id="nowAddCategory" title="Add Category" data-bs-toggle="modal" data-bs-target="#addCategoryModal" type="button"></button>
+    </div>
+</div>
                     <div class="form-group">
                         <label class="control-label custom-file-label">Picture File:</label>
                         <div class="input-group mb-3">
                             <input type="file" class="form-control" name="thePicture" id="thePicture">
                         </div>
                     </div>
-
-
-
-
                     <div class="form-group">
                         <input type="submit" value="Create" class="btn btn-primary" />
-                        <div class="tooltip"> <a asp-controller="Inventories" asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Exit Icon" /> <span class="tooltiptext">Exit</span></a> </div>
+                        <div class="tooltip"> <a asp-controller="Items" asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Exit Icon" /> <span class="tooltiptext">Exit</span></a> </div>
                     </div>
                 </form>
             </div>
@@ -194,6 +148,15 @@
             refreshDDL('SupplierID', '/Items/GetSuppliers', false, null, true, 'None', true);
         });
     </script>
+
+    <script>
+        $(document).ready(function () {
+            $('.select2').select2();
+        });
+    </script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 }
 
 <style>

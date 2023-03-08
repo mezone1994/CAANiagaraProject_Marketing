@@ -4,11 +4,10 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>Location</h4>
-    <hr />
+<div class="detext">
+    <div>
+        <h4>Details for <u>@Html.DisplayFor(model => model.Name)</u></h4>
+        <hr />
     <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
@@ -30,7 +29,9 @@
         </dd>
     </dl>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a href='@ViewData["returnURL"]'>Back to List</a>
-</div>
+    <div> 
+             <a asp-action="Edit" title="Click this to edit" asp-route-id="@Model.Id" class="padding-for-actions div-back">Edit </a> |
+            <div class="tooltip"> <a  asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back</span></a> </div>
+        </div>
+        </div>
+        

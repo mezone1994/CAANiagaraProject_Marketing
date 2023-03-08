@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
 using CAAMarketing.Utilities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CAAMarketing.Controllers
 {
+    [Authorize]
     public class CategoriesController : Controller
     {
         private readonly CAAContext _context;
@@ -47,7 +49,7 @@ namespace CAAMarketing.Controllers
             {
                 categories = categories.Where(p => p.Name.ToUpper().Contains(SearchString.ToUpper()));
 
-                ViewData["Filtering"] = " show";
+                ViewData["Filtering"] = "btn-danger";
             }
 
             //Before we sort, see if we have called for a change of filtering or sorting

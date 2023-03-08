@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CAAMarketing.Controllers
 {
+    [Authorize]
     public class EventLogsController : Controller
     {
         private readonly CAAContext _context;

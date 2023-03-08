@@ -4,13 +4,12 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
-
-<h4>Location</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
         <form asp-action="Create">
+            <div class="cont">
+                <div class="deimage">
+                    <h1>Create a location</h1>
+                    <hr />
+                    <div class="deimage2">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
@@ -27,16 +26,14 @@
                 <input asp-for="Address" class="form-control" />
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+                <div style="margin:25px">
+                                    <input type="submit" title="Click here to create new location" value="Create" class="btn btn-primary" />
+                                    <div class="tooltip"> <a href='@ViewData["returnURL"]' > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
     </div>
-</div>
-
-<div>
-    <a href='@ViewData["returnURL"]'>Back to List</a>
-</div>
+                        </div>
+                    </div>
+                </div>
+                </form>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using CAAMarketing.Data;
 using CAAMarketing.Models;
 using CAAMarketing.Utilities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CAAMarketing.Controllers
 {
+    [Authorize]
     public class ItemReservationsController : Controller
     {
         private readonly CAAContext _context;
@@ -52,7 +54,7 @@ namespace CAAMarketing.Controllers
             if (!String.IsNullOrEmpty(SearchString))
             {
                 itemReservations = itemReservations.Where(p => p.Item.Name.ToUpper().Contains(SearchString.ToUpper()));
-                ViewData["Filtering"] = " show";
+                ViewData["Filtering"] = "btn-danger";
             }
 
             //Before we sort, see if we have called for a change of filtering or sorting
@@ -143,9 +145,23 @@ namespace CAAMarketing.Controllers
         }
 
         // GET: ItemReservations/Create
-        public IActionResult Create(string returnUrl)
+        public IActionResult Create(string returnUrl, string eventSearchString, string itemSearchString)
         {
-            ViewData["EventId"] = new SelectList(_context.Events, "ID", "Name");
+            IQueryable<Event> events = _context.Events;
+            IQueryable<Item> items = _context.Items;
+
+            if (!string.IsNullOrEmpty(eventSearchString))
+            {
+                events = events.Where(s => s.Name.Contains(eventSearchString));
+            }
+
+            if (!string.IsNullOrEmpty(itemSearchString))
+            {
+                items = items.Where(s => s.Name.Contains(itemSearchString));
+            }
+
+            ViewData["EventId"] = new SelectList(events.OrderBy(s => s.Name), "ID", "Name");
+            ViewData["ItemId"] = new SelectList(items.OrderBy(s => s.Name), "ID", "Name");
 
             if (!string.IsNullOrEmpty(Request.Query["itemId"]))
             {
@@ -163,7 +179,6 @@ namespace CAAMarketing.Controllers
             }
             else
             {
-                ViewData["ItemId"] = new SelectList(_context.Items, "ID", "Name");
                 ViewBag.ReturnUrl = returnUrl;
                 return View(new ItemReservation());
             }

@@ -9,9 +9,11 @@ using CAAMarketing.Data;
 using CAAMarketing.Models;
 using Microsoft.Extensions.Logging;
 using CAAMarketing.Utilities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CAAMarketing.Controllers
 {
+    [Authorize]
     public class InventoryTransfersController : Controller
     {
         private readonly CAAContext _context;
@@ -55,18 +57,21 @@ namespace CAAMarketing.Controllers
             if (FromLocationID.HasValue)
             {
                 transfers = transfers.Where(p => p.FromLocationId == FromLocationID);
-                ViewData["Filtering"] = " show";
+                ViewData["Filtering"] = "btn-danger";
             }
             if (ToLocationId.HasValue)
             {
                 transfers = transfers.Where(p => p.ToLocationId == ToLocationId);
-                ViewData["Filtering"] = " show";
+                ViewData["Filtering"] = "btn-danger";
             }
             if (!String.IsNullOrEmpty(SearchString))
             {
+                long searchUPC;
+                bool isNumeric = long.TryParse(SearchString, out searchUPC);
+
                 transfers = transfers.Where(p => p.Item.Name.ToUpper().Contains(SearchString.ToUpper())
-                                       || p.Item.UPC.Contains(SearchString.ToUpper()));
-                ViewData["Filtering"] = " show";
+                                                 || (isNumeric && p.Item.UPC == searchUPC));
+                ViewData["Filtering"] = "btn-danger";
             }
             //Before we sort, see if we have called for a change of filtering or sorting
             if (!String.IsNullOrEmpty(actionButton)) //Form Submitted!

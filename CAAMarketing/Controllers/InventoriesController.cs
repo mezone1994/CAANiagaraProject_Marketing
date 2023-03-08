@@ -22,9 +22,11 @@ using System.ComponentModel;
 using AspNetCore;
 using Microsoft.AspNetCore.Http;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CAAMarketing.Controllers
 {
+    [Authorize]
     public class InventoriesController : Controller
     {
         private readonly CAAContext _context;
@@ -104,9 +106,6 @@ namespace CAAMarketing.Controllers
             //Populating the DropDownLists for the Search/Filtering criteria, which are the Location
             ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
 
-
-
-
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
             string[] sortOptions = new[] { "Item", "Location", "UPC", "Quantity", "Cost" };
@@ -129,8 +128,11 @@ namespace CAAMarketing.Controllers
             //}
             if (!String.IsNullOrEmpty(SearchString))
             {
+                long searchUPC;
+                bool isNumeric = long.TryParse(SearchString, out searchUPC);
+
                 inventories = inventories.Where(p => p.Item.Name.ToUpper().Contains(SearchString.ToUpper())
-                                       || p.Item.UPC.Contains(SearchString.ToUpper()));
+                                       || (isNumeric && p.Item.UPC == searchUPC));
                 ViewData["Filtering"] = " show";
             }
 
@@ -160,12 +162,12 @@ namespace CAAMarketing.Controllers
             //    if (sortDirection == "asc")
             //    {
             //        inventories = inventories
-            //            .OrderBy(p => p.Cost);
+            //            .OrderBy(p => p.Cost.ToString());
             //    }
             //    else
             //    {
             //        inventories = inventories
-            //            .OrderByDescending(p => p.Cost);
+            //            .OrderByDescending(p => p.Cost.ToString());
             //    }
             //}
             if (sortField == "Quantity")
@@ -539,7 +541,7 @@ namespace CAAMarketing.Controllers
             return RedirectToAction("Index");
         }
 
-        //Method for Viewing Inventory Report
+        //Method for Viewing Full Inventory Report
         public async Task<IActionResult> InventoryReport(string SearchString, int?[] LocationID, int? page, int? pageSizeID, string actionButton,
             string sortDirection = "asc", string sortField = "ItemName")
         {
@@ -565,6 +567,7 @@ namespace CAAMarketing.Controllers
                         .Include(i => i.Item.Supplier)
                         .Include(i => i.Item.Category)
                         .Include(i => i.Item.Employee)
+                        .Include(i => i.Item.ItemLocations)
                         .Include(i => i.Location)
 
                        orderby i.Item.Name ascending
@@ -572,7 +575,7 @@ namespace CAAMarketing.Controllers
                        {
                            ID = i.ItemID,
                            Category = i.Item.Category.Name,
-                           UPC = i.Item.UPC,
+                           UPC = i.Item.UPC.ToString(),
                            ItemName = i.Item.Name,
                            Cost = i.Cost,
                            Quantity = i.Quantity,
@@ -609,7 +612,7 @@ namespace CAAMarketing.Controllers
             {
                 sumQ = sumQ.Where(p => p.ItemName.ToUpper().Contains(SearchString.ToUpper())
                                        || p.UPC.Contains(SearchString.ToUpper()));
-                ViewData["Filtering"] = " show";
+                ViewData["Filtering"] = "btn-danger";
             }
 
             //Before we sort, see if we have called for a change of filtering or sorting
@@ -754,7 +757,7 @@ namespace CAAMarketing.Controllers
             return View(pagedData);
         }
 
-        //Method for Excel Report
+        //Method for Excel Full Inventory Report
         public IActionResult DownloadInventory()
         {
             //Get the inventory
@@ -958,7 +961,7 @@ namespace CAAMarketing.Controllers
                        {
                            ID = i.ItemID,
                            Category = i.Item.Category.Name,
-                           UPC = i.Item.UPC,
+                           UPC = i.Item.UPC.ToString(),
                            ItemName = i.Item.Name,
                            Cost = i.Cost,
                            Quantity = i.Quantity,
@@ -995,7 +998,7 @@ namespace CAAMarketing.Controllers
             {
                 sumQ = sumQ.Where(p => p.ItemName.ToUpper().Contains(SearchString.ToUpper())
                                        || p.UPC.Contains(SearchString.ToUpper()));
-                ViewData["Filtering"] = " show";
+                ViewData["Filtering"] = "btn-danger";
             }
 
             //Before we sort, see if we have called for a change of filtering or sorting
@@ -1214,7 +1217,7 @@ namespace CAAMarketing.Controllers
             return NotFound("No data.");
         }
 
-        //Method for Viewing Inventory Levels Report
+        //Method for Viewing Inventory Costs Report
         public async Task<IActionResult> InventoryCostsReport(string SearchString, int?[] LocationID, int? page, int? pageSizeID, string actionButton,
             string sortDirection = "asc", string sortField = "ItemName")
         {
@@ -1229,7 +1232,7 @@ namespace CAAMarketing.Controllers
                        {
                            ID = i.ItemID,
                            Category = i.Item.Category.Name,
-                           UPC = i.Item.UPC,
+                           UPC = i.Item.UPC.ToString(),
                            ItemName = i.Item.Name,
                            Cost = i.Cost,
                            Quantity = i.Quantity,
@@ -1266,7 +1269,7 @@ namespace CAAMarketing.Controllers
             {
                 sumQ = sumQ.Where(p => p.ItemName.ToUpper().Contains(SearchString.ToUpper())
                                        || p.UPC.Contains(SearchString.ToUpper()));
-                ViewData["Filtering"] = " show";
+                ViewData["Filtering"] = "btn-danger";
             }
 
             //Before we sort, see if we have called for a change of filtering or sorting
@@ -1492,6 +1495,247 @@ namespace CAAMarketing.Controllers
                     {
                         Byte[] theData = excel.GetAsByteArray();
                         string filename = "InventoryCostsReport.xlsx";
+                        string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        return File(theData, mimeType, filename);
+                    }
+                    catch (Exception)
+                    {
+                        return BadRequest("Could not build and download the file.");
+                    }
+                }
+            }
+            return NotFound("No data.");
+        }
+
+        //Method for Viewing Inventory Events Report
+        public async Task<IActionResult> InventoryEventsReport(string SearchString, int?[] LocationID, int? page, int? pageSizeID, string actionButton,
+            string sortDirection = "asc", string sortField = "EventName")
+        {
+            //For the Report View
+            var sumQ = from i in _context.EventLogs
+                       orderby i.EventName, i.ItemName ascending
+                       select new EventReportVM
+                       {
+                           Id = i.Id,
+                           EventName = i.EventName,
+                           ItemName = i.ItemName,
+                           Quantity = i.Quantity
+                       };
+
+            //var sumQ = from i in _context.ItemReservations
+            //            .Include(i => i.Event)
+            //            .Include(i => i.Item)
+            //           orderby i.Event.Name, i.Item.Name ascending
+            //           select new EventReportVM
+            //           {
+            //               Id = i.EventId,
+            //               EventName = i.Event.Name,
+            //               ItemName = i.Item.Name,
+            //               Quantity = i.Quantity
+            //           };
+
+            ViewDataReturnURL();
+
+            //Clear the sort/filter/paging URL Cookie for Controller
+            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
+
+            //Toggle the Open/Closed state of the collapse depending on if we are filtering
+            ViewData["Filtering"] = ""; //Assume not filtering
+
+            ////Populating the DropDownLists for the Search/Filtering criteria, which are the Location
+            //ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
+
+            //List of sort options.
+            //NOTE: make sure this array has matching values to the column headings
+            string[] sortOptions = new[] { "EventName", "ItemName", "Quantity", "LogDate" };
+
+            ////Add as many filters as needed
+            //if (LocationID.Length > 0)
+            //{
+            //    sumQ = sumQ.Where(p => LocationID.Contains(p.LocationID));
+            //    ViewData["Filtering"] = "btn-danger";
+            //}
+
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                sumQ = sumQ.Where(p => p.ItemName.ToUpper().Contains(SearchString.ToUpper())
+                                       || p.EventName.ToUpper().Contains(SearchString.ToUpper()));
+                ViewData["Filtering"] = "btn-danger";
+            }
+
+            //Before we sort, see if we have called for a change of filtering or sorting
+            if (!String.IsNullOrEmpty(actionButton)) //Form Submitted!
+            {
+                if (sortOptions.Contains(actionButton))//Change of sort is requested
+                {
+                    if (actionButton == sortField) //Reverse order on same field
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;//Sort by the button clicked
+                }
+            }
+
+            //Now we know which field and direction to sort by          
+            if (sortField == "ItemName")
+            {
+                if (sortDirection == "asc")
+                {
+                    sumQ = sumQ
+                        .OrderBy(p => p.ItemName);
+                }
+                else
+                {
+                    sumQ = sumQ
+                        .OrderByDescending(p => p.ItemName);
+                }
+            }
+            else if (sortField == "Quantity")
+            {
+                if (sortDirection == "asc")
+                {
+                    sumQ = sumQ
+                        .OrderBy(p => p.Quantity);
+                }
+                else
+                {
+                    sumQ = sumQ
+                        .OrderByDescending(p => p.Quantity);
+                }
+            }
+            else //Sorting by Item Name
+            {
+                if (sortDirection == "asc")
+                {
+                    sumQ = sumQ
+                        .OrderBy(p => p.ItemName);
+                }
+                else
+                {
+                    sumQ = sumQ
+                        .OrderByDescending(p => p.ItemName);
+                }
+            }
+            //Set sort for next time
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
+
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "InventoryEventsReport");//Remember for this View
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+            var pagedData = await PaginatedList<EventReportVM>.CreateAsync(sumQ.AsNoTracking(), page ?? 1, pageSize);
+
+            return View(pagedData);
+        }
+
+        //Method for Excel Inventory Events Report
+        public ActionResult DownloadInventoryEvents()
+        {
+            //Get the inventory
+            var items = from i in _context.EventLogs
+                        orderby i.EventName, i.ItemName ascending
+                        select new
+                        {
+                            EventName = i.EventName,
+                            ItemName = i.ItemName,
+                            Quantity = i.Quantity
+                        };
+            //How many rows?
+            int numRows = items.Count();
+
+            if (numRows > 0) //We have data
+            {
+                //Create a new spreadsheet from scratch.
+                using (ExcelPackage excel = new ExcelPackage())
+                {
+                    var workSheet = excel.Workbook.Worksheets.Add("Event Items");
+
+                    //Note: Cells[row, column]
+                    workSheet.Cells[3, 1].LoadFromCollection(items, true);
+
+                    //Style fee column for quantity
+                    workSheet.Column(3).Style.Numberformat.Format = "###,###,##0";
+
+                    ////Style fee column for currency
+                    //workSheet.Column(3).Style.Numberformat.Format = "$###,###,##0.00";
+
+                    //Note: You can define a BLOCK of cells: Cells[startRow, startColumn, endRow, endColumn]
+                    //Make Event Name Bold
+                    workSheet.Cells[4, 1, numRows + 3, 1].Style.Font.Bold = true;
+
+                    //Make Item Quantity Bold/Colour coded
+                    workSheet.Cells[4, 3, numRows + 3, 3].Style.Font.Bold = true;
+                    var item = from i in _context.EventLogs
+                               orderby i.EventName, i.ItemName ascending
+                               select i.Quantity;
+                    int row = 4;
+                    foreach (var qty in item)
+                    {
+                        if (row <= (numRows + 3))
+                        {
+                            if (qty == 0)
+                            {
+                                workSheet.Cells[row, 3].Style.Font.Color.SetColor(Color.Red);
+                                row++;
+                            }
+                            else if ((qty <= 10) && (qty > 0))
+                            {
+                                workSheet.Cells[row, 3].Style.Font.Color.SetColor(Color.Orange);
+                                row++;
+                            }
+                            else if (qty > 10)
+                            {
+                                workSheet.Cells[row, 3].Style.Font.Color.SetColor(Color.Green);
+                                row++;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    //Set Style and backgound colour of headings
+                    using (ExcelRange headings = workSheet.Cells[3, 1, 3, 3])
+                    {
+                        headings.Style.Font.Bold = true;
+                        var fill = headings.Style.Fill;
+                        fill.PatternType = ExcelFillStyle.Solid;
+                        fill.BackgroundColor.SetColor(Color.LightBlue);
+                    }
+
+                    //Autofit columns
+                    workSheet.Cells.AutoFitColumns();
+                    //Note: You can manually set width of columns as well
+                    //workSheet.Column(7).Width = 10;
+
+                    //Add a title and timestamp at the top of the report
+                    workSheet.Cells[1, 1].Value = "Inventory Events Report";
+                    using (ExcelRange Rng = workSheet.Cells[1, 1, 1, 3])
+                    {
+                        Rng.Merge = true; //Merge columns start and end range
+                        Rng.Style.Font.Bold = true; //Font should be bold
+                        Rng.Style.Font.Size = 18;
+                        Rng.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    }
+                    //Since the time zone where the server is running can be different, adjust to 
+                    //Local for us.
+                    DateTime utcDate = DateTime.UtcNow;
+                    TimeZoneInfo esTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+                    DateTime localDate = TimeZoneInfo.ConvertTimeFromUtc(utcDate, esTimeZone);
+                    using (ExcelRange Rng = workSheet.Cells[2, 3])
+                    {
+                        Rng.Value = "Created: " + localDate.ToShortTimeString() + " on " +
+                            localDate.ToShortDateString();
+                        Rng.Style.Font.Bold = true; //Font should be bold
+                        Rng.Style.Font.Size = 12;
+                        Rng.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    }
+
+                    //Ok, time to download the Excel
+                    try
+                    {
+                        Byte[] theData = excel.GetAsByteArray();
+                        string filename = "InventoryEventsReport.xlsx";
                         string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                         return File(theData, mimeType, filename);
                     }

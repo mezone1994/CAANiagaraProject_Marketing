@@ -24,6 +24,11 @@
             </div>
 
             <div class="form-group">
+                <label asp-for="LocationID" class="control-label">Item</label>
+                <select asp-for="LocationID" class="form-control" asp-items="ViewBag.LocationID"></select>
+            </div>
+
+            <div class="form-group">
                 <label asp-for="Quantity" class="control-label">Quantity</label>
                 <input asp-for="Quantity" class="form-control" />
             </div>

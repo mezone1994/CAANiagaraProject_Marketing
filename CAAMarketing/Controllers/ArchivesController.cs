@@ -14,9 +14,11 @@ using OfficeOpenXml.Style;
 using System.Drawing;
 using NToastNotify;
 using Org.BouncyCastle.Utilities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CAAMarketing.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ArchivesController : Controller
     {
         private readonly CAAContext _context;
@@ -64,7 +66,7 @@ namespace CAAMarketing.Controllers
             if (LocationID.HasValue)
             {
                 inventories = inventories.Where(p => p.LocationID == LocationID);
-                ViewData["Filtering"] = " show";
+                ViewData["Filtering"] = "btn-danger";
             }
             //if (LowQty.HasValue)
             //{
@@ -78,9 +80,12 @@ namespace CAAMarketing.Controllers
             //}
             if (!String.IsNullOrEmpty(SearchString))
             {
+                long searchUPC;
+                bool isNumeric = long.TryParse(SearchString, out searchUPC);
+
                 inventories = inventories.Where(p => p.Item.Name.ToUpper().Contains(SearchString.ToUpper())
-                                       || p.Item.UPC.Contains(SearchString.ToUpper()));
-                ViewData["Filtering"] = " show";
+                                       || (isNumeric && p.Item.UPC == searchUPC));
+                ViewData["Filtering"] = "btn-danger";
             }
 
 

@@ -9,16 +9,16 @@
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
 
     <div class="form-horizontal">
-        <button class="btn btn-filter" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
+        <button class="btn btn-success @(ViewData["Filtering"])" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
             <i class="material-icons">Filter/Search</i>
         </button>
-        <div style="text-decoration: none; position: relative; display: inline-block;" class="btn btn-primary btn-color-Create">
+        <div class="btn btn-primary btn-color-Create">
             <div class="navbar-collapse nav-center collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle a-color" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Download Report
-                        </a>                     
+                        </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li>
                                 <a asp-action="DownloadInventory" title="Click this to download the inventory report" class="dropdown-item">
@@ -40,18 +40,25 @@
                                     @*<i class="material-icons">&#xE147;</i>*@
                                 </a>
                             </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a asp-action="DownloadInventoryEvents" title="Click this to download the inventory events report" class="dropdown-item">
+                                    Inventory Events
+                                    @*<i class="material-icons">&#xE147;</i>*@
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
             </div>
         </div>
-        <div style="text-decoration: none; position: relative; display: inline-block;" class="btn btn-primary btn-color-Create">
+        <div class="btn btn-primary btn-color-Create">
             <div class="navbar-collapse nav-center collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle a-color" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             View Report
-                        </a>                     
+                        </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li>
                                 <a asp-controller="Inventories" asp-action="InventoryReport" class="dropdown-item">Full Inventory</a>
@@ -64,6 +71,10 @@
                             <li>
                                 <a asp-controller="Inventories" asp-action="InventoryCostsReport" class="dropdown-item">Inventory Costs</a>
                             </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a asp-controller="Inventories" asp-action="InventoryEventsReport" class="dropdown-item">Inventory Events</a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -73,10 +84,10 @@
     <div class="collapse @(ViewData["Filtering"])" id="collapseFilter">
         <div class="card card-body">
             <div class="row">
-                <div class="form-group col-md-4">
-                    <label class="control-label">Filter by Locations: (Ctrl + click to multiselect)</label>
-                    @Html.ListBox("LocationID", null, htmlAttributes: new { @class = "form-control", @size = 8 })
-                </div>
+                @*<div class="form-group col-md-4">
+                <label class="control-label">Filter by Locations: (Ctrl + click to multiselect)</label>
+                @Html.ListBox("LocationID", null, htmlAttributes: new { @class = "form-control", @size = 8 })
+                </div>*@
                 <div class="form-group col-md-4">
                     <label class="control-label">Search Item Name OR UPC:</label>
                     @Html.TextBox("SearchString", null, new { @class = "form-control" })
@@ -94,11 +105,11 @@
             <div class="table-wrapper">
                 <div class="table-title d-flex justify-content-between align-items-center">
                     <h2>Full Inventory Report</h2>
-                    <a asp-action="DownloadInventory" title="Click this to downloead the inventory report" class="btn btn-primary btn-color-Create">
+                    <a asp-action="DownloadInventory" title="Click this to download the inventory report" class="btn btn-primary btn-color-Create">
                         Download Report
                         @*<i class="material-icons">&#xE147;</i>*@
                     </a>
-                </div>              
+                </div>
             </div>
         </div>
 

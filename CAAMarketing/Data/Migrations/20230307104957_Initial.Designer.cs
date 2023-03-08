@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CAAMarketing.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230306075141_Initial")]
+    [Migration("20230307104957_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -12,10 +12,10 @@
 
     <div class="form-horizontal">
         <a asp-action="Create" title="Click here to create a new Category" class="btn btn-primary btn-color-Create">Create New Category</a>
-        <button class="btn btn-filter" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
+        <button class="btn btn-success @(ViewData["Filtering"])" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
             <i class="material-icons">Filter/Search</i>
         </button>
-        <div class="collapse @(ViewData["Filtering"])" id="collapseFilter">
+        <div class="collapse" id="collapseFilter">
             <div class="card card-body bg-light">
                 <div class="row">
                     <div class="form-group col-md-4">
@@ -23,7 +23,7 @@
                         @Html.TextBox("SearchString", null, new { @class = "form-control" })
                     </div>
                     <div class="form-group col-md-4 align-self-end">
-                        <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" />
+                        <input type="submit" name="actionButton" value="Filter" class="btn btn-success" />
                         <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
                     </div>
                 </div>

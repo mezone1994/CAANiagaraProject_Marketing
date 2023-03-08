@@ -23,8 +23,8 @@ namespace CAAMarketing.Models
 
         [Display(Name = "UPC")]
         [Required(ErrorMessage = "You cannot leave blank.")]
-        [StringLength(50, ErrorMessage = "cannot be more than 50 characters long.")]
-        public string UPC { get; set; }
+        [RegularExpression("^[0-9]+$", ErrorMessage = "UPC must be numeric.")]
+        public long UPC { get; set; }
 
         [Display(Name = "Date Received")]
         [Required(ErrorMessage = "You cannot leave blank.")]

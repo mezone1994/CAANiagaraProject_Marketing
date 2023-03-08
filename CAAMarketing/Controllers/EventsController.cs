@@ -33,8 +33,7 @@ namespace CAAMarketing.Controllers
                                         //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
 
 
-            //Populating the DropDownLists for the Search/Filtering criteria, which are the Category and Supplier DDL
-            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
+
 
             // List of sort options.
             //NOTE: make sure this array has matching values to the column headings
@@ -42,7 +41,6 @@ namespace CAAMarketing.Controllers
 
 
             var events = _context.Events
-                .Include(p=>p.Location)
                 .AsNoTracking();
 
             if (!String.IsNullOrEmpty(SearchString))
@@ -70,12 +68,12 @@ namespace CAAMarketing.Controllers
                 if (sortDirection == "asc")
                 {
                     events = events
-                        .OrderBy(p => p.LocationID);
+                        .OrderBy(p => p.location);
                 }
                 else
                 {
                     events = events
-                        .OrderByDescending(p => p.LocationID);
+                        .OrderByDescending(p => p.location);
                 }
             }
             else if (sortField == "Date")
@@ -123,7 +121,7 @@ namespace CAAMarketing.Controllers
                 return NotFound();
             }
 
-            var @event = await _context.Events.Include(p => p.Location)
+            var @event = await _context.Events
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (@event == null)
             {
@@ -138,7 +136,7 @@ namespace CAAMarketing.Controllers
         {
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
-            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
+
             return View();
         }
 
@@ -146,20 +144,23 @@ namespace CAAMarketing.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Description,Date,LocationID")] Event @event)
+        public async Task<IActionResult> Create(Event model)
         {
-            //URL with the last filter, sort and page parameters for this controller
-            ViewDataReturnURL();
-
             if (ModelState.IsValid)
             {
-                _context.Add(@event);
+                // Add the new event to the database
+                _context.Events.Add(model);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                return Json(new { success = true });
             }
-            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
-            return View(@event);
+            else
+            {
+                // Return a validation error if the model is invalid
+                var errors = ModelState.Values.SelectMany(v => v.Errors)
+                                              .Select(e => e.ErrorMessage);
+                return Json(new { success = false, errors = errors });
+            }
         }
 
         // GET: Events/Edit/5
@@ -178,10 +179,7 @@ namespace CAAMarketing.Controllers
             {
                 return NotFound();
             }
-
-            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
             return View(@event);
-
         }
 
         // POST: Events/Edit/5
@@ -195,7 +193,7 @@ namespace CAAMarketing.Controllers
             ViewDataReturnURL();
 
             //Go get the Event to update
-            var eventToUpdate = await _context.Events.Include(p => p.Location).FirstOrDefaultAsync(e => e.ID == id);
+            var eventToUpdate = await _context.Events.FirstOrDefaultAsync(e => e.ID == id);
 
             if (eventToUpdate == null)
             {
@@ -203,11 +201,11 @@ namespace CAAMarketing.Controllers
             }
 
             //Put the original RowVersion value in the OriginalValues collection for the entity
-            //_context.Entry(eventToUpdate).Property("RowVersion").OriginalValue = RowVersion;
+            _context.Entry(eventToUpdate).Property("RowVersion").OriginalValue = RowVersion;
 
             //Try updating it with the values posted
             if (await TryUpdateModelAsync<Event>(eventToUpdate, "",
-                e => e.Name, e => e.Description, e => e.Date, e => e.LocationID))
+                e => e.Name, e => e.Description, e => e.Date, e => e.location))
             {
                 try
                 {
@@ -234,19 +232,7 @@ namespace CAAMarketing.Controllers
 
                 }
             }
-            try
-            {
-
-                _context.Update(eventToUpdate);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-
-                ModelState.AddModelError("", ex.Message.ToString());
-            }
-            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
-            return RedirectToAction("Details", new { eventToUpdate.ID });
+            return View(eventToUpdate);
         }
 
         // GET: Events/Delete/5
@@ -257,7 +243,7 @@ namespace CAAMarketing.Controllers
                 return NotFound();
             }
 
-            var @event = await _context.Events.Include(p => p.Location)
+            var @event = await _context.Events
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (@event == null)
             {
@@ -281,7 +267,7 @@ namespace CAAMarketing.Controllers
             {
                 _context.Events.Remove(@event);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -297,7 +283,7 @@ namespace CAAMarketing.Controllers
 
         private bool EventExists(int id)
         {
-          return _context.Events.Any(e => e.ID == id);
+            return _context.Events.Any(e => e.ID == id);
         }
     }
 }

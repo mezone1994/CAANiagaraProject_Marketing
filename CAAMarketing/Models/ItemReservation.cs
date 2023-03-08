@@ -18,6 +18,11 @@ namespace CAAMarketing.Models
         public Item Item { get; set; }
 
         [Required]
+        [Display(Name = "Location")]
+        public int LocationID { get; set; }
+        public Location Location { get; set; }
+
+        [Required]
         [Display(Name = "Quantity")]
         public int Quantity { get; set; }
 
@@ -40,6 +45,8 @@ namespace CAAMarketing.Models
         public DateTime? LogBackInDate { get; set; }
 
         public bool IsDeleted { get; set; }
+
+
 
         public ICollection<EventLog> EventLogs { get; set; }
     }

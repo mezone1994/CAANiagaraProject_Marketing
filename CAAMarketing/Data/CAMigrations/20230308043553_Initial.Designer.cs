@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CAAMarketing.Data.CAMigrations
 {
     [DbContext(typeof(CAAContext))]
-    [Migration("20230306175428_Initial")]
+    [Migration("20230308043553_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -225,9 +225,6 @@ namespace CAAMarketing.Data.CAMigrations
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("LocationID")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -245,9 +242,12 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("ID");
+                    b.Property<string>("location")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
 
-                    b.HasIndex("LocationID");
+                    b.HasKey("ID");
 
                     b.ToTable("Events");
                 });
@@ -455,10 +455,8 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<int>("SupplierID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("UPC")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
+                    b.Property<long>("UPC")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(256)
@@ -547,6 +545,9 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Property<int>("ItemId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("LocationID")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime?>("LogBackInDate")
                         .HasColumnType("TEXT");
 
@@ -569,6 +570,8 @@ namespace CAAMarketing.Data.CAMigrations
                     b.HasIndex("EventId");
 
                     b.HasIndex("ItemId");
+
+                    b.HasIndex("LocationID");
 
                     b.ToTable("ItemReservations");
                 });
@@ -861,17 +864,6 @@ namespace CAAMarketing.Data.CAMigrations
                     b.Navigation("Item");
                 });
 
-            modelBuilder.Entity("CAAMarketing.Models.Event", b =>
-                {
-                    b.HasOne("CAAMarketing.Models.Location", "Location")
-                        .WithMany()
-                        .HasForeignKey("LocationID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Location");
-                });
-
             modelBuilder.Entity("CAAMarketing.Models.EventLog", b =>
                 {
                     b.HasOne("CAAMarketing.Models.ItemReservation", "ItemReservation")
@@ -1017,9 +1009,17 @@ namespace CAAMarketing.Data.CAMigrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CAAMarketing.Models.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Event");
 
                     b.Navigation("Item");
+
+                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("CAAMarketing.Models.ItemThumbNail", b =>

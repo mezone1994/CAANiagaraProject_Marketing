@@ -8,28 +8,28 @@
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
 
     <div class="form-horizontal">
-       <a asp-action="Create" title="Click here to create a new event" class="btn btn-primary btn-color-Create">Create New Event</a>
+        <a asp-action="Create" title="Click here to create a new event" class="btn btn-primary btn-color-Create">Create New Event</a>
         <button class="btn btn-success @(ViewData["Filtering"])" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
             <i class="material-icons">Filter/Search</i>
         </button>
-        </div>
-        <div class="collapse @(ViewData["Filtering"])" id="collapseFilter">
-            <div class="card card-body">
-                <div class="row">
-                    <div class="form-group col-md-4">
-                        <label class="control-label">Search Event:</label>
-                        @Html.TextBox("SearchString", null, new { @class = "form-control" })
-                    </div>
-                    <div class="form-group col-md-4 align-self-end">
-                        <input type="submit" name="actionButton" value="Filter" title="click here to filter" class="btn btn-success" />
+    </div>
+    <div class="collapse @(ViewData["Filtering"])" id="collapseFilter">
+        <div class="card card-body">
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label class="control-label">Search Event:</label>
+                    @Html.TextBox("SearchString", null, new { @class = "form-control" })
+                </div>
+                <div class="form-group col-md-4 align-self-end">
+                    <input type="submit" name="actionButton" value="Filter" title="click here to filter" class="btn btn-success" />
                     <a asp-action="Index" title="Click here to clear the filter" class="btn btn-outline-dark">Clear</a>
-                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
- 
-<div class="container-fluid ">
+
+    <div class="container-fluid ">
         <div class="table-responsive">
             <div class="table-wrapper">
                 <div class="table-title d-flex justify-content-between align-items-center">
@@ -37,51 +37,145 @@
                 </div>
                 <table class="table table-hover">
                     <thead class="thead-light">
-            <tr>
-                <th>
+                        <tr>
+                            <th>
                                 <input type="submit" name="actionButton" title="click here to sort by event" value="Event" class="btn btn-link" />
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Description)
-                </th>
-                <th>
-                                <input type="submit" name="actionButton" value="Date" title="click here to sort by date" class="btn btn-link" />
-                </th>
-                <th>
-                                <input type="submit" name="actionButton" value="Location" title="click here to sort by location" class="btn btn-link" />
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Description)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Date)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.location)
-                    </td>
-                    <td>
-                                    <a asp-action="Edit" title="Click this to edit" class="padding-for-actions" asp-route-id="@item.ID">Edit</a> |
-                                    <a asp-action="Details" title="Click this to go to details" class="padding-for-actions" asp-route-id="@item.ID">Details</a> |
-                                    <a asp-action="Delete" title="Click this to delete the event" class="padding-for-actions" asp-route-id="@item.ID">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" value="Reserve Date" title="click here to sort by date" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" value="Return Date" title="click here to sort by date" class="btn btn-link" />
+                            </th>
+
+                            <th>
+                                <input type="submit" name="actionButton" value="Items Booked" title="click here to sort by date" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" value="Location Item" title="click here to sort by location" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" value="Item Quantity Booked" title="click here to sort by location" class="btn btn-link" />
+                            </th>
+                            <th>
+                                <input type="submit" name="actionButton" value="Logged" title="click here to sort by location" class="btn btn-link" />
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var eventDetails in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => eventDetails.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => eventDetails.ReservedEventDate)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => eventDetails.ReturnEventDate)
+                                </td>
+                                <td>
+                                    @{
+                                        if (eventDetails.ItemReservations.Count() == 0)
+                                        {
+                                            <p>None</p>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var c in eventDetails.ItemReservations)
+                                            {
+                                                @c.Item.Name <br />
+                                            }
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        if (eventDetails.ItemReservations.Count() == 0)
+                                        {
+                                            <p>None</p>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var c in eventDetails.ItemReservations)
+                                            {
+                                                @c.Location.Name <br />
+                                            }
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        if (eventDetails.ItemReservations.Count() == 0)
+                                        {
+                                            <p>None</p>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var c in eventDetails.ItemReservations)
+                                            {
+                                                @c.Quantity <br />
+                                            }
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        if (eventDetails.ItemReservations.Count() == 0)
+                                        {
+                                            <p>None</p>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var c in eventDetails.ItemReservations)
+                                            {
+                                                @if (@c.IsLoggedIn)
+                                                {
+                                                    <span style="color: green;">&#10003;</span>
+
+                                                    
+                                                }
+                                                else
+                                                {
+                                                    <span style="color: red;">&#10007;</span>
+                                                }
+                                                <br />
+                                            }
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        bool allItemsLoggedBackIn = true;
+                                        foreach (var item in eventDetails.ItemReservations)
+                                        {
+                                            if (!item.IsLoggedIn)
+                                            {
+                                                allItemsLoggedBackIn = false;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    @if (!allItemsLoggedBackIn && eventDetails.ReturnEventDate < DateTime.Now)
+                                    {
+                                        <a asp-action="LogBackInMultiple" title="Click this to log back in the items" class="padding-for-actions" asp-route-id="@eventDetails.ID">Log-Back-in |</a>
+                                    }
+                                    <a asp-action="Edit" title="Click this to edit" class="padding-for-actions" asp-route-id="@eventDetails.ID">Edit</a> |
+                                    <a asp-action="Details" title="Click this to go to details" class="padding-for-actions" asp-route-id="@eventDetails.ID">Details</a> |
+                                    <a asp-action="Delete" title="Click this to delete the event" class="padding-for-actions" asp-route-id="@eventDetails.ID">Delete</a>
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
             </div>
         </div>
         <partial name="_PagingNavBar" />
     </div>
-   
+
 
 </form>

@@ -17,7 +17,6 @@ namespace CAAMarketing.Models
         public string Description { get; set; }
 
         [Display(Name = "Date")]
-        [Required(ErrorMessage = "You cannot leave blank.")]
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
 
@@ -25,6 +24,19 @@ namespace CAAMarketing.Models
         [Required(ErrorMessage = "You cannot leave it blank.")]
         [StringLength(50, ErrorMessage = "cannot be more than 50 characters long.")]
         public string location { get; set; }
+
+
+        [Required]
+        [Display(Name = "Reserved Date")]
+        [DataType(DataType.Date)]
+        public DateTime? ReservedEventDate { get; set; }
+
+        [Required]
+        [Display(Name = "Return Date")]
+        [DataType(DataType.Date)]
+        public DateTime? ReturnEventDate { get; set; }
+
+        public ICollection<ItemReservation> ItemReservations { get; set; }
 
     }
 }

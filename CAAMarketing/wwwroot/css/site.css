@@ -1,5 +1,6 @@
 html {
     font-size: 14px;
+    
 }
 
 th {
@@ -25,6 +26,13 @@ html {
 
 body {
     margin-bottom: 60px;
+    font-family: "Proxima Nova", "Open Sans",  "Raleway", sans-serif;
+}
+
+.required-indicator {
+    color: red;
+    margin-left: 5px;
+    font-weight: bold;
 }
 
 .navbar-blue {
@@ -35,12 +43,18 @@ body {
     background-color: #305391;
 }
 
-.select2-container {
-    z-index: 9999;
+.select2 {
+    border-color: red;
 }
 
 .select2-container {
     z-index: 9999;
+    border-color: red;
+}
+
+.select2-container {
+    z-index: 9999;
+    border-color: red;
 }
 
 .select2-dropdown {
@@ -63,7 +77,8 @@ body {
     right: 0;
     z-index: 100;
     height: 35px;
-    border: none;
+    border:1px;
+    border-color:red;
     background-color: transparent;
     font-size: 1rem;
     color: #212529;
@@ -210,15 +225,21 @@ footer {
     background: #eaeaea;
     border: black;
     min-width: 50px;
-    border-radius: 2px;
+    border-radius: 50px;
     border: none;
     outline: none !important;
     margin-left: 10px;
+    /*padding: 10px;*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
 }
 
     .btn-color-Create:hover {
-        background-color: #0d6efd;
-        color:white;
+        transform: translateY(-2px);
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
     }
 
 .a-color {
@@ -320,19 +341,20 @@ footer {
         padding: 40px 15px 15px 15px;
     }
 }
-
 h1 {
     text-align: center;
 }
 
 
-
 .thead-light {
-    color: black;
+    color: #495057;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
 }
 
 .btn-link {
-    cursor: default;
+    cursor: pointer;
+    color: #007bff;
     text-decoration: none;
 }
 
@@ -346,66 +368,66 @@ h1 {
 
 .table-wrapper {
     background: #fff;
-    /* padding: 20px 25px;*/
-    border-radius: 3px;
-    box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    border-radius: 10px;
+    box-shadow: 0 5px 10px rgba(0,0,0,.1);
 }
 
 .table-title {
-    padding-bottom: 15px;
+    padding: 20px;
     background: #305391;
     color: #fff;
-    padding: 16px 30px;
-    border-radius: 3px 3px 0 0;
+    border-radius: 10px 10px 0 0;
 }
 
-.div-back {
-    font-weight: bold;
-    color: #566787;
-    display: inline-block;
-    text-decoration: none;
-}
+/* Import the font */
+@import url('https://fonts.googleapis.com/css?family=Pacifico');
 
-table.table td a {
-    font-weight: bold;
-    color: #566787;
-    display: inline-block;
-    text-decoration: none;
-}
-
-table.table td {
-    padding: 0;
-}
-
-    table.table td a:hover {
-        color: #2196F3;
-    }
-
-    table.table td a.settings {
-        color: #2196F3;
-    }
-
-.table-title h2 {
-    font-size: 24px;
+/* Use the font for the table title */
+.table-title h1 {
+    font-size: 36px;
+    margin: 0;
+    font-family: "Montserrat", Nunito;
 }
 
 .table-title .btn {
-    color: #305391;
-    float: right;
-    font-size: 13px;
-    background: #eaeaea;
-    border: black;
-    min-width: 50px;
-    border-radius: 2px;
+    color: #fff;
+    font-size: 16px;
+    background: #28a745;
     border: none;
+    border-radius: 5px;
     outline: none !important;
     margin-left: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
 }
 
     .table-title .btn:hover {
-        background-color: #0d6efd;
-        color:white;
+        background-color: #218838;
     }
+
+    .table-title .btn i {
+        margin-right: 5px;
+    }
+
+table.table td {
+    padding: 10px;
+    vertical-align: middle;
+    border-top: none;
+}
+
+    table.table td a {
+        font-weight: bold;
+        color: #007bff;
+        text-decoration: none;
+    }
+
+        table.table td a:hover {
+            color: #0056b3;
+        }
+
+        table.table td a.settings {
+            color: #28a745;
+        }
 
 .status {
     font-size: 30px;
@@ -414,25 +436,27 @@ table.table td {
 }
 
 .text-success {
-    color: #10c469;
+    color: #28a745;
 }
 
 .text-info {
-    color: #62c9e8;
+    color: #17a2b8;
 }
 
 .text-warning {
-    color: #FFC107;
+    color: #ffc107;
 }
 
 .text-danger {
-    color: #ff5b5b;
+    color: #dc3545;
 }
 
-
-
-table.table td a.settings {
-    color: #2196F3;
+.avatar {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 10px;
 }
 
 @media only screen and (min-width:1440px) {
@@ -441,17 +465,49 @@ table.table td a.settings {
     }
 }
 
-table.table .avatar {
-    border-radius: 50%;
-    vertical-align: middle;
-    margin-right: 10px;
-}
-/*
-@media only screen and (min-width:1024px) {
-    .container {
-        min-width: 1000px;
+@media only screen and (max-width: 767px) {
+    .table-title h1 {
+        font-size: 24px;
     }
-}*/
+
+    .table-title .btn {
+        font-size: 12px;
+        padding: 3px 6px;
+    }
+
+    table.table td {
+        padding: 5px;
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        margin-right: 5px;
+    }
+}
+
+@media only screen and (min-width: 768px) and (max-width: 1023px) {
+    .table-title h1 {
+        font-size: 28px;
+    }
+
+    .table-title .btn {
+        font-size: 14px;
+        padding: 4px 8px;
+    }
+
+    table.table td {
+        padding: 8px;
+    }
+
+    .avatar {
+        width: 45px;
+        height: 45px;
+        margin-right: 7px;
+    }
+}
+
+
 
 
 
@@ -987,16 +1043,30 @@ ul {
     border-radius: 100%;
 }
 
-    .btn-plus:before {
-        content: "+";
-        display: inline-block;
-        width: 1em;
-        height: 1em;
-        line-height: 1;
-        text-align: center;
-        margin-top: 0.25em;
-        margin-left: 0.25em;
-    }
+    .btn-plus {
+    font-size: 1.5em;
+    padding: 0;
+    border: 1px solid black;
+    background: transparent;
+    color: black;
+    width: 27px;
+    height: 27px;
+    line-height: 0;
+    text-align: center;
+    border-radius: 100%;
+    margin-top:4px;
+}
+
+.btn-plus:before {
+    content: "+";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    line-height: 0.9em;
+    text-align: center;
+    padding-right: 0.25em;
+    margin-bottom:auto;
+}
 
 .helplnk {
     font-weight: bold;
@@ -1005,3 +1075,22 @@ ul {
     text-decoration: none;
     margin: 10px;
 }
+
+.item-image {
+    width: 200px;
+    height: 200px;
+    max-width: 100%;
+    border-radius: 100px;
+    box-shadow: 0px 0px 10px #ccc;
+    overflow: hidden;
+    margin: 20px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .item-image img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+    }

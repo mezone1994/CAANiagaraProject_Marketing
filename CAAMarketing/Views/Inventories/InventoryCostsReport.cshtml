@@ -84,10 +84,10 @@
     <div class="collapse" id="collapseFilter">
         <div class="card card-body">
             <div class="row">
-                @*                <div class="form-group col-md-4">
-                <label class="control-label">Filter by Locations: (Ctrl + click to multiselect)</label>
-                @Html.ListBox("LocationID", null, htmlAttributes: new { @class = "form-control", @size = 8 })
-                </div>*@
+                <div class="form-group col-md-4">
+                    <label class="control-label">Filter by Locations: (Ctrl + click to multiselect)</label>
+                    @Html.ListBox("LocationID", null, htmlAttributes: new { @class = "form-control", @size = 8 })
+                </div>
                 <div class="form-group col-md-4">
                     <label class="control-label">Search Item Name OR UPC:</label>
                     @Html.TextBox("SearchString", null, new { @class = "form-control" })

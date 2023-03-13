@@ -9,6 +9,7 @@ using CAAMarketing.Data;
 using CAAMarketing.Models;
 using CAAMarketing.Utilities;
 using Microsoft.AspNetCore.Authorization;
+using NToastNotify;
 
 namespace CAAMarketing.Controllers
 {
@@ -16,15 +17,58 @@ namespace CAAMarketing.Controllers
     public class ItemReservationsController : Controller
     {
         private readonly CAAContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public ItemReservationsController(CAAContext context)
+        public ItemReservationsController(CAAContext context, IToastNotification toastNotification)
         {
             _context = context;
+            _toastNotification = toastNotification;
         }
 
         public async Task<IActionResult> Index(int?[] EventID, string SearchString, int? SupplierID, int? page, int? pageSizeID
             , string actionButton, string sortDirection = "asc", string sortField = "Event")
         {
+
+            ViewDataReturnURL();
+
+            //FOR THE SILENTMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
+            var invForSilent = _context.Inventories.Where(i => i.DismissNotification > DateTime.Now && i.Item.Archived != true).Count();
+            var invnullsForSilent = _context.Inventories.Where(i => i.DismissNotification == null && i.Item.Archived != true).Count();
+            ViewData["SilencedMessageCount"] = (invForSilent + invnullsForSilent).ToString();
+            //--------------------------------------------------------------------
+
+            // FOR THE ACTIVEMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
+            var invForActive = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category)
+                .Where(i => i.DismissNotification <= DateTime.Now && i.Quantity < i.Item.Category.LowCategoryThreshold && i.Item.Archived != true && i.DismissNotification != null).Count();
+
+            ViewData["ActiveMessageCount"] = (invForActive).ToString();
+            //--------------------------------------------------------------------
+
+            // FOR THE RECOVERALLMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
+            var invForRecover = _context.Inventories.Where(i => i.DismissNotification > DateTime.Now).Count();
+            var invnullsForRecover = _context.Inventories.Where(i => i.DismissNotification == null && i.Item.Archived != true).Count();
+            ViewData["RecoverMessageCount"] = (invForRecover + invnullsForRecover).ToString();
+            //--------------------------------------------------------------------
+
+            if (TempData["RecoverNotifMessageBool"] != null)
+            {
+                _toastNotification.AddSuccessToastMessage(@$"Message Recovered!");
+            }
+            if (TempData["SilenceNotifMessageBool"] != null)
+            {
+                _toastNotification.AddSuccessToastMessage(@$"Message Silenced!");
+            }
+            if (TempData.ContainsKey("NotifFromPopupSuccess") && TempData["NotifFromPopupSuccess"] != null)
+            {
+                if (TempData["NotifFromPopupSuccess"].ToString() == "Silent")
+                {
+                    _toastNotification.AddSuccessToastMessage(@$"Message Silenced!");
+                }
+                if (TempData["NotifFromPopupSuccess"].ToString() == "Activate")
+                {
+                    _toastNotification.AddSuccessToastMessage(@$"Message Activated!");
+                }
+            }
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
 
@@ -147,6 +191,9 @@ namespace CAAMarketing.Controllers
         // GET: ItemReservations/Create
         public IActionResult Create(string returnUrl, string eventSearchString, string itemSearchString)
         {
+
+            _toastNotification.AddAlertToastMessage($"Please Start By Entering Information Of The Reservation, You Can Cancel By Clicking The Exit Button.");
+
             IQueryable<Event> events = _context.Events;
             IQueryable<Item> items = _context.Items;
 
@@ -179,7 +226,7 @@ namespace CAAMarketing.Controllers
             }
             else
             {
-                ViewBag.ReturnUrl = returnUrl;
+                //ViewBag.ReturnUrl = returnUrl;
                 return View(new ItemReservation());
             }
         }

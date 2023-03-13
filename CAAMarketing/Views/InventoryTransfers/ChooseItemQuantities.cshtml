@@ -1,0 +1,315 @@
+﻿@model IEnumerable<CAAMarketing.Models.Item>
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+
+    ViewData["Title"] = "Create";
+    //CAAMarketing.Models.Item SelectedItems = (CAAMarketing.Models.Item)ViewBag.SelectedItems
+}
+
+
+
+<div class="container">
+    <ul class="progressbar">
+        <li class="active">
+            <p>Select Transfer To Location</p>
+        </li>
+        <li class="active">
+            <p>Select Transfer Items</p>
+        </li>
+        <li class="active">
+            <p>Choose Quantities/From Locations</p>
+        </li>
+    </ul>
+</div>
+
+
+
+<div class="deimage">
+    <h1><u><b>Step 3:</b></u></h1><h2>Choose The Available Locations And Quanity For Each Item To Transfer :</h2>
+    <hr />
+</div>
+
+<center><h3>Selected Items:</h3></center>
+<form asp-action="ChooseItemQuantities" method="post">
+
+    <div class="selected-items">
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-6" style="padding:35px">
+                    <div class="row">
+                        
+                            <fieldset class="item-fieldset">
+                                <legend>Item #@item.ID: @item.Name</legend>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        @{
+                                            if (item.ItemThumbNail?.Content != null)
+                                            {
+                                                string imageBase64 = Convert.ToBase64String(item.ItemThumbNail.Content);
+                                                string imageSrc = string.Format("data:" + item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
+                                                <img src="@imageSrc" alt="Item Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid avatar" />
+                                            }
+                                            else
+                                            {
+                                                <div>
+                                                    <img src="~/images/image-not-found_tm.png" alt="Image not found" title="Image not found" class="img-fluid avatar" />
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label for="@($"total-stock-{item.ID}")">Total Stock: </label>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="form-group">
+                                                    @{
+                                                        int totalStock = 0;
+                                                        foreach (var inventory in item.Inventories)
+                                                        {
+                                                            totalStock += inventory.Quantity;
+                                                        }
+                                                    }
+                                                    <input type="text" class="form-control" readonly value="@totalStock" id="@($"total-stock-{item.ID}")">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label>From:</label>
+                                            </div>
+                                            <div class="col-md-8">
+                                                @{
+                                                    if (item.Inventories.Count() == 0)
+                                                    {
+                                                        <p>None</p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <select class="form-control required" name="@($"locations-{item.ID}")" id="@($"locations-{item.ID}")" required>
+                                                            <option value="">--Select a location--</option>
+                                                            @foreach (var inventory in item.Inventories)
+                                                            {
+                                                                <option value="@inventory.Location.Id" data-quantity="@inventory.Quantity">@inventory.Location.Name</option>
+                                                            }
+                                                        </select>
+
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label for="@($"location-quantity-{item.ID}")">Transfer Qty:</label>
+                                                @*<input value="" id="quantity-" name="itemId1" />*@
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="form-group">
+                                                    <input type="text" class="form-control" value="" id="@($"location-quantity-{item.ID}")" name="@($"itemId{item.ID}")">
+                                                    <input type="text" hidden="hidden" class="form-control" value="" id="@($"locationId-{item.ID}")" name="@($"locationId{item.ID}")" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label for="@($"location-quantity-{item.ID}")">To:</label>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="form-group">
+                                                <input type="text" class="form-control" readonly value="@HttpContextAccessor.HttpContext.Session.GetString("ToLocationNameForTransfer");">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                       
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+<button type="submit" class="btn btn-primary">Transfer</button>
+</form>
+
+
+
+
+
+@section Scripts{
+
+    <script type="text/javascript">
+        
+        //$(document).ready(function () {
+        //    $('select[name^="locations-"]').change(function () {
+        //        var selectedLocationId = $(this).val();
+        //        var selectedLocationQuantity = $(this).find('option:selected').data('quantity');
+        //        var totalStockInput = $('#location-quantity-' + $(this).attr('id').split('-')[1]);
+        //        totalStockInput.val(selectedLocationQuantity);
+
+
+        //    });
+        //});
+
+
+        $(document).ready(function () {
+            $('select[name^="locations-"]').change(function () {
+                var selectedLocationId = $(this).val();
+                var selectedLocationQuantity = $(this).find('option:selected').data('quantity');
+                var itemID = $(this).attr('id').split('-')[1];
+                var locationIdInput = $('#locationId-' + itemID);
+                var totalStockInput = $('#location-quantity-' + itemID);
+
+                console.log(selectedLocationId);
+                locationIdInput.val(selectedLocationId);
+                totalStockInput.val(selectedLocationQuantity);
+            });
+        });
+
+        $(document).ready(function () {
+            $('form').submit(function() {
+                var formIsValid = true;
+                $('.required').each(function() {
+                    if ($(this).val() == '') {
+                        formIsValid = false;
+                    }
+                });
+                if (!formIsValid) {
+                    alert('Please select a value for all required fields');
+                    return false;
+                }
+            });
+        });
+
+
+
+        //$(document).ready(function () {
+        //    $('select[name^="locations-"]').change(function () {
+
+        //        var selectedLocationId = $(this).val();
+        //        var selectedLocationQuantity = $(this).find('option:selected').data('quantity');
+        //        console.log(selectedLocationId);
+
+
+        //    });
+        // });
+
+    </script>
+
+}
+
+
+
+
+
+<style>
+    .container {
+        width: 100%;
+    }
+
+    .progressbar {
+        counter-reset: step;
+    }
+
+        .progressbar li {
+            list-style: none;
+            display: inline-block;
+            width: 30.33%;
+            position: relative;
+            text-align: center;
+            cursor: pointer;
+        }
+
+            .progressbar li:before {
+                content: counter(step);
+                counter-increment: step;
+                width: 30px;
+                height: 30px;
+                line-height: 30px;
+                border: 1px solid #ddd;
+                border-radius: 100%;
+                display: block;
+                text-align: center;
+                margin: 0 auto 10px auto;
+                background-color: #fff;
+            }
+
+            .progressbar li:after {
+                content: "";
+                position: absolute;
+                width: 100%;
+                height: 1px;
+                background-color: #ddd;
+                top: 15px;
+                left: -50%;
+                z-index: -1;
+            }
+
+            .progressbar li:first-child:after {
+                content: none;
+            }
+
+            .progressbar li.active {
+                color: green;
+            }
+
+                .progressbar li.active:before {
+                    border-color: green;
+                }
+
+                .progressbar li.active + li:after {
+                    background-color: green;
+                }
+
+    .select2 {
+        border-color: red !important;
+    }
+</style>
+<style>
+
+    .selected-items {
+        flex-wrap: wrap;
+    }
+    .item-fieldset {
+    margin-bottom: 30px;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #ccc;
+    box-sizing: border-box;
+
+
+}
+/*
+    #card-display{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 50px;
+
+    }*/
+
+
+.item-fieldset legend {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.item-fieldset label {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.item-fieldset .form-check {
+    margin-top: 10px;
+}
+
+.item-fieldset .form-check-input {
+    margin-right: 10px;
+}
+
+
+</style>

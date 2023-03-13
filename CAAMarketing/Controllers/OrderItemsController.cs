@@ -214,7 +214,6 @@ namespace CAAMarketing.Controllers
                .Include(i => i.ItemReservations).ThenInclude(i => i.Location)
                .Include(I=>I.InventoryTransfers).ThenInclude(i=>i.FromLocation)
                .Include(I => I.InventoryTransfers).ThenInclude(i => i.ToLocation)
-
                .Where(p => p.ID == ItemID.GetValueOrDefault())
                .AsNoTracking()
                .FirstOrDefault();
@@ -243,8 +242,8 @@ namespace CAAMarketing.Controllers
                 item.Quantity = 0;
             }
 
-            _context.Update(itemUpdate);
-            _context.SaveChanges();
+            //_context.Update(itemUpdate);
+            //_context.SaveChanges();
 
 
             var itemReservations = await _context.ItemReservations

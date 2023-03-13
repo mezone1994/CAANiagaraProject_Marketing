@@ -11,18 +11,22 @@
     <figcaption class="col mt-3 deth1top"><h1><text class="d-none d-sm-inline"></text>@item.Name</h1></figcaption>  
     <div class="row" style="margin:50px 0">
         <div class="col-3">
-                @{
-                    if (item.ItemImages?.Content != null)
-                    {
-                        string imageBase64 = Convert.ToBase64String(item.ItemImages.Content);
+            @{
+                if (item.ItemImages?.Content != null)
+                {
+                    string imageBase64 = Convert.ToBase64String(item.ItemImages.Content);
                     string imageSrc = string.Format("data:" + item.ItemImages.MimeType + ";base64,{0}", imageBase64);
+                    <div class="item-image">
                         <img src="@imageSrc" alt="Profile Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid rounded" />
-                    }
-                    else
-                    {
-                        <img src="~/images/image-not-found .png" class="img-fluid rounded" />
-                    }
+                    </div>
                 }
+                else
+                {
+                    <div class="item-image">
+                        <img src="~/images/image-not-found .png" class="img-fluid rounded" />
+                    </div>
+                }
+            }
         </div>
         <div class="col-4 dettop">
             <dl class="row">
@@ -148,9 +152,7 @@
         </div>
         <div class="detlin">
             <a href="@Url.Action("Create", "InventoryTransfers", new { itemId = @item.ID })" title="Click this to transfer the item" class="btn btn-primary">Transfer</a>
-            <a href="@Url.Action("Create", "ItemReservations", new { itemId = @item.ID })" title="Click this to log out the item" class="btn btn-secondary">Log out Item</a>
-            @*<a href="@Url.Action("LogBackIn", "ItemReservations", new { id = @item.ID })" class="btn btn-secondary">Log back In</a>*@
-            <a href="@Url.Action("LogBackIn", "ItemReservations", new { id = @item.ID })" class="btn btn-secondary @((ViewBag.ItemReservations == null || ViewBag.ItemReservations.Count == 0) ? "disabled" : "")">Log back In</a>
+
             <div class="detbut">
                 <a asp-action="Edit" title="Click this to edit" asp-controller="Items" asp-route-id="@item.ID" class="padding-for-actions div-back">Edit </a> |
                 <a href='@ViewData["returnURL"]' title="Click this to go to the Inventory List" class="padding-for-actions div-back">Back to Inventory List</a>
@@ -163,8 +165,12 @@
 
 
 
+<br />
+<button id="show-tables-btn" class="btn btn-primary" style="display: block; margin: 0 auto;" title="Click to show/hide information">
+    Show more information <i class="fas fa-chevron-down"></i>
+</button>
 
-
+<div id="tables-container" style="height: 0;">
 <fieldset style="border: 2px solid #D3D3D3; padding: 5px; margin-top:10px">                                                                  @*FOR THE LOCATIONS VIEW*@
     <div class="form-horizontal">
         <div class="form-horizontal">
@@ -199,11 +205,11 @@
                                         @* @Html.DisplayNameFor(model => model.Cost)*@
                                     </th>
                                     <th>
-                                        <a asp-controller="OrderItems" asp-action="Add" asp-route-ItemID="@item.ID"
+@*                                        <a asp-controller="OrderItems" asp-action="Add" asp-route-ItemID="@item.ID"
                                            asp-route-ItemName="@item.Name">
                                             <span class="btn btn-success" data-bs-toggle="tooltip"
                                                   title="Add a receive"><strong>&#x271A; Add</strong></span>
-                                        </a>
+                                        </a>*@
                                     </th>
                                 </tr>
 
@@ -656,7 +662,7 @@
                                         <a asp-controller="OrderItems" asp-action="AddItemReservation" asp-route-ItemID="@item.ID"
                                            asp-route-ItemName="@item.Name">
                                             <span class="btn btn-success" data-bs-toggle="tooltip"
-                                                  title="Add a Reservation"><strong>&#x271A; Add Reservation</strong></span>
+                                                  title="Add a Reservation"><strong>&#x271A; Book Item For Event</strong></span>
                                         </a>
                                     </th>
 
@@ -700,10 +706,42 @@
         </div>
         <partial name="_PagingNavBar" />
 </fieldset>
+</div>
 
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+<script>
+    var container = document.getElementById("tables-container");
+    var button = document.getElementById("show-tables-btn");
+    var maxHeight = container.scrollHeight + "px";
+
+    container.style.height = "0";
+
+    button.addEventListener("click", function () {
+        if (container.style.height === "0px") {
+            container.style.height = maxHeight;
+            button.innerHTML = "Hide information <i class='fas fa-chevron-up rotate'></i>";
+        } else {
+            container.style.height = "0";
+            button.innerHTML = "Show more information <i class='fas fa-chevron-down'></i>";
+        }
+    });
+</script>
 
 <style>
 
+    #tables-container {
+        overflow: hidden;
+        transition: height 0.5s ease-out;
+    }
+
+    .fa-chevron-down {
+        margin-left: 5px;
+        transition: transform 0.4s ease;
+    }
+
+    .rotate {
+        transform: rotate(180deg);
+    }
     fieldset {
         border: 1px solid #ccc;
         border-radius: 5px;

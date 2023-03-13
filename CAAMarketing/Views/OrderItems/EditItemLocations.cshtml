@@ -16,7 +16,7 @@
                     <input type="hidden" name="ItemID" value="@Model.ItemID" />
                     <div class="form-group">
                         <label asp-for="Quantity" class="control-label"></label>
-                        <input asp-for="Quantity" class="form-control" />
+                        <input asp-for="Quantity" class="form-control" required style="border-color: red" />
                         <span asp-validation-for="Quantity" class="text-danger"></span>
                     </div>
 

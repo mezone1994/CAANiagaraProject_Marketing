@@ -10,6 +10,7 @@ using CAAMarketing.Models;
 using Microsoft.Extensions.Logging;
 using CAAMarketing.Utilities;
 using Microsoft.AspNetCore.Authorization;
+using NToastNotify;
 
 namespace CAAMarketing.Controllers
 {
@@ -17,16 +18,59 @@ namespace CAAMarketing.Controllers
     public class InventoryTransfersController : Controller
     {
         private readonly CAAContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public InventoryTransfersController(CAAContext context)
+        public InventoryTransfersController(CAAContext context, IToastNotification toastNotification)
         {
             _context = context;
+            _toastNotification = toastNotification;
         }
 
         // GET: InventoryTransfers
         public async Task<IActionResult> Index(string SearchString, int? FromLocationID, int? ToLocationId, int? ItemID,
            int? page, int? pageSizeID, string actionButton, string sortDirection = "asc", string sortField = "ItemTransfered")
         {
+
+            ViewDataReturnURL();
+
+            //FOR THE SILENTMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
+            var invForSilent = _context.Inventories.Where(i => i.DismissNotification > DateTime.Now && i.Item.Archived != true).Count();
+            var invnullsForSilent = _context.Inventories.Where(i => i.DismissNotification == null && i.Item.Archived != true).Count();
+            ViewData["SilencedMessageCount"] = (invForSilent + invnullsForSilent).ToString();
+            //--------------------------------------------------------------------
+
+            // FOR THE ACTIVEMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
+            var invForActive = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category)
+                .Where(i => i.DismissNotification <= DateTime.Now && i.Quantity < i.Item.Category.LowCategoryThreshold && i.Item.Archived != true && i.DismissNotification != null).Count();
+
+            ViewData["ActiveMessageCount"] = (invForActive).ToString();
+            //--------------------------------------------------------------------
+
+            // FOR THE RECOVERALLMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
+            var invForRecover = _context.Inventories.Where(i => i.DismissNotification > DateTime.Now).Count();
+            var invnullsForRecover = _context.Inventories.Where(i => i.DismissNotification == null && i.Item.Archived != true).Count();
+            ViewData["RecoverMessageCount"] = (invForRecover + invnullsForRecover).ToString();
+            //--------------------------------------------------------------------
+
+            if (TempData["RecoverNotifMessageBool"] != null)
+            {
+                _toastNotification.AddSuccessToastMessage(@$"Message Recovered!");
+            }
+            if (TempData["SilenceNotifMessageBool"] != null)
+            {
+                _toastNotification.AddSuccessToastMessage(@$"Message Silenced!");
+            }
+            if (TempData.ContainsKey("NotifFromPopupSuccess") && TempData["NotifFromPopupSuccess"] != null)
+            {
+                if (TempData["NotifFromPopupSuccess"].ToString() == "Silent")
+                {
+                    _toastNotification.AddSuccessToastMessage(@$"Message Silenced!");
+                }
+                if (TempData["NotifFromPopupSuccess"].ToString() == "Activate")
+                {
+                    _toastNotification.AddSuccessToastMessage(@$"Message Activated!");
+                }
+            }
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
 
@@ -188,6 +232,9 @@ namespace CAAMarketing.Controllers
         // GET: InventoryTransfers/Create
         public IActionResult Create(int? ItemId, int FromLocationId, int ToLocationId, DateTime TransferDate)
         {
+
+            _toastNotification.AddAlertToastMessage($"Please Start By Entering Information Of The Transfer, You Can Cancel By Clicking The Exit Button.");
+
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
 
@@ -468,6 +515,349 @@ namespace CAAMarketing.Controllers
             return Redirect(ViewData["returnURL"].ToString());
 
         }
+
+
+
+        // GET: SelectItems
+        public async Task<IActionResult> SelectItems(string SearchString, int? page, int? pageSizeID
+            , string actionButton, string sortDirection = "asc", string sortField = "Item")
+        {
+
+            ViewDataReturnURL();
+
+            //Clear the sort/filter/paging URL Cookie for Controller
+            CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
+
+
+            //Toggle the Open/Closed state of the collapse depending on if we are filtering
+            ViewData["Filtering"] = ""; //Assume not filtering
+                                        //Then in each "test" for filtering, add ViewData["Filtering"] = " show" if true;
+
+
+
+
+            // List of sort options.
+            //NOTE: make sure this array has matching values to the column headings
+            string[] sortOptions = new[] { "Event", "Date", "Location" };
+
+
+            int toLocationId = Convert.ToInt32(HttpContext.Session.GetString("ToLocationForTransfer"));
+
+
+            var items = _context.Items
+                .Include(i => i.Supplier)
+                .Include(i => i.Category)
+                .Include(i => i.Inventories)
+                .Include(i => i.Inventories).ThenInclude(i => i.Location)
+                .Where(i => i.Inventories.Count(inv => inv.LocationID == toLocationId) < i.Inventories.Count)
+                .AsNoTracking();
+
+
+
+
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                items = items.Where(p => p.Name.ToUpper().Contains(SearchString.ToUpper()));
+                ViewData["Filtering"] = " show";
+            }
+
+            //Before we sort, see if we have called for a change of filtering or sorting
+            if (!String.IsNullOrEmpty(actionButton)) //Form Submitted!
+            {
+                if (sortOptions.Contains(actionButton))//Change of sort is requested
+                {
+                    if (actionButton == sortField) //Reverse order on same field
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;//Sort by the button clicked
+                }
+            }
+
+            //Set sort for next time
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
+
+
+            var SelectedItems = await _context.Items.Include(i => i.Supplier).Include(i => i.Category)
+            .ToListAsync();
+
+            ViewBag.SelectedItems = SelectedItems;
+
+            //Handle Paging
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Items");
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+            var pagedData = await PaginatedList<Item>.CreateAsync(items.AsNoTracking(), page ?? 1, pageSize);
+            return View(pagedData);
+        }
+
+
+
+
+        // POST: Events/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        public async Task<IActionResult> SelectItems(int ItemID)
+        {
+            if (ModelState.IsValid)
+            {
+                var itemsupdate = _context.Items.Where(i => i.ID == ItemID).FirstOrDefault();
+
+                itemsupdate.isSlectedForEvent = true;
+                _context.Update(itemsupdate);
+                _context.SaveChanges();
+
+                //_context.SaveChanges();
+
+                return RedirectToAction("SelectItems", "Events");
+            }
+            else
+            {
+                // Return a validation error if the model is invalid
+                _toastNotification.AddErrorToastMessage($"Oops! There was an issue saving the record, please check your input and try again, if the problem continues, try again later.");
+                var errors = ModelState.Values.SelectMany(v => v.Errors)
+                                              .Select(e => e.ErrorMessage);
+                return View();
+            }
+        }
+
+
+        // POST: Events/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        public async Task<IActionResult> RemoveSelectedItems(int ItemID)
+        {
+            if (ModelState.IsValid)
+            {
+
+                var itemsupdate = _context.Items.Where(i => i.ID == ItemID).FirstOrDefault();
+
+                itemsupdate.isSlectedForEvent = false;
+                _context.Update(itemsupdate);
+                _context.SaveChanges();
+
+                //_context.SaveChanges();
+
+                return RedirectToAction("SelectItems", "Events");
+            }
+            else
+            {
+                // Return a validation error if the model is invalid
+                _toastNotification.AddErrorToastMessage($"Oops! There was an issue saving the record, please check your input and try again, if the problem continues, try again later.");
+                var errors = ModelState.Values.SelectMany(v => v.Errors)
+                                              .Select(e => e.ErrorMessage);
+                return View();
+            }
+        }
+
+
+
+        // GET: SelectItems
+        public async Task<IActionResult> ChooseItemQuantities()
+        {
+
+            ViewDataReturnURL();
+
+            var events = _context.Items.Include(i => i.Supplier)
+                .AsNoTracking();
+
+            var SelectedItems = await _context.Items
+                .Include(i => i.Supplier)
+                .Include(i => i.Category)
+                .Include(i => i.Inventories)
+                .Include(i => i.Inventories).ThenInclude(i => i.Location)
+                .Where(i => i.isSlectedForEvent == true)
+            .ToListAsync();
+
+
+            return View(SelectedItems);
+            
+
+        }
+
+
+        // POST: Events/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        public async Task<IActionResult> ChooseItemQuantities(int id)
+        {
+            string output = "";
+            bool flag = false;
+            foreach (var item in _context.Items)
+            {
+                if (Request.Form.ContainsKey("itemId" + item.ID.ToString()))
+                {
+                    //Getting the quantity of the item and location selected
+                    int Quantity = int.Parse(Request.Form["itemId" + item.ID.ToString()]);
+
+                    //Getting id of location so I can display the name (I dont think I need to siplay name but for testing purposes)
+                    int fromlocationID = int.Parse(Request.Form["locationId" + item.ID.ToString()]);
+                    //Getting the Name of the location they selected by id
+                    var location = _context.Locations
+                        .Where(i => i.Id == fromlocationID)
+                        .FirstOrDefault();
+
+                    //Outputted a message to see if my logic worked, and It Did!
+                    output += "Name: " + item.Name.ToString() + ", Location: " + location.Name + ", Qty: " + Quantity + "\n";
+
+                    
+                    //// Update the inventory quantity
+                    var inventory = await _context.Inventories.Include(i => i.Location).Include(i => i.Item)
+                        .Where(i => i.ItemID == item.ID && i.LocationID == fromlocationID)
+                        .FirstOrDefaultAsync();
+
+
+                    //// Find the inventory record for the item being transferred from the specified location
+                    var fromInventory = await _context.Inventories
+                        .Include(i => i.Location)
+                       .FirstOrDefaultAsync(i => i.ItemID == item.ID && i.LocationID == fromlocationID);
+
+                    if (fromInventory.Quantity < Quantity)
+                    {
+                        ModelState.AddModelError("Quantity", "Not enough inventory to transfer.");
+                        flag = true;
+                       _toastNotification.AddErrorToastMessage($"Oops, You entered a quantity that exceeds the stock of {fromInventory.Item.Name} At {fromInventory.Location.Name}, Please enter a valid Quantity that is under {fromInventory.Quantity}");
+                        
+                    }
+                    else
+                    {
+                        // Update the from location to the current location of the inventory item
+                        //inventoryTransfer.FromLocationId = fromInventory.LocationID;
+
+                        // Update the inventory quantity at the from location
+                        fromInventory.Quantity -= Quantity;
+                        _context.Update(fromInventory);
+
+                        // Find the inventory record for the item being transferred to the specified location
+                        var toInventory = await _context.Inventories
+                            .Include(i => i.Location)
+                            .FirstOrDefaultAsync(i => i.ItemID == item.ID && i.LocationID == Convert.ToInt32(HttpContext.Session.GetString("ToLocationForTransfer")));
+
+                        if (toInventory == null)
+                        {
+                            // Create a new inventory record if one doesn't exist at the to location
+                            toInventory = new Inventory
+                            {
+                                ItemID = item.ID,
+                                LocationID = Convert.ToInt32(HttpContext.Session.GetString("ToLocationForTransfer")),
+                                Quantity = Quantity,
+                                Cost = fromInventory.Cost
+                            };
+                            _context.Add(toInventory);
+                           }
+                        else
+                        {
+                            // Update the inventory quantity at the to location
+                            toInventory.Quantity += Quantity;
+                            _context.Update(toInventory);
+                        }
+                        string transferDateString = HttpContext.Session.GetString("TransferDateForTransfer");
+
+
+
+                        var inventoryTransfer = new InventoryTransfer();
+                        inventoryTransfer.ItemId = item.ID;
+                        inventoryTransfer.Quantity = Quantity;
+                        inventoryTransfer.ToLocationId = toInventory.LocationID;
+                        inventoryTransfer.FromLocationId = fromlocationID;
+                        //inventoryTransfer.TransferDate = DateTime.Today;
+                        if (DateTime.TryParse(transferDateString, out DateTime transferDate))
+                        {
+                            inventoryTransfer.TransferDate = transferDate;
+                        }
+                        else
+                        {
+                            // handle the case where the string is not a valid date
+                            _toastNotification.AddErrorToastMessage($"The Transfer Date Is Invalid...");
+                        }
+
+                        // Save changes to the database
+                        await _context.AddAsync(inventoryTransfer);
+                        await _context.SaveChangesAsync();
+                    }
+
+
+                }
+            }
+
+            //Means there wasnt any errors and all the create statements were added
+            if (flag == false)
+            {
+                foreach (var item in _context.Items)
+                {
+                    item.isSlectedForEvent = false;
+                    _context.Update(item);
+
+                }
+                _context.SaveChanges();
+            }
+
+            //_toastNotification.AddErrorToastMessage($"{output} EventID: {EventID.ToString()}");
+            _toastNotification.AddSuccessToastMessage("Item Transfer Created! You can view them all in this index.");
+            //_toastNotification.AddSuccessToastMessage($"{output}");
+             return RedirectToAction("Index", "InventoryTransfers");
+
+
+            //return RedirectToAction("ChooseItemQuantities", "InventoryTransfers");
+        }
+
+
+        // GET: Events/Create
+        public IActionResult CreateMultipleTransfers()
+        {
+            _toastNotification.AddAlertToastMessage($"Please Start By Entering Information Of The Event, You Can Cancel By Clicking The Exit Button.");
+
+            //URL with the last filter, sort and page parameters for this controller
+            ViewDataReturnURL();
+
+            ViewData["ToLocationId"] = new SelectList(_context.Locations, "Id", "Name");
+
+
+            return View();
+        }
+
+        // POST: Events/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        public async Task<IActionResult> CreateMultipleTransfers(InventoryTransfer model)
+        {
+            ViewData["ToLocationId"] = new SelectList(_context.Locations, "Id", "Name");
+            _toastNotification.AddErrorToastMessage($"ToLocation: {model.ToLocationId}");
+            _toastNotification.AddErrorToastMessage($"Transfer Date: {model.TransferDate}");
+
+            var location = _context.Locations
+                .Where(i => i.Id == model.ToLocationId)
+                .FirstOrDefault();
+
+
+            // Get the value of MySessionVariable from the session state
+            HttpContext.Session.SetString("ToLocationNameForTransfer", location.Name);
+
+            // Get the value of MySessionVariable from the session state
+            HttpContext.Session.SetString("ToLocationForTransfer", model.ToLocationId.ToString());
+
+            // Get the value of MySessionVariable from the session state
+            HttpContext.Session.SetString("TransferDateForTransfer", model.TransferDate.ToString());
+
+
+
+
+            foreach (var item in _context.Items)
+            {
+                item.isSlectedForEvent = false;
+                _context.Update(item);
+
+            }
+            _context.SaveChanges();
+            return RedirectToAction("SelectItems", "InventoryTransfers");
+            
+        }
+
+
         private string ControllerName()
         {
             return this.ControllerContext.RouteData.Values["controller"].ToString();

@@ -84,9 +84,9 @@
     <div class="collapse" id="collapseFilter">
         <div class="card card-body">
             <div class="row">
-@*                <div class="form-group col-md-4">
-                    <label class="control-label">Filter by Locations: (Ctrl + click to multiselect)</label>
-                    @Html.ListBox("LocationID", null, htmlAttributes: new { @class = "form-control", @size = 8 })
+                @*<div class="form-group col-md-4">
+                <label class="control-label">Filter by Locations: (Ctrl + click to multiselect)</label>
+                @Html.ListBox("LocationID", null, htmlAttributes: new { @class = "form-control", @size = 8 })
                 </div>*@
                 <div class="form-group col-md-4">
                     <label class="control-label">Search Event Name OR Item Name:</label>
@@ -117,17 +117,17 @@
             <thead>
                 <tr>
                     <th>
-                        @* @Html.DisplayNameFor(model => model.UPC)*@
                         <input type="submit" name="actionButton" value="EventName" title="click here to sort by EventName" class="btn btn-link" />
                     </th>
                     <th>
-                        @*  @Html.DisplayNameFor(model => model.ItemName)*@
                         <input type="submit" name="actionButton" value="ItemName" title="click here to sort by ItemName" class="btn btn-link" />
                     </th>
                     <th>
-                        @*    @Html.DisplayNameFor(model => model.Cost)*@
                         <input type="submit" name="actionButton" value="Quantity" title="click here to sort by Quantity" class="btn btn-link" />
                     </th>
+                    @*<th>
+                        <input type="submit" name="actionButton" value="LogDate" title="click here to sort by LogDate" class="btn btn-link" />
+                    </th>*@
                     <th></th>
                 </tr>
             </thead>
@@ -144,6 +144,9 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.Quantity)
                         </td>
+                        @*<td>
+                            @Html.DisplayFor(modelItem => item.LogDate)
+                        </td>*@
                     </tr>
                 }
             </tbody>

@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Index";
 }
-
+<a asp-action="CreateMultipleTransfers" title="Click here to create a new Transfer" class="btn btn-primary btn-color-Create">Create New Transfer</a>
 <form asp-action="Index" method="get">
 
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
@@ -14,6 +14,9 @@
             <i class="material-icons">Filter/Search</i>
         </button>
     </div>
+
+   
+
     <div class="collapse" id="collapseFilter">
         <div class="card card-body">
                         

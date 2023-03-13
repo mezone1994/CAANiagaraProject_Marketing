@@ -18,7 +18,7 @@
                 <select id="reservation" name="reservationId" class="form-control">
                     @foreach (var itemReservation in Model)
                     {
-    <option value="@itemReservation.Id">@itemReservation.Event.Name - @(itemReservation.ReservedDate.HasValue ? itemReservation.ReservedDate.Value.ToShortDateString() : "N/A") to @(itemReservation.ReturnDate.HasValue ? itemReservation.ReturnDate.Value.ToShortDateString() : "N/A") - @itemReservation.Quantity</option>
+                        <option value="@itemReservation.Id">@itemReservation.Event.Name - @(itemReservation.ReservedDate.HasValue ? itemReservation.ReservedDate.Value.ToShortDateString() : "N/A") to @(itemReservation.ReturnDate.HasValue ? itemReservation.ReturnDate.Value.ToShortDateString() : "N/A") - @itemReservation.Quantity</option>
                     }
                 </select>
             </div>

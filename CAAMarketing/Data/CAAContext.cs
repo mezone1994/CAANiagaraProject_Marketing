@@ -80,6 +80,8 @@ namespace CAAMarketing.Data
 
         public DbSet<EventLog> EventLogs { get; set; }
 
+        public DbSet<MissingItemLog> MissingItemLogs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -124,6 +126,13 @@ namespace CAAMarketing.Data
         .WithMany(ir => ir.ItemReservations)
         .HasForeignKey(ir => ir.ItemId)
         .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MissingItemLog>()
+                .HasOne(i => i.Item)
+                .WithMany(ir => ir.MissingItemLogs)
+                .HasForeignKey(ir => ir.ItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             //Add a unique index to the Employee Email
             modelBuilder.Entity<Employee>()

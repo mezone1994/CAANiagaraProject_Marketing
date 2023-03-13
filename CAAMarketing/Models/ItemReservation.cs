@@ -26,12 +26,10 @@ namespace CAAMarketing.Models
         [Display(Name = "Quantity")]
         public int Quantity { get; set; }
 
-        [Required]
         [Display(Name = "Reserved Date")]
         [DataType(DataType.Date)]
         public DateTime? ReservedDate { get; set; }
 
-        [Required]
         [Display(Name = "Return Date")]
         [DataType(DataType.Date)]
         public DateTime? ReturnDate { get; set; }
@@ -46,8 +44,12 @@ namespace CAAMarketing.Models
 
         public bool IsDeleted { get; set; }
 
+        public bool IsLoggedIn { get; set; }
+        public int LoggedInQuantity { get; set; }
+
 
 
         public ICollection<EventLog> EventLogs { get; set; }
+
     }
 }

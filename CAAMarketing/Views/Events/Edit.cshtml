@@ -25,7 +25,7 @@
             @*<input type="hidden" asp-for="RowVersion" />*@
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
+                        <input asp-for="Name" class="form-control" required style="border-color: red" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -35,12 +35,25 @@
             </div>
             <div class="form-group">
                 <label asp-for="Date" class="control-label"></label>
-                <input asp-for="Date" class="form-control" />
+                        <input asp-for="Date" class="form-control" required style="border-color: red" />
                 <span asp-validation-for="Date" class="text-danger"></span>
+
             </div>
-                    <div class="form-group">
+            <div class="form-group">
+                <label asp-for="ReservedEventDate" class="control-label"></label>
+                <input asp-for="ReservedEventDate" class="form-control" required style="border-color: red" />
+                <span asp-validation-for="ReservedEventDate" class="text-danger"></span>
+
+            </div>
+            <div class="form-group">
+                <label asp-for="ReturnEventDate" class="control-label"></label>
+                <input asp-for="ReturnEventDate" class="form-control" required style="border-color: red" />
+                <span asp-validation-for="ReturnEventDate" class="text-danger"></span>
+
+            </div>
+            <div class="form-group">
                 <label asp-for="location" class="control-label"></label>
-                <input asp-for="location" class="form-control" />
+                        <input asp-for="location" class="form-control" required style="border-color: red" />
                 <span asp-validation-for="location" class="text-danger"></span>
             </div>
             <br/>

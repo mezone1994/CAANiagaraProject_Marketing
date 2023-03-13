@@ -60,6 +60,8 @@ namespace CAAMarketing.Models
 
         public ICollection<ItemReservation> ItemReservations { get; set; }
 
+        public ICollection<MissingItemLog> MissingItemLogs { get; set; }
+
         public bool Archived { get; set; } = false;
 
         public ICollection<Receiving> Orders { get; set; }
@@ -75,6 +77,7 @@ namespace CAAMarketing.Models
 
         public bool ItemInvCreated { get; set; } = false;
 
+        public bool isSlectedForEvent { get; set; } = false;
         public ICollection<ItemLocation> ItemLocations { get; set; } = new HashSet<ItemLocation>();
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

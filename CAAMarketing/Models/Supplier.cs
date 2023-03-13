@@ -11,8 +11,8 @@ namespace CAAMarketing.Models
         //PROPERTY FIELDS
         public int ID { get; set; }
 
-       
 
+        [Display(Name = "Name")]
         [Required(ErrorMessage = "You Need A Supplier Name!")]
         [StringLength(30, ErrorMessage = "First name cannot be more than 30 characters long! Please Try Again...")]
         public string Name { get; set; }

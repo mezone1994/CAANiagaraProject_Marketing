@@ -20,8 +20,15 @@ namespace CAAMarketing.ViewModels
         [DataType(DataType.Date)]
         public DateTime LogDate { get; set; }
 
+        [Display(Name = "Location")]
+        public string Location { get; set; }
+        public int LocationID { get; set; }
+
         public int? ItemReservationId { get; set; } // Nullable foreign key
 
         public ItemReservation ItemReservation { get; set; }
+
+
+        public ICollection<ItemLocation> ItemLocations { get; set; } = new HashSet<ItemLocation>();
     }
 }

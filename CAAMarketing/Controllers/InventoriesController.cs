@@ -233,7 +233,7 @@ namespace CAAMarketing.Controllers
 
             var pagedData = await PaginatedList<Inventory>.CreateAsync(inventories.AsNoTracking(), page ?? 1, pageSize);
 
-            return View(pagedData);
+            return RedirectToAction("Index", "Items");
         }
 
         // GET: Inventories/Details/5
@@ -542,7 +542,7 @@ namespace CAAMarketing.Controllers
         }
 
         //Method for Viewing Full Inventory Report
-        public async Task<IActionResult> InventoryReport(string SearchString, int?[] LocationID, int? page, int? pageSizeID, string actionButton,
+        public async Task<IActionResult> InventoryReport(string SearchString, int? LocationID, int? SupplierID, int? CategoryID, int? page, int? pageSizeID, string actionButton,
             string sortDirection = "asc", string sortField = "ItemName")
         {
             //For the Report View
@@ -566,23 +566,24 @@ namespace CAAMarketing.Controllers
             var sumQ = from i in _context.Inventories
                         .Include(i => i.Item.Supplier)
                         .Include(i => i.Item.Category)
-                        .Include(i => i.Item.Employee)
-                        .Include(i => i.Item.ItemLocations)
-                        .Include(i => i.Location)
-
+                        .Include(i => i.Item.ItemLocations).ThenInclude(i => i.Location)
                        orderby i.Item.Name ascending
                        select new InventoryReportVM
                        {
                            ID = i.ItemID,
                            Category = i.Item.Category.Name,
-                           UPC = i.Item.UPC.ToString(),
+                           CategoryID = i.Item.Category.Id,
+                           UPC = i.Item.UPC,
                            ItemName = i.Item.Name,
                            Cost = i.Cost,
                            Quantity = i.Quantity,
                            Location = i.Location.Name,
                            LocationID = i.LocationID,
                            Supplier = i.Item.Supplier.Name,
+                           SupplierID = i.Item.Supplier.ID,
                            DateReceived = (DateTime)i.Item.DateReceived,
+                           Inventories = i.Item.Inventories,
+                           ItemLocations = i.Item.ItemLocations,
                            Notes = i.Item.Notes
                        };
 
@@ -595,23 +596,49 @@ namespace CAAMarketing.Controllers
             ViewData["Filtering"] = ""; //Assume not filtering
 
             //Populating the DropDownLists for the Search/Filtering criteria, which are the Location
-            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
+            //ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
+            ViewData["LocationID"] = new SelectList(_context
+                .Locations
+                .OrderBy(s => s.Name), "Id", "Name");
+
+            //Populating the DropDownLists for the Search/Filtering criteria, which are the Supplier
+            //ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name");
+            ViewData["SupplierID"] = new SelectList(_context
+                .Suppliers
+                .OrderBy(s => s.Name), "ID", "Name");
+
+            //Populating the DropDownLists for the Search/Filtering criteria, which are the Category
+            //ViewData["CategoryID"] = new SelectList(_context.Categories, "Id", "Name");
+            ViewData["CategoryID"] = new SelectList(_context
+                .Categories
+                .OrderBy(s => s.Name), "Id", "Name");
 
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
             string[] sortOptions = new[] { "Category", "UPC", "ItemName", "Cost", "Quantity", "Location", "Supplier", "DateReveived" };
 
             //Add as many filters as needed
-            if (LocationID.Length > 0)
+            if (LocationID.HasValue)
             {
-                sumQ = sumQ.Where(p => LocationID.Contains(p.LocationID));
+                sumQ = sumQ.Where(p => p.LocationID == LocationID);
                 ViewData["Filtering"] = "btn-danger";
             }
-
+            if (SupplierID.HasValue)
+            {
+                sumQ = sumQ.Where(p => p.SupplierID == SupplierID);
+                ViewData["Filtering"] = "btn-danger";
+            }
+            if (CategoryID.HasValue)
+            {
+                sumQ = sumQ.Where(p => p.CategoryID == CategoryID);
+                ViewData["Filtering"] = "btn-danger";
+            }
             if (!String.IsNullOrEmpty(SearchString))
             {
+                long searchUPC;
+                bool isNumeric = long.TryParse(SearchString, out searchUPC);
                 sumQ = sumQ.Where(p => p.ItemName.ToUpper().Contains(SearchString.ToUpper())
-                                       || p.UPC.Contains(SearchString.ToUpper()));
+                                        || (isNumeric && p.UPC == searchUPC));
                 ViewData["Filtering"] = "btn-danger";
             }
 
@@ -655,19 +682,6 @@ namespace CAAMarketing.Controllers
                         .OrderByDescending(p => p.UPC);
                 }
             }
-            //else if (sortField == "ItemName")
-            //{
-            //    if (sortDirection == "asc")
-            //    {
-            //        sumQ = sumQ
-            //            .OrderBy(p => p.ItemName);
-            //    }
-            //    else
-            //    {
-            //        sumQ = sumQ
-            //            .OrderByDescending(p => p.ItemName);
-            //    }
-            //}
             else if (sortField == "Cost")
             {
                 if (sortDirection == "asc")
@@ -765,7 +779,7 @@ namespace CAAMarketing.Controllers
                         .Include(i => i.Item.Supplier)
                         .Include(i => i.Item.Category)
                         .Include(i => i.Item.Employee)
-                        orderby i.Item.Name ascending
+                        orderby i.Location, i.Item.Name ascending
                         select new
                         {
                             Category = i.Item.Category.Name,
@@ -955,13 +969,13 @@ namespace CAAMarketing.Controllers
                         .Include(i => i.Item.Supplier)
                         .Include(i => i.Item.Category)
                         .Include(i => i.Item.Employee)
-                        .Include(i => i.Location)
+                        .Include(i => i.Item.ItemLocations).ThenInclude(i => i.Location)
                        orderby i.Item.Name ascending
                        select new InventoryReportVM
                        {
                            ID = i.ItemID,
                            Category = i.Item.Category.Name,
-                           UPC = i.Item.UPC.ToString(),
+                           UPC = i.Item.UPC,
                            ItemName = i.Item.Name,
                            Cost = i.Cost,
                            Quantity = i.Quantity,
@@ -996,8 +1010,10 @@ namespace CAAMarketing.Controllers
 
             if (!String.IsNullOrEmpty(SearchString))
             {
+                long searchUPC;
+                bool isNumeric = long.TryParse(SearchString, out searchUPC);
                 sumQ = sumQ.Where(p => p.ItemName.ToUpper().Contains(SearchString.ToUpper())
-                                       || p.UPC.Contains(SearchString.ToUpper()));
+                                       || (isNumeric && p.UPC == searchUPC));
                 ViewData["Filtering"] = "btn-danger";
             }
 
@@ -1232,7 +1248,7 @@ namespace CAAMarketing.Controllers
                        {
                            ID = i.ItemID,
                            Category = i.Item.Category.Name,
-                           UPC = i.Item.UPC.ToString(),
+                           UPC = i.Item.UPC,
                            ItemName = i.Item.Name,
                            Cost = i.Cost,
                            Quantity = i.Quantity,
@@ -1267,8 +1283,10 @@ namespace CAAMarketing.Controllers
 
             if (!String.IsNullOrEmpty(SearchString))
             {
+                long searchUPC;
+                bool isNumeric = long.TryParse(SearchString, out searchUPC);
                 sumQ = sumQ.Where(p => p.ItemName.ToUpper().Contains(SearchString.ToUpper())
-                                       || p.UPC.Contains(SearchString.ToUpper()));
+                                       || (isNumeric && p.UPC == searchUPC));
                 ViewData["Filtering"] = "btn-danger";
             }
 
@@ -1513,13 +1531,17 @@ namespace CAAMarketing.Controllers
         {
             //For the Report View
             var sumQ = from i in _context.EventLogs
+                       .Include(i => i.ItemReservation)
                        orderby i.EventName, i.ItemName ascending
                        select new EventReportVM
                        {
                            Id = i.Id,
                            EventName = i.EventName,
                            ItemName = i.ItemName,
-                           Quantity = i.Quantity
+                           Quantity = i.Quantity,
+                           //LocationID = i.ItemReservation.LocationID,
+                           //Location = i.ItemReservation.Location.ToString()
+                           LogDate = i.LogDate
                        };
 
             //var sumQ = from i in _context.ItemReservations
@@ -1547,7 +1569,7 @@ namespace CAAMarketing.Controllers
 
             //List of sort options.
             //NOTE: make sure this array has matching values to the column headings
-            string[] sortOptions = new[] { "EventName", "ItemName", "Quantity", "LogDate" };
+            string[] sortOptions = new[] { "EventName", "ItemName", "Quantity", "LogDate", "Location" };
 
             ////Add as many filters as needed
             //if (LocationID.Length > 0)
@@ -1603,17 +1625,43 @@ namespace CAAMarketing.Controllers
                         .OrderByDescending(p => p.Quantity);
                 }
             }
+            //else if (sortField == "Location")
+            //{
+            //    if (sortDirection == "asc")
+            //    {
+            //        sumQ = sumQ
+            //            .OrderBy(p => p.Location);
+            //    }
+            //    else
+            //    {
+            //        sumQ = sumQ
+            //            .OrderByDescending(p => p.Location);
+            //    }
+            //}
+            else if (sortField == "LogDate")
+            {
+                if (sortDirection == "asc")
+                {
+                    sumQ = sumQ
+                        .OrderBy(p => p.LogDate);
+                }
+                else
+                {
+                    sumQ = sumQ
+                        .OrderByDescending(p => p.LogDate);
+                }
+            }
             else //Sorting by Item Name
             {
                 if (sortDirection == "asc")
                 {
                     sumQ = sumQ
-                        .OrderBy(p => p.ItemName);
+                        .OrderBy(p => p.EventName);
                 }
                 else
                 {
                     sumQ = sumQ
-                        .OrderByDescending(p => p.ItemName);
+                        .OrderByDescending(p => p.EventName);
                 }
             }
             //Set sort for next time
@@ -1637,7 +1685,8 @@ namespace CAAMarketing.Controllers
                         {
                             EventName = i.EventName,
                             ItemName = i.ItemName,
-                            Quantity = i.Quantity
+                            Quantity = i.Quantity,
+                            //LogDate = i.LogDate
                         };
             //How many rows?
             int numRows = items.Count();

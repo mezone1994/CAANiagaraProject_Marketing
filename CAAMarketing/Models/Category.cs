@@ -9,8 +9,8 @@ namespace CAAMarketing.Models
         public int Id { get; set; }
 
         //[Display(Name = "Name")]
-        //[Required(ErrorMessage = "You cannot leave it blank.")]
-        //[StringLength(50, ErrorMessage = " cannot be more than 50 characters long.")]
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "You cannot leave it blank.")]
+        [StringLength(50, ErrorMessage = " cannot be more than 50 characters long.")]
         public string Name { get; set; }
 
         public bool IsLowInventory { get; set; }

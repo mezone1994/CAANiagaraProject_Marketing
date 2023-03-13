@@ -359,7 +359,10 @@ public static class CAAInitializer
                     Name = "Niagara Hotel",
                     Description = "Niagara Hotels 100th year Celebration",
                     Date = DateTime.Parse("2023-05-05"),
-                    location = "Niagara Falls"
+                    location = "Niagara Falls",
+                    ReservedEventDate = DateTime.Today.AddDays(-40),
+                    ReturnEventDate = DateTime.Today.AddDays(-37),
+
 
 
                 },
@@ -368,7 +371,9 @@ public static class CAAInitializer
                     Name = "CAA Celebrations",
                     Description = "Annual Celebrations for the team",
                     Date = DateTime.Parse("2023-03-05"),
-                    location = "Thorold"
+                    location = "Thorold",
+                    ReservedEventDate = DateTime.Today.AddDays(-20),
+                    ReturnEventDate = DateTime.Today.AddDays(-17),
 
                 },
                 new Event
@@ -376,7 +381,9 @@ public static class CAAInitializer
                     Name = "Niagara College Career Fair",
                     Description = "many employers get together",
                     Date = DateTime.Parse("2023-05-05"),
-                    location = "Welland"
+                    location = "Welland",
+                    ReservedEventDate = DateTime.Today.AddDays(-10),
+                    ReturnEventDate = DateTime.Today.AddDays(-7),
 
 
                 }

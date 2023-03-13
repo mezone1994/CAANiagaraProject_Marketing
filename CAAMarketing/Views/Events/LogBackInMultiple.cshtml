@@ -1,0 +1,322 @@
+﻿@model IEnumerable<CAAMarketing.Models.ItemReservation>
+
+@{
+
+    ViewData["Title"] = "Create";
+    //CAAMarketing.Models.Item SelectedItems = (CAAMarketing.Models.Item)ViewBag.SelectedItems
+}
+<partial name="_addMissingItemLogModal" />
+
+@{string EvName = "";} 
+ @foreach (var eventName in Model)
+{
+    EvName = eventName.Event.Name;
+}
+<div class="deimage">
+    <h1><u><b>Log Items For: @EvName</b></u></h1><h2>Enter the Log In Quantities Of Each Item:</h2>
+    <a href="@Url.Action("Index", "Events")" title="Click this to exit this Event Log Page" class="btn btn-primary">Exit</a>
+    <hr />
+
+    
+</div>
+@{
+    int totalItems = 0;
+    int itemsLoggedIn = 0;
+    int itemsNotLoggedIn = 0;
+
+    foreach (var itemRes in Model)
+    {
+        totalItems += 1;
+        if (itemRes.IsLoggedIn)
+        {
+            itemsLoggedIn++;
+
+        }
+        else
+        {
+            itemsNotLoggedIn++;
+        }
+    }
+}
+
+
+
+
+<center>
+    @*<h3>All Items In This Event:</h3>*@
+    @{
+        if (itemsLoggedIn < totalItems)
+        {
+            <p><span class="text-danger"><b>@itemsLoggedIn out of @totalItems Items Logged</b></span></p>
+        }
+        else if(itemsLoggedIn >= totalItems)
+        {
+            <p><span class="text-success"><b>@itemsLoggedIn out of @totalItems Items Logged</b></span></p>
+        }
+    }
+    
+<hr />
+     </center>
+    
+
+
+    <div class="selected-items">
+        <div class="row">
+            @foreach (var itemRes in Model)
+            {
+                <div class="col-md-6 col-lg-6" style="padding:35px">
+                    <div class="row" >
+                    <form asp-action="LogBackInMultiple" method="post" >
+
+                        <input type="hidden" name="formId" value="@itemRes.Item.ID" />
+                        <fieldset class="item-fieldset" disabled="@itemRes.IsLoggedIn" style="@(itemRes.IsLoggedIn ? "background-color:#90EE90;" : "")">
+
+                            @{
+                                var Saved = "Logged In";
+                                var Save = "Save";
+                                var logged = "";
+                                if (itemRes.IsLoggedIn) { logged = "# Logged-In"; }
+                                else { logged = "# To Log-In"; }
+                                
+                            }
+                        <button class="btn btn-primary float-end" type="submit" id="submit-@itemRes.Item.ID">
+                            <span style="display: inline-block; pointer-events: none;">
+                                @if (itemRes.IsLoggedIn)
+                                {
+                                        @Saved;
+                                }
+                                else
+                                {
+                                        @Save;
+                                }
+                            </span>
+                        </button>
+
+
+
+
+
+                            <legend>Item #@itemRes.Item.ID: @itemRes.Item.Name</legend>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    @{
+                                        if (itemRes.Item.ItemThumbNail?.Content != null)
+                                        {
+                                            string imageBase64 = Convert.ToBase64String(itemRes.Item.ItemThumbNail.Content);
+                                            string imageSrc = string.Format("data:" + itemRes.Item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
+                                            <img src="@imageSrc" alt="Item Picture of @itemRes.Item.Name" title="Item Picture of @itemRes.Item.Name" class="img-fluid avatar" />
+                                        }
+                                        else
+                                        {
+                                            <div>
+                                                <img src="~/images/image-not-found_tm.png" alt="Image not found" title="Image not found" class="img-fluid avatar" />
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <div class="col-md-8">
+                                    
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label>Location:</label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <select class="form-control" name="@($"locations-{itemRes.Item.ID}")" id="@($"locations-{itemRes.Item.ID}")" disabled>
+                                                <option value="">--Select a location--</option>
+
+                                                    <option value="@itemRes.Location.Id" 
+                                                            disabled="@(itemRes.LocationID != itemRes.LocationID)"
+                                                            data-quantity="@itemRes.Quantity"
+                                                            selected="@(itemRes.LocationID == itemRes.LocationID)">@itemRes.Location.Name</option>
+                                                
+                                            </select>
+
+
+                                            <input type="hidden" name="@($"locations-{itemRes.Item.ID}")" value="@itemRes.LocationID" />
+
+                                            @*@itemRes.Location.Name*@
+
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="@($"loggedout-quantity-{itemRes.Item.ID}")"># Logged Out:</label>
+                                            @*<input value="" id="quantity-" name="itemId1" />*@
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="form-group">
+
+                                                <input type="text" readonly class="form-control" value="" id="@($"loggedout-quantity-{itemRes.Item.ID}")" >
+
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="@($"location-quantity-{itemRes.Item.ID}")">@logged</label>
+                                        </div>
+                                        <input type="text" hidden="hidden" class="form-control" value="" id="@($"locationId-{itemRes.Item.ID}")" name="@($"locationId{itemRes.Item.ID}")" />
+                                        @if (itemRes.IsLoggedIn)
+                                        {
+                                        <div class="col-md-8">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" value="@itemRes.LoggedInQuantity">
+                                                
+                                            </div>
+                                        </div>
+                                            
+                                        }
+                                        else
+                                        {
+                                        <div class="col-md-8">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" value="" id="@($"location-quantity-{itemRes.Item.ID}")" name="@($"itemId{itemRes.Item.ID}")">
+                                                
+                                            </div>
+                                        </div>
+                                        }
+
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+                        </fieldset>
+
+                    </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <button hidden="hidden" id="addMissingItemLog" title="Add Supplier" data-bs-toggle="modal" data-bs-target="#addMissingItemLogModal" type="button">Add</button>
+
+
+
+
+
+
+@section Scripts{
+
+    <script type="text/javascript">
+
+        //$(document).ready(function () {
+        //    $('select[name^="locations-"]').change(function () {
+        //        var selectedLocationId = $(this).val();
+        //        var selectedLocationQuantity = $(this).find('option:selected').data('quantity');
+        //        var totalStockInput = $('#location-quantity-' + $(this).attr('id').split('-')[1]);
+        //        totalStockInput.val(selectedLocationQuantity);
+
+
+        //    });
+        //});
+
+
+        $(document).ready(function () {
+            $('select[name^="locations-"]').each(function () {
+                var selectedLocationId = $(this).val();
+                var selectedLocationQuantity = $(this).find('option:selected').data('quantity');
+                var itemID = $(this).attr('id').split('-')[1];
+                var locationIdInput = $('#locationId-' + itemID);
+                var totalStockInput = $('#location-quantity-' + itemID);
+                var loggedOutInput = $('#loggedout-quantity-' + itemID);
+
+                console.log(selectedLocationId);
+                locationIdInput.val(selectedLocationId);
+                totalStockInput.val(selectedLocationQuantity);
+                loggedOutInput.val(selectedLocationQuantity);
+            });
+        });
+
+    </script>
+
+    <script type="text/javascript">
+        var message = '@TempData["InitateMissingItemLog"]';
+        if (message) {
+            console.log(message);
+            $('#addMissingItemLog').trigger('click');
+        }
+    </script>
+
+    <script src="~/js/refreshDDL.js"></script>
+
+    <script type="text/javascript">
+        $('#submitMissingItemLogCreate1').click(function (event) {
+            event.preventDefault();
+            var form = $('#createMissingItemLogForm');
+            if (form.valid()) {
+                $.ajax({
+                    type: "POST",
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function () {
+                        $('#addMissingItemLogModal').modal('hide');
+                        window.location.reload();
+                    },
+                    error: function () {
+                        alert("Create Failed.  There was a problem adding the record.");
+                    }
+                });
+            }
+            return false;
+        });
+        $('#addMissingItemLogModal').on('hide.bs.modal', function () {
+            $('#createMissingItemLogForm').find("input[type=text], textarea, select").val("");//to clear the data in the popup
+        });
+    </script>
+
+}
+
+
+<style>
+    .red-text {
+        color: red;
+    }
+</style>
+
+
+
+<style>
+
+    .selected-items {
+        flex-wrap: wrap;
+    }
+
+    .item-fieldset {
+        margin-bottom: 30px;
+        padding: 20px;
+        border-radius: 10px;
+        border: 2px solid #ccc;
+        box-sizing: border-box;
+    }
+        /*
+        #card-display{
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 50px;
+
+        }*/
+
+
+        .item-fieldset legend {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .item-fieldset label {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .item-fieldset .form-check {
+            margin-top: 10px;
+        }
+
+        .item-fieldset .form-check-input {
+            margin-right: 10px;
+        }
+
+</style>

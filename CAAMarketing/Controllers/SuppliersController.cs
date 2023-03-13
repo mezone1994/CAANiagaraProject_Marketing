@@ -9,6 +9,7 @@ using CAAMarketing.Data;
 using CAAMarketing.Models;
 using CAAMarketing.Utilities;
 using Microsoft.AspNetCore.Authorization;
+using NToastNotify;
 
 namespace CAAMarketing.Controllers
 {
@@ -16,16 +17,60 @@ namespace CAAMarketing.Controllers
     public class SuppliersController : Controller
     {
         private readonly CAAContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public SuppliersController(CAAContext context)
+
+        public SuppliersController(CAAContext context, IToastNotification toastNotification)
         {
             _context = context;
+            _toastNotification = toastNotification;
+
         }
 
         // GET: Suppliers
         public async Task<IActionResult> Index(string SearchString, int? page, int? pageSizeID
             , string actionButton, string sortDirection = "asc", string sortField = "Supplier")
         {
+            ViewDataReturnURL();
+
+            //FOR THE SILENTMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
+            var invForSilent = _context.Inventories.Where(i => i.DismissNotification > DateTime.Now && i.Item.Archived != true).Count();
+            var invnullsForSilent = _context.Inventories.Where(i => i.DismissNotification == null && i.Item.Archived != true).Count();
+            ViewData["SilencedMessageCount"] = (invForSilent + invnullsForSilent).ToString();
+            //--------------------------------------------------------------------
+
+            // FOR THE ACTIVEMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
+            var invForActive = _context.Inventories.Include(i => i.Location).Include(i => i.Item).ThenInclude(i => i.Category)
+                .Where(i => i.DismissNotification <= DateTime.Now && i.Quantity < i.Item.Category.LowCategoryThreshold && i.Item.Archived != true && i.DismissNotification != null).Count();
+
+            ViewData["ActiveMessageCount"] = (invForActive).ToString();
+            //--------------------------------------------------------------------
+
+            // FOR THE RECOVERALLMESSAGE BUTTON SHOWING HOW MANY NOTIF ARE INSIDE
+            var invForRecover = _context.Inventories.Where(i => i.DismissNotification > DateTime.Now).Count();
+            var invnullsForRecover = _context.Inventories.Where(i => i.DismissNotification == null && i.Item.Archived != true).Count();
+            ViewData["RecoverMessageCount"] = (invForRecover + invnullsForRecover).ToString();
+            //--------------------------------------------------------------------
+
+            if (TempData["RecoverNotifMessageBool"] != null)
+            {
+                _toastNotification.AddSuccessToastMessage(@$"Message Recovered!");
+            }
+            if (TempData["SilenceNotifMessageBool"] != null)
+            {
+                _toastNotification.AddSuccessToastMessage(@$"Message Silenced!");
+            }
+            if (TempData.ContainsKey("NotifFromPopupSuccess") && TempData["NotifFromPopupSuccess"] != null)
+            {
+                if (TempData["NotifFromPopupSuccess"].ToString() == "Silent")
+                {
+                    _toastNotification.AddSuccessToastMessage(@$"Message Silenced!");
+                }
+                if (TempData["NotifFromPopupSuccess"].ToString() == "Activate")
+                {
+                    _toastNotification.AddSuccessToastMessage(@$"Message Activated!");
+                }
+            }
             //Clear the sort/filter/paging URL Cookie for Controller
             CookieHelper.CookieSet(HttpContext, ControllerName() + "URL", "", -1);
 
@@ -113,6 +158,8 @@ namespace CAAMarketing.Controllers
         // GET: Suppliers/Create
         public IActionResult Create()
         {
+            _toastNotification.AddAlertToastMessage($"Please Start By Entering Information Of The Supplier, You Can Cancel By Clicking The Exit Button.");
+
             //URL with the last filter, sort and page parameters for this controller
             ViewDataReturnURL();
 

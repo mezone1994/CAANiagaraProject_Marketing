@@ -13,12 +13,12 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
                     <label asp-for="Name" class="control-label"></label>
-                    <input asp-for="Name" class="form-control" />
+                    <input asp-for="Name" class="form-control" required style="border-color: red" />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="LowCategoryThreshold" class="control-label">Low Quantity Threshold</label>
-                    <input asp-for="LowCategoryThreshold" class="form-control" />
+                    <input asp-for="LowCategoryThreshold" class="form-control" required style="border-color: red" />
                     <span asp-validation-for="LowCategoryThreshold" class="text-danger"></span>
                 </div>
                 <div style="margin:25px">

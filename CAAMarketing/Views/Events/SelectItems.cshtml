@@ -1,0 +1,537 @@
+﻿@model IEnumerable<CAAMarketing.Models.Item>
+
+@{
+
+    ViewData["Title"] = "Create";
+    //CAAMarketing.Models.Item SelectedItems = (CAAMarketing.Models.Item)ViewBag.SelectedItems
+}
+
+
+
+<div class="container">
+    <ul class="progressbar">
+        <li class="active">
+            <p>Create Event</p>
+        </li>
+        <li class="active">
+            <p>Select Items</p>
+        </li>
+        <li>
+            <p>Choose Locations/Quanity</p>
+        </li>
+    </ul>
+</div>
+
+        <div class="deimage">
+            <h1><u><b>Step 2:</b></u></h1><h2>Select The Items For This Event :</h2>
+            <hr />
+
+         <div/>
+            <button class="btn btn-success @(ViewData["Filtering"])" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
+            <i class="material-icons">Filter/Search</i>
+        </button>
+        <button type="button" class="btn btn-primary" onclick="window.location.href='@Url.Action("ChooseItemQuantities", "Events")'">Save/Continue</button>
+
+        </div>
+        <div class="collapse @(ViewData["Filtering"])" id="collapseFilter">
+            <div class="card card-body">
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        <label class="control-label">Search Event:</label>
+                    @Html.TextBox("SearchString", null, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group col-md-4 align-self-end">
+                        <input type="submit" name="actionButton" value="Filter" title="click here to filter" class="btn btn-success" />
+                    <a asp-action="Index" title="Click here to clear the filter" class="btn btn-outline-dark">Clear</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+<p style="padding-top:10px;"></p>
+
+
+
+<div style="width:100%;">
+
+
+
+<form asp-action="SelectItems" method="get" style="float: left; width:1020px;">
+    
+    <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
+    <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
+
+    
+       
+    <div class="cont">
+        <div class="deimage">
+            
+         <div/>
+    </div>
+    
+<div class="table-responsive">
+    <div class="table-wrapper" style="width: 1000px;">
+<table class="table">
+    <thead class="thead-light">
+        <tr>
+            <th></th>
+            <th>
+                <input type="submit" name="actionButton" title="click here to sort by event" value="Item" class="btn btn-link" />
+            </th>
+            <th>
+                <input type="submit" name="actionButton" value="Supplier" title="click here to sort by Supplier" class="btn btn-link" />
+            </th>
+            <th>
+                <input type="submit" name="actionButton" value="UPC" title="click here to sort by date" class="btn btn-link" />
+            </th>
+@*            <th>
+                <input type="submit" name="actionButton" value="Locations" title="click here to sort by date" class="btn btn-link" />
+            </th>*@
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+
+            @foreach (var item in Model)
+            {
+                <tr @if (item.isSlectedForEvent) { <text>class="selected-row"</text> }>
+                    <td>
+                        @{
+                            if (item.ItemThumbNail?.Content != null)
+                            {
+                                string imageBase64 = Convert.ToBase64String(item.ItemThumbNail.Content);
+                                string imageSrc = string.Format("data:" + item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
+                                <img src="@imageSrc" alt="Item Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid avatar" />
+                            }
+                            else
+                            { 
+                                @:<div>
+                                <img src="~/images/image-not-found_tm.png" alt="Image not found" title="Image not found" class="img-fluid avatar" style="height:60px; width:60px;"/>
+                                @:</div>
+                            }
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Supplier.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UPC)
+                    </td>
+@*                    <td>
+                        @{
+                            if(item.Inventories.Count() == 0)
+                            {
+                                <p>None</p>
+                            }
+                            else
+                            {
+                                @foreach(var c in item.Inventories)
+                                {
+                                    @c.Location.Name <br />
+                                }
+                            }
+
+                          }
+                    </td>*@
+                    @if (item.isSlectedForEvent == false)
+
+                     {
+                     <td>
+                        <a href="#" onclick="selectItem(event, @item.ID)" title="Click this to select the item">Select</a>
+                     </td>
+                     } 
+                     else
+                     {
+                     <td>
+                       <a id="disabled-link"><img src="/images/check-mark.png" alt="Check Icon" title="Item Is Selected"  class="padding-for-actions-check" /></a>
+                     </td>           
+                     }
+                            </tr>
+            }
+
+        
+
+    </tbody>
+</table>
+
+    </div>
+    <partial name="_PagingNavBar" />
+</div>   
+</div>
+</form>
+</div>
+<div class="selectedItems" style="float:right;">
+    <h2>Selected Items:</h2>
+@if (ViewBag.SelectedItems != null)
+    {
+        int selectedcount = 0;
+        <table class="table table-hover">
+            <tbody>
+                
+                @foreach (var item in ViewBag.SelectedItems)
+                {
+                    @if (item.isSlectedForEvent)
+                    {
+                        selectedcount += 1;
+                        <tr>
+                            <td>
+                                @{
+                                    if (item.ItemThumbNail?.Content != null)
+                                    {
+                                        string imageBase64 = Convert.ToBase64String(item.ItemThumbNail.Content);
+                                        string imageSrc = string.Format("data:" + item.ItemThumbNail.MimeType + ";base64,{0}", imageBase64);
+                                        <img src="@imageSrc" alt="Item Picture of @item.Name" title="Item Picture of @item.Name" class="img-fluid avatar" />
+                                    }
+                                    else
+                                    {
+                                        @:<div>
+                                        <img src="~/images/image-not-found_tm.png" alt="Image not found" title="Image not found" class="img-fluid avatar" style="height:60px; width:60px;"/>
+                                        @:</div>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @item.Name
+                            </td>
+                            <td>
+                                @item.Supplier.Name
+                            </td>
+                            <td>
+                                <img src="/images/close.png" alt="Cancel Icon" title="Unselect the item you chose" onclick="unselectItem(event, @item.ID)" class="padding-for-actions" />
+                            </td>
+                        </tr>
+                    }
+                }
+                
+                @if(selectedcount == 0){<p>No records selected, Please select record</p> ; }
+            </tbody>
+        </table>
+    }
+</div>
+</div>
+@section Scripts{
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@*    <script>
+    var selectedItems = [];
+
+    function selectItem(event, id) {
+        event.preventDefault();
+        var selectedItem = selectedItems.find(function(item) {
+            return item.id === id;
+        });
+        if (!selectedItem) {
+            selectedItems.push({id: id});
+            $('.selectedItems ul').append('<li>' + id + '</li>');
+        }
+    }
+</script>*@
+
+@*FOR THE SELECTING ITEM*@
+<script type="text/javascript">
+    function selectItem(event, itemId) {
+    event.preventDefault();
+    
+    console.log("Attempting to select item with ID " + itemId);
+
+    $.ajax({
+        type: "POST",
+        url: "/Events/SelectItems",
+        data: { ItemID: itemId },
+        success: function (response) {
+             // Reload the page to show the updated data
+        location.reload();
+
+        },
+        error: function (xhr, status, error) {
+            // Handle error response
+            alert("Error selecting item: " + error);
+        }
+    });
+
+}
+
+</script>
+
+@*FOR THE DESELCTING ITEM*@
+<script type="text/javascript">
+    function unselectItem(event, itemId) {
+    event.preventDefault();
+    
+    console.log("Attempting to unselect item with ID " + itemId);
+
+    $.ajax({
+        type: "POST",
+        url: "/Events/RemoveSelectedItems",
+        data: { ItemID: itemId },
+        success: function (response) {
+             // Reload the page to show the updated data
+        location.reload();
+
+        },
+        error: function (xhr, status, error) {
+            // Handle error response
+            alert("Error selecting item: " + error);
+        }
+    });
+
+}
+
+</script>
+
+
+}
+
+
+<style>
+    .container {
+        width: 100%;
+    }
+
+    .progressbar {
+        counter-reset: step;
+    }
+
+        .progressbar li {
+            list-style: none;
+            display: inline-block;
+            width: 30.33%;
+            position: relative;
+            text-align: center;
+            cursor: pointer;
+        }
+
+            .progressbar li:before {
+                content: counter(step);
+                counter-increment: step;
+                width: 30px;
+                height: 30px;
+                line-height: 30px;
+                border: 1px solid #ddd;
+                border-radius: 100%;
+                display: block;
+                text-align: center;
+                margin: 0 auto 10px auto;
+                background-color: #fff;
+            }
+
+            .progressbar li:after {
+                content: "";
+                position: absolute;
+                width: 100%;
+                height: 1px;
+                background-color: #ddd;
+                top: 15px;
+                left: -50%;
+                z-index: -1;
+            }
+
+            .progressbar li:first-child:after {
+                content: none;
+            }
+
+            .progressbar li.active {
+                color: green;
+            }
+
+                .progressbar li.active:before {
+                    border-color: green;
+                }
+
+                .progressbar li.active + li:after {
+                    background-color: green;
+                }
+
+    .select2 {
+        border-color: red !important;
+    }
+</style>
+
+<style>
+    #disabled-link {
+        color: gray;
+        cursor: not-allowed;
+        text-decoration: none;
+    }
+</style>
+
+<style>
+    .selectedItems {
+  position: inherit;
+ /* top: 150px; */
+  /*right: -50%;*/
+  width: 450px; 
+  padding: 10px;
+  background-color: #f1f1f1;
+  border: 1px solid #ccc;
+}
+
+    
+    .selectedItems h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    
+    .selectedItems table {
+        margin-top: 20px;
+    }
+    
+    .selectedItems img {
+        max-width: 60px;
+        max-height: 60px;
+        margin-right: 10px;
+    }
+    
+    .selectedItems td {
+        vertical-align: middle;
+    }
+    
+    .selectedItems a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    
+    .selectedItems a:hover {
+        text-decoration: underline;
+    }
+    
+    .selectedItems input[type="submit"] {
+        font-size: 16px;
+        font-weight: normal;
+        padding: 0;
+        margin: 0;
+        border: none;
+        background-color: transparent;
+        color: #007bff;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+    .selectedItems input[type="submit"]:hover {
+        text-decoration: underline;
+    }
+
+
+    .selected-row {
+        background-color: rgba(0, 255, 0, 0.2);
+    transition: background-color 0.3s ease-in-out;
+
+}
+</style>
+
+
+ <style>
+    .table {
+        font-size: 16px;
+        font-family: Arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    
+    .table th {
+        background-color: #f2f2f2;
+        color: #333;
+        text-align: left;
+        padding: 12px;
+    }
+    
+    .table td {
+        border-bottom: 1px solid #ddd;
+        padding: 8px;
+    }
+    
+/*    .table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }*/
+    
+    .table tr:not(.selected-row):hover {
+        background-color: #E8E8E8;
+    }
+
+    .table tr.selected-row:hover {
+        background-color: #50C878;
+    }
+    
+    
+    .padding-for-actions {
+        padding: 5px;
+    }
+    
+    .disabled-link {
+        color: #aaa;
+    }
+</style>
+
+
+<style>
+    /* Style for the table header */
+thead th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+/* Style for the table rows */
+tbody tr {
+  background-color: #f9f9f9;
+}
+
+
+
+/* Style for the table cells */
+td {
+  border: none;
+  vertical-align: middle;
+  padding: 10px;
+}
+
+/* Style for the table cell containing the item thumbnail */
+td:first-child {
+  width: 80px;
+}
+
+/* Style for the table cell containing the item name */
+td:nth-child(2) {
+  font-weight: bold;
+}
+
+/* Style for the table cell containing the "Select" link */
+td:last-child {
+  text-align: center;
+}
+
+/* Style for the "Select" link */
+.padding-for-actions {
+   cursor: pointer;
+  width:40px;
+  height:30px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  /*background-color: #007bff;*/
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Style for the "Select" link */
+.padding-for-actions-check {
+  width:40px;
+  height:30px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  /*background-color: #007bff;*/
+  color: #fff;
+  text-decoration: none;
+}
+
+.padding-for-actions:hover {
+  background-color: #0069d9;
+  color: #fff;
+}
+
+
+
+
+
+</style>

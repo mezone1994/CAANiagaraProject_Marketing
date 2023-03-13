@@ -10,7 +10,7 @@
     <link rel="website icon" type="png" href="/images/Caamarketing192.png">
     <script>
         function redirectToEdit(itemId) {
-            window.location.href = "/Items/Edit/" + itemId;
+            window.location.href = "/OrderItems?ItemID=" + itemId;
         }
     </script>
 
@@ -85,7 +85,10 @@
                                     {
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" asp-area="" asp-controller="EventLogs" asp-action="Index">Event Logs</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="MissingItemLogs" asp-action="Index">Item Discrepancy Logs</a></li>
                                         <li><a class="dropdown-item" asp-area="" asp-controller="Archives" asp-action="Index">Archives</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Inventories" asp-action="InventoryReport"> Inventory Reports</a></li>
+
 @*                                        <li><a class="dropdown-item" asp-area="" asp-controller="Receiving" asp-action="Index">Receiving</a></li>
 *@                                        @*<li><a class="dropdown-item" asp-area="" asp-controller="Locations" asp-action="Index">Locations</a></li>
                                         <li><a class="dropdown-item" asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a></li>
@@ -100,7 +103,9 @@
                                         <li><a class="dropdown-item" asp-area="" asp-controller="UserRoles" asp-action="Index">User Roles</a></li>
                                         <li><a class="dropdown-item" asp-area="" asp-controller="Employees" asp-action="Index">Maintain Employees</a></li>
                                     }
+
                                 </ul>
+
                             </li>
                         }
                     </ul>

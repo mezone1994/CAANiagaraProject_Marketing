@@ -4,15 +4,14 @@ using AspNetCoreHero.ToastNotification.Extensions;
 using CAAMarketing.Data;
 using CAAMarketing.Utilities;
 using CAAMarketing.ViewModels;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NToastNotify;
-
-
-
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,7 +46,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredUniqueChars = 1;
 
     // Lockout settings.
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
 
@@ -61,11 +60,46 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     // Cookie settings
     options.Cookie.HttpOnly = true;
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
 
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.SlidingExpiration = true;
+
+    // Add custom redirection to the home page once the user has logged in
+    options.Events = new CookieAuthenticationEvents
+    {
+        OnRedirectToLogin = ctx =>
+        {
+            if (ctx.Request.Path.StartsWithSegments("/api"))
+            {
+                ctx.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            }
+            else
+            {
+                ctx.Response.Redirect("/Identity/Account/Login");
+            }
+            return Task.CompletedTask;
+        },
+        OnRedirectToAccessDenied = ctx =>
+        {
+            if (ctx.Request.Path.StartsWithSegments("/api"))
+            {
+                ctx.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+            else
+            {
+                ctx.Response.Redirect("/Identity/Account/AccessDenied");
+            }
+            return Task.CompletedTask;
+        },
+        // Add custom redirection to the home page once the user has logged in
+        OnSignedIn = ctx =>
+        {
+            ctx.Response.Redirect("/Home/Index");
+            return Task.CompletedTask;
+        }
+    };
 });
 
 // For email service configuration
@@ -127,11 +161,31 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
+
+// Add a custom middleware to redirect to the login page first when the app is launched
+app.Use(async (context, next) =>
+{
+    if (!context.User.Identity.IsAuthenticated &&
+    !context.Request.Path.StartsWithSegments("/Identity/Account") &&
+    !context.Request.Path.StartsWithSegments("/Identity/External") &&
+    !context.Request.Path.StartsWithSegments("/css") &&
+    !context.Request.Path.StartsWithSegments("/js") &&
+    !context.Request.Path.StartsWithSegments("/img"))
+    {
+        context.Response.Redirect("/Identity/Account/Login");
+    }
+    else
+    {
+        await next();
+    }
+});
+
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+name: "default",
+pattern: "{controller=Home}/{action=Index}/{id?}");
+
 app.MapRazorPages();
 
 ApplicationDbInitializer.Seed(app);

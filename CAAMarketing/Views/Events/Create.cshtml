@@ -4,6 +4,22 @@
     ViewData["Title"] = "Create";
 }
 
+
+<div class="container">
+    <ul class="progressbar">
+        <li class="active">
+            <p>Create Event</p>
+        </li>
+        <li>
+            <p>Select Items</p>
+        </li>
+        <li>
+            <p>Choose Locations/Quanity</p>
+        </li>
+    </ul>
+</div>
+
+
 <!DOCTYPE html>
 
 <html>
@@ -13,29 +29,36 @@
 <body>
         <form asp-action="Create">
             <div class="cont">
-                        <div class="deimage">
-                            <h1>Create an event</h1>
-                            <hr />
+             <div class="deimage">
+                <h1><u><b>Step 1:</b></u></h1><h2>Create The Event:</h2>
+                <hr /><small style="color: red">*Red fields are required</small>
                             <div class="deimage2">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
+                        <input asp-for="Name" class="form-control" required style="border-color: red" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
-                <textarea asp-for="Description" class="form-control"></textarea>
+                <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
+
+
             <div class="form-group">
-                <label asp-for="Date" class="control-label"></label>
-                <input asp-for="Date" class="form-control" />
-                <span asp-validation-for="Date" class="text-danger"></span>
+                <label asp-for="ReservedEventDate" class="control-label"></label>
+                <input asp-for="ReservedEventDate" class="form-control" required style="border-color: red" />
+                <span asp-validation-for="ReservedEventDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ReturnEventDate" class="control-label"></label>
+                 <input asp-for="ReturnEventDate" class="form-control" required style="border-color: red" />
+                <span asp-validation-for="ReturnEventDate" class="text-danger"></span>
             </div>
                     <div class="form-group">
                 <label asp-for="location" class="control-label"></label>
-                <input asp-for="location" class="form-control" />
+                        <input asp-for="location" class="form-control" required style="border-color: red" />
                 <span asp-validation-for="location" class="text-danger"></span>
             </div>
                             <div style="margin:25px">
@@ -48,3 +71,69 @@
         </form>
 </body>
 </html>
+
+
+
+<style>
+    .container {
+        width: 100%;
+    }
+
+    .progressbar {
+        counter-reset: step;
+    }
+
+        .progressbar li {
+            list-style: none;
+            display: inline-block;
+            width: 30.33%;
+            position: relative;
+            text-align: center;
+            cursor: pointer;
+        }
+
+            .progressbar li:before {
+                content: counter(step);
+                counter-increment: step;
+                width: 30px;
+                height: 30px;
+                line-height: 30px;
+                border: 1px solid #ddd;
+                border-radius: 100%;
+                display: block;
+                text-align: center;
+                margin: 0 auto 10px auto;
+                background-color: #fff;
+            }
+
+            .progressbar li:after {
+                content: "";
+                position: absolute;
+                width: 100%;
+                height: 1px;
+                background-color: #ddd;
+                top: 15px;
+                left: -50%;
+                z-index: -1;
+            }
+
+            .progressbar li:first-child:after {
+                content: none;
+            }
+
+            .progressbar li.active {
+                color: green;
+            }
+
+                .progressbar li.active:before {
+                    border-color: green;
+                }
+
+                .progressbar li.active + li:after {
+                    background-color: green;
+                }
+
+    .select2 {
+        border-color: red !important;
+    }
+</style>

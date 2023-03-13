@@ -41,6 +41,8 @@ namespace CAAMarketing.Models
 
 
         public bool IsLowInventory { get; set; }
+
+        public bool SubractedFromEventRecord { get; set; } = false;
         public int LowInventoryThreshold { get; set; } = 10;
 
         public DateTime? DismissNotification { get; set; } = DateTime.Today;

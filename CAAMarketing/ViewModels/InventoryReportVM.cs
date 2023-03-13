@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CAAMarketing.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
 
 namespace CAAMarketing.ViewModels
@@ -9,9 +10,10 @@ namespace CAAMarketing.ViewModels
 
         [Display(Name = "Category")]
         public string Category { get; set; }
+        public int CategoryID { get; set; }
 
         [Display(Name = "UPC")]
-        public string UPC { get; set; }
+        public long UPC { get; set; }
 
         [Display(Name = "Item Name")]
         public string ItemName { get; set; }
@@ -29,6 +31,7 @@ namespace CAAMarketing.ViewModels
 
         [Display(Name = "Type of Supplier")]
         public string Supplier { get; set; }
+        public int SupplierID { get; set; }
 
         [Display(Name = "Date Received")]
         [DataType(DataType.Date)]
@@ -36,6 +39,8 @@ namespace CAAMarketing.ViewModels
 
         public string Notes { get; set; }
 
+        public ICollection<Inventory> Inventories { get; set; }
 
+        public ICollection<ItemLocation> ItemLocations { get; set; } = new HashSet<ItemLocation>();
     }
 }

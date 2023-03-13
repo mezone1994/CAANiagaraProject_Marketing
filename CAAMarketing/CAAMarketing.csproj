@@ -88,6 +88,7 @@
 
   <ItemGroup>
     <PackageReference Include="AspNetCoreHero.ToastNotification" Version="1.1.0" />
+    <PackageReference Include="DynamicLanguageRuntime" Version="1.3.3" />
     <PackageReference Include="EPPlus" Version="4.5.3.3" />
     <PackageReference Include="MailKit" Version="3.4.3" />
     <PackageReference Include="MappingGenerator" Version="1.22.3" />

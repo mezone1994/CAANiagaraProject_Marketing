@@ -15,7 +15,7 @@ namespace CAAMarketing.Data.CAMigrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     IsLowInventory = table.Column<bool>(type: "INTEGER", nullable: false),
                     LowCategoryThreshold = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -83,6 +83,8 @@ namespace CAAMarketing.Data.CAMigrations
                     Description = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     Date = table.Column<DateTime>(type: "TEXT", nullable: false),
                     location = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    ReservedEventDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ReturnEventDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -184,6 +186,7 @@ namespace CAAMarketing.Data.CAMigrations
                     Cost = table.Column<decimal>(type: "TEXT", nullable: false),
                     Quantity = table.Column<int>(type: "INTEGER", nullable: false),
                     ItemInvCreated = table.Column<bool>(type: "INTEGER", nullable: false),
+                    isSlectedForEvent = table.Column<bool>(type: "INTEGER", nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -250,8 +253,10 @@ namespace CAAMarketing.Data.CAMigrations
                     ItemID = table.Column<int>(type: "INTEGER", nullable: false),
                     LocationID = table.Column<int>(type: "INTEGER", nullable: false),
                     IsLowInventory = table.Column<bool>(type: "INTEGER", nullable: false),
+                    SubractedFromEventRecord = table.Column<bool>(type: "INTEGER", nullable: false),
                     LowInventoryThreshold = table.Column<int>(type: "INTEGER", nullable: false),
                     DismissNotification = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    InventoryReportVMID = table.Column<int>(type: "INTEGER", nullable: true),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -367,7 +372,8 @@ namespace CAAMarketing.Data.CAMigrations
                 columns: table => new
                 {
                     LocationID = table.Column<int>(type: "INTEGER", nullable: false),
-                    ItemID = table.Column<int>(type: "INTEGER", nullable: false)
+                    ItemID = table.Column<int>(type: "INTEGER", nullable: false),
+                    InventoryReportVMID = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -396,11 +402,13 @@ namespace CAAMarketing.Data.CAMigrations
                     ItemId = table.Column<int>(type: "INTEGER", nullable: false),
                     LocationID = table.Column<int>(type: "INTEGER", nullable: false),
                     Quantity = table.Column<int>(type: "INTEGER", nullable: false),
-                    ReservedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ReturnDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ReservedDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    ReturnDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     LoggedOutDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     LogBackInDate = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IsLoggedIn = table.Column<bool>(type: "INTEGER", nullable: false),
+                    LoggedInQuantity = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -443,6 +451,56 @@ namespace CAAMarketing.Data.CAMigrations
                         column: x => x.ItemID,
                         principalTable: "Items",
                         principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MissingItemLogs",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Reason = table.Column<string>(type: "TEXT", maxLength: 150, nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", maxLength: 150, nullable: true),
+                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Quantity = table.Column<int>(type: "INTEGER", nullable: false),
+                    EventId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ItemId = table.Column<int>(type: "INTEGER", nullable: false),
+                    LocationID = table.Column<int>(type: "INTEGER", nullable: false),
+                    EmployeeID = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", rowVersion: true, nullable: true),
+                    EmployeeNameUser = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MissingItemLogs", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_MissingItemLogs_Employees_EmployeeID",
+                        column: x => x.EmployeeID,
+                        principalTable: "Employees",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MissingItemLogs_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MissingItemLogs_Items_ItemId",
+                        column: x => x.ItemId,
+                        principalTable: "Items",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MissingItemLogs_Locations_LocationID",
+                        column: x => x.LocationID,
+                        principalTable: "Locations",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -521,6 +579,11 @@ namespace CAAMarketing.Data.CAMigrations
                 column: "ItemReservationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Inventories_InventoryReportVMID",
+                table: "Inventories",
+                column: "InventoryReportVMID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Inventories_ItemID",
                 table: "Inventories",
                 column: "ItemID");
@@ -555,6 +618,11 @@ namespace CAAMarketing.Data.CAMigrations
                 table: "itemImages",
                 column: "ItemID",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ItemLocations_InventoryReportVMID",
+                table: "ItemLocations",
+                column: "InventoryReportVMID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ItemLocations_ItemID",
@@ -596,6 +664,26 @@ namespace CAAMarketing.Data.CAMigrations
                 table: "ItemThumbNails",
                 column: "ItemID",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MissingItemLogs_EmployeeID",
+                table: "MissingItemLogs",
+                column: "EmployeeID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MissingItemLogs_EventId",
+                table: "MissingItemLogs",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MissingItemLogs_ItemId",
+                table: "MissingItemLogs",
+                column: "ItemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MissingItemLogs_LocationID",
+                table: "MissingItemLogs",
+                column: "LocationID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_ItemID",
@@ -643,6 +731,9 @@ namespace CAAMarketing.Data.CAMigrations
 
             migrationBuilder.DropTable(
                 name: "ItemThumbNails");
+
+            migrationBuilder.DropTable(
+                name: "MissingItemLogs");
 
             migrationBuilder.DropTable(
                 name: "Orders");

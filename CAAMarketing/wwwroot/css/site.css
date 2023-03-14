@@ -36,7 +36,7 @@ body {
 }
 
 .navbar-blue {
-    background-color: #305391;
+    background-color: #EAEAEA;
 }
 
 .btn-color-loging {
@@ -96,7 +96,7 @@ body {
 }
 
 .navbar .navbar-nav .nav-link {
-    color: white;
+    color: black;
     text-decoration: none;
 }
 
@@ -882,7 +882,7 @@ ul {
         padding-bottom: 20px;
         text-decoration: underline;
         color: white;
-        background-color: rgba(125, 125, 125, 0.9)
+        background-color: rgba(234, 234, 234, 0.9)
     }
 
 

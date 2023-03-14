@@ -1,9 +1,9 @@
 ﻿<partial name="_PageSizeModal" />
-<nav aria-label="Page navigation">
+<nav aria-label="Page navigation example">
     @{
         if (Model.TotalPages == 0)
         {
-            <ul class="pagination justify-content-center pagination-sm" style="margin:20px 0">
+            <ul class="pagination pagination-flush justify-content-center pagination-sm pagination-gap" style="margin:20px 0">
                 <li class="page-item active">
                     <button type="button" title="Click to change page size." data-bs-toggle="modal" data-bs-target="#pageSizeModal" class="btn page-link">
                         No Data to Show
@@ -13,7 +13,7 @@
         }
         else if (Model.TotalPages == 1)
         {
-            <ul class="pagination justify-content-center pagination-sm" style="margin:20px 0">
+            <ul class="pagination pagination-flush justify-content-center pagination-sm pagination-gap" style="margin:20px 0">
                 <li class="page-item active">
                     <button type="button" title="Click to change page size." data-bs-toggle="modal" data-bs-target="#pageSizeModal" class="btn page-link">
                         Page @Model.PageIndex of @Model.TotalPages
@@ -28,7 +28,7 @@
             var nextDisabled = !Model.HasNextPage ? "disabled='disabled'" : "";
             var stepBack = (Model.PageIndex <= jumpAmount) ? 1 : Model.PageIndex - jumpAmount;
             var stepForward = (Model.PageIndex + jumpAmount > Model.TotalPages) ? Model.TotalPages : Model.PageIndex + jumpAmount;
-            <ul class="pagination justify-content-center pagination-sm" style="margin:20px 0">
+            <ul class="pagination pagination-flush justify-content-center pagination-sm pagination-gap" style="margin:20px 0">
                 <li class="page-item">
                     <button type="submit" name="page" value="1" @prevDisabled class="btn page-link">
                         <span aria-hidden="true">&lArr;</span>&nbsp;First

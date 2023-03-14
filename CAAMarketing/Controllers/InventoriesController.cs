@@ -871,6 +871,7 @@ namespace CAAMarketing.Controllers
                     //Otherwise you should USE a range object for efficiency
                     //Total Cost for all Items in Inventory
                     //workSheet.Cells[4, 4, numRows + 3, 5].Calculate();
+                    //total Cost
                     using (ExcelRange totalfees = workSheet.Cells[numRows + 4, 4])//
                     {
                         //Total Cost Text
@@ -882,6 +883,21 @@ namespace CAAMarketing.Controllers
                             (workSheet.Cells[4, 5].Address) + ":" + workSheet.Cells[numRows + 3, 5].Address + ")";
                         totalfees.Style.Font.Bold = true;
                         totalfees.Style.Numberformat.Format = "$###,###,##0.00";
+                        var range = workSheet.Cells[numRows + 4, 4, numRows + 4, 5];
+                        range.Merge = true;
+                        range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    }
+                    //total Quantity
+                    using (ExcelRange totalQty = workSheet.Cells[numRows + 5, 4])//
+                    {
+                        //Total Cost Text
+                        workSheet.Cells[numRows + 5, 3].Value = "Total Quantity:";
+                        workSheet.Cells[numRows + 5, 3].Style.Font.Bold = true;
+                        workSheet.Cells[numRows + 5, 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                        //Total Cost Sum - get cost * qty for each row
+                        totalQty.Formula = "Sum(" + (workSheet.Cells[4, 5].Address) + ":" + workSheet.Cells[numRows + 3, 5].Address + ")";
+                        totalQty.Style.Font.Bold = true;
+                        totalQty.Style.Numberformat.Format = "###,###,##0";
                         var range = workSheet.Cells[numRows + 4, 4, numRows + 4, 5];
                         range.Merge = true;
                         range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;

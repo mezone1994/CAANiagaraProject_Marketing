@@ -9,11 +9,11 @@ namespace CAAMarketing.Models
 
 
         [Display(Name = "Reason")]
-        [StringLength(150, ErrorMessage = "cannot be more than 50 characters long.")]
+        [DataType(DataType.MultilineText)]
         public string Reason { get; set; }
 
         [Display(Name = "Notes")]
-        [StringLength(150, ErrorMessage = "cannot be more than 150 characters long.")]
+        [DataType(DataType.MultilineText)]
         public string Notes { get; set; }
 
         [Display(Name = "Date")]

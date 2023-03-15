@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CAAMarketing.Data.CAMigrations
 {
     [DbContext(typeof(CAAContext))]
-    [Migration("20230313113947_Initial")]
+    [Migration("20230315021708_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -220,7 +220,6 @@ namespace CAAMarketing.Data.CAMigrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EmployeeNameUser")
@@ -440,7 +439,6 @@ namespace CAAMarketing.Data.CAMigrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("EmployeeID")
@@ -459,7 +457,6 @@ namespace CAAMarketing.Data.CAMigrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Notes")
-                        .HasMaxLength(4000)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Quantity")
@@ -638,7 +635,6 @@ namespace CAAMarketing.Data.CAMigrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasMaxLength(150)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
@@ -712,14 +708,12 @@ namespace CAAMarketing.Data.CAMigrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Notes")
-                        .HasMaxLength(150)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Reason")
-                        .HasMaxLength(150)
                         .HasColumnType("TEXT");
 
                     b.Property<byte[]>("RowVersion")
@@ -864,7 +858,6 @@ namespace CAAMarketing.Data.CAMigrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")

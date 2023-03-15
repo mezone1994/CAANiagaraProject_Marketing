@@ -30,7 +30,7 @@
         <form asp-action="Create">
             <div class="cont">
              <div class="deimage">
-                <h1><u><b>Step 1:</b></u></h1><h2>Create The Event:</h2>
+                <h1 style="padding-top:15px"><u><b>Step 1:</b></u></h1><h2>Create The Event:</h2>
                 <hr /><small style="color: red">*Red fields are required</small>
                             <div class="deimage2">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -62,7 +62,7 @@
                 <span asp-validation-for="location" class="text-danger"></span>
             </div>
                             <div style="margin:25px">
-                                <input type="submit" title="Click here to create new Event" value="Create" class="btn btn-primary" />
+                                <input type="submit" title="Click here to create new Event" value="Create" class="btn-submit" />
                                 <div class="tooltip"> <a href='@ViewData["returnURL"]' > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
             </div>
                         </div>

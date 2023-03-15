@@ -80,7 +80,7 @@ namespace CAAMarketing.Data.CAMigrations
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
                     Date = table.Column<DateTime>(type: "TEXT", nullable: false),
                     location = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     ReservedEventDate = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -105,7 +105,7 @@ namespace CAAMarketing.Data.CAMigrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
                     Phone = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
-                    Address = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
+                    Address = table.Column<string>(type: "TEXT", nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -127,7 +127,7 @@ namespace CAAMarketing.Data.CAMigrations
                     Name = table.Column<string>(type: "TEXT", maxLength: 30, nullable: false),
                     Email = table.Column<string>(type: "TEXT", maxLength: 70, nullable: false),
                     Phone = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
-                    Address = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Address = table.Column<string>(type: "TEXT", nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedBy = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -175,8 +175,8 @@ namespace CAAMarketing.Data.CAMigrations
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    Notes = table.Column<string>(type: "TEXT", maxLength: 4000, nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
                     UPC = table.Column<long>(type: "INTEGER", nullable: false),
                     DateReceived = table.Column<DateTime>(type: "TEXT", nullable: false),
                     SupplierID = table.Column<int>(type: "INTEGER", nullable: false),
@@ -460,8 +460,8 @@ namespace CAAMarketing.Data.CAMigrations
                 {
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Reason = table.Column<string>(type: "TEXT", maxLength: 150, nullable: true),
-                    Notes = table.Column<string>(type: "TEXT", maxLength: 150, nullable: true),
+                    Reason = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
                     Date = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Quantity = table.Column<int>(type: "INTEGER", nullable: false),
                     EventId = table.Column<int>(type: "INTEGER", nullable: false),
@@ -701,6 +701,7 @@ namespace CAAMarketing.Data.CAMigrations
                 column: "EmployeeID");
 
             ExtraMigration.Steps(migrationBuilder);
+
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

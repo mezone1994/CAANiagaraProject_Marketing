@@ -36,13 +36,13 @@
         <div class="row">
             @foreach (var item in Model)
             {
-                <div class="col-md-6 col-lg-6" style="padding:35px">
+                <div class="col-md-4 col-lg-4" style="padding:35px">
                     <div class="row">
                         
                             <fieldset class="item-fieldset">
                                 <legend>Item #@item.ID: @item.Name</legend>
                                 <div class="row">
-                                    <div class="col-md-4">
+                                    <div class="col-md-2">
                                         @{
                                             if (item.ItemThumbNail?.Content != null)
                                             {
@@ -58,12 +58,12 @@
                                             }
                                         }
                                     </div>
-                                    <div class="col-md-8">
+                                    <div class="col-md-10">
                                         <div class="row">
-                                            <div class="col-md-4">
+                                            <div class="col-md-5">
                                                 <label for="@($"total-stock-{item.ID}")">Total Stock: </label>
                                             </div>
-                                            <div class="col-md-8">
+                                            <div class="col-md-7">
                                                 <div class="form-group">
                                                     @{
                                                         int totalStock = 0;
@@ -77,10 +77,10 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-4">
+                                            <div class="col-md-5">
                                                 <label>From:</label>
                                             </div>
-                                            <div class="col-md-8">
+                                            <div class="col-md-7">
                                                 @{
                                                     if (item.Inventories.Count() == 0)
                                                     {
@@ -101,11 +101,11 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-4">
+                                            <div class="col-md-5">
                                                 <label for="@($"location-quantity-{item.ID}")">Transfer Qty:</label>
                                                 @*<input value="" id="quantity-" name="itemId1" />*@
                                             </div>
-                                            <div class="col-md-8">
+                                            <div class="col-md-7">
                                                 <div class="form-group">
                                                     <input type="text" class="form-control" value="" id="@($"location-quantity-{item.ID}")" name="@($"itemId{item.ID}")">
                                                     <input type="text" hidden="hidden" class="form-control" value="" id="@($"locationId-{item.ID}")" name="@($"locationId{item.ID}")" />
@@ -113,10 +113,10 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-4">
+                                            <div class="col-md-5">
                                                 <label for="@($"location-quantity-{item.ID}")">To:</label>
                                             </div>
-                                            <div class="col-md-8">
+                                            <div class="col-md-7">
                                                 <div class="form-group">
                                                 <input type="text" class="form-control" readonly value="@HttpContextAccessor.HttpContext.Session.GetString("ToLocationNameForTransfer");">
                                                 </div>
@@ -134,6 +134,7 @@
         </div>
     </div>
 <button type="submit" class="btn btn-primary">Transfer</button>
+ <div class="tooltip"> <a asp-action="SelectItems"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back</span></a> </div>
 </form>
 
 
@@ -205,7 +206,6 @@
 
 
 
-
 <style>
     .container {
         width: 100%;
@@ -270,46 +270,50 @@
     }
 </style>
 <style>
+    
 
     .selected-items {
         flex-wrap: wrap;
     }
+
     .item-fieldset {
-    margin-bottom: 30px;
-    padding: 20px;
-    border-radius: 10px;
-    border: 2px solid #ccc;
-    box-sizing: border-box;
+  /*      margin-bottom: 30px;*/
+        padding: 30px 20px;
+        border-radius: 10px;
+        border: 2px solid #ccc;
+        box-sizing: border-box;
+        background-color: #f9f9f9;
+        transition: all 1s ease;
+    }
 
+        .item-fieldset:hover {
+            background-color: #e9e9e9;
+            border: 4px solid #ccc;
+            cursor: pointer;
+        }
 
-}
-/*
-    #card-display{
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-gap: 50px;
+        .item-fieldset legend {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
 
-    }*/
+        .item-fieldset label {
+            font-size: 16px;
+            font-weight: bold;
+        }
 
+        .item-fieldset input[type="text"] {
+            font-size: 14px;
+            padding: 10px;
+        }
 
-.item-fieldset legend {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-}
+        .item-fieldset .form-check {
+            margin-top: 10px;
+        }
 
-.item-fieldset label {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.item-fieldset .form-check {
-    margin-top: 10px;
-}
-
-.item-fieldset .form-check-input {
-    margin-right: 10px;
-}
-
+        .item-fieldset .form-check-input {
+            margin-right: 10px;
+        }
 
 </style>

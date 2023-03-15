@@ -8,9 +8,11 @@
 @{
     HttpContextAccessor.HttpContext.Session.SetString("OrderandItemCreated", "False");
 }
+<h2 class="toph3">Edit: @Model.Name</h2>
 <div class="cont">
+
     <div class="deimage">
-    <h3>Edit:(@Model.Name)</h3>
+
 
         @{
             var hasPicture = (Model.ItemImages?.Content != null);
@@ -24,7 +26,7 @@
                 }
             else
                     {
-                        @:<div><br/>
+                        @:<div class="item-image"><br/>
                             <img src="~/images/image-not-found .png" alt="Image not found" title="Image not found" class="img-fluid rounded" />
                         @:</div><br/>
                     }
@@ -108,7 +110,7 @@
 
                 <div class="cols">
                    @* <label for="sub" >Buttons </label>*@<br/>
-                    <input type="submit" value="Save" title="Click here to save the changes" class="btn btn-primary" id="sub"/>
+                    <input type="submit" value="Save" title="Click here to save the changes" class="btn-submit" id="sub"/>
 
                     <div class="tooltip"> <a href='@ViewData["returnURL"]' class="padding-for-actions div-back" > <img src="~/images/icons8-go-back-24.png" alt="Back Icon"/> <span class="tooltiptext">Back</span></a> </div>
 

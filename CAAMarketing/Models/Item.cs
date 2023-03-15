@@ -12,12 +12,11 @@ namespace CAAMarketing.Models
         public string Name { get; set; }
 
         [Display(Name = "Description")]
-        [StringLength(50, ErrorMessage = " cannot be more than 50 characters long.")]
+        [DataType(DataType.MultilineText)]
         public string Description { get; set; }
 
 
         [MinLength(10, ErrorMessage = "notes must be at least 10 characters.")]
-        [MaxLength(4000, ErrorMessage = "notes cannot be more than 4,000 characters.")]
         [DataType(DataType.MultilineText)]
         public string Notes { get; set; }
 

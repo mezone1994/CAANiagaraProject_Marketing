@@ -43,6 +43,6 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a href='@ViewData["returnURL"]'>Back to List</a>
+    <a asp-action="Edit" class="link-action" title="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <div class="tooltip"> <a  asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back</span></a> </div>
 </div>

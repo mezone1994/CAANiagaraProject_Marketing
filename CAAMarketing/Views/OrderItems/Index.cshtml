@@ -151,11 +151,11 @@
             </dl>
         </div>
         <div class="detlin">
-            <a href="@Url.Action("Create", "InventoryTransfers", new { itemId = @item.ID })" title="Click this to transfer the item" class="btn btn-primary">Transfer</a>
+            <a href="@Url.Action("Create", "InventoryTransfers", new { itemId = @item.ID })" title="Click this to transfer the item" class="btn-transfer">Transfer</a>
 
             <div class="detbut">
-                <a asp-action="Edit" title="Click this to edit" asp-controller="Items" asp-route-id="@item.ID" class="padding-for-actions div-back">Edit </a> |
-                <a href='@ViewData["returnURL"]' title="Click this to go to the Inventory List" class="padding-for-actions div-back">Back to Inventory List</a>
+                <a asp-action="Edit" title="Click this to edit" asp-controller="Items" asp-route-id="@item.ID" class=" link-action">Edit </a> |
+                <a href='@ViewData["returnURL"]' title="Click this to go to the Inventory List" class="link-action">Back to Inventory List</a>
             </div>
 
         </div>
@@ -166,7 +166,7 @@
 
 
 <br />
-<button id="show-tables-btn" class="btn btn-primary" style="display: block; margin: 0 auto;" title="Click to show/hide information">
+<button id="show-tables-btn" class="btn-show-info" style="display: block; margin: 0 auto;" title="Click to show/hide information">
     Show more information <i class="fas fa-chevron-down"></i>
 </button>
 
@@ -729,6 +729,26 @@
 
 <style>
 
+    .btn-show-info {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 50px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.5s ease-in-out;
+    }
+
+        .btn-show-info:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+            cursor: pointer;
+        }
+
     #tables-container {
         overflow: hidden;
         transition: height 0.5s ease-out;
@@ -749,4 +769,38 @@
         margin-bottom: 10px;
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     }
+
+    .btn-transfer {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 50px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease-in-out;
+        transform: translateY(0);
+    }
+
+        .btn-transfer:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+            cursor: pointer;
+            transform: translateY(-5px);
+        }
+
+    .link-action {
+        font-weight: bold;
+        color: #007bff;
+        text-decoration: none;
+        transition: all 0.3s ease-in-out;
+    }
+
+        .link-action:hover {
+            color: #0069d9;
+            cursor: pointer;
+        }
 </style>

@@ -542,7 +542,7 @@ namespace CAAMarketing.Controllers
         }
 
         //Method for Viewing Full Inventory Report
-        public async Task<IActionResult> InventoryReport(string SearchString, int? LocationID, int? SupplierID, int? CategoryID, int? page, int? pageSizeID, string actionButton,
+        public async Task<IActionResult> InventoryReport(string SearchString, int?[] LocationID, int? SupplierID, int? CategoryID, int? page, int? pageSizeID, string actionButton,
             string sortDirection = "asc", string sortField = "ItemName")
         {
             //For the Report View
@@ -596,10 +596,10 @@ namespace CAAMarketing.Controllers
             ViewData["Filtering"] = ""; //Assume not filtering
 
             //Populating the DropDownLists for the Search/Filtering criteria, which are the Location
-            //ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
-            ViewData["LocationID"] = new SelectList(_context
-                .Locations
-                .OrderBy(s => s.Name), "Id", "Name");
+            ViewData["LocationID"] = new SelectList(_context.Locations, "Id", "Name");
+            //ViewData["LocationID"] = new SelectList(_context
+            //    .Locations
+            //    .OrderBy(s => s.Name), "Id", "Name");
 
             //Populating the DropDownLists for the Search/Filtering criteria, which are the Supplier
             //ViewData["SupplierID"] = new SelectList(_context.Suppliers, "ID", "Name");
@@ -618,9 +618,9 @@ namespace CAAMarketing.Controllers
             string[] sortOptions = new[] { "Category", "UPC", "ItemName", "Cost", "Quantity", "Location", "Supplier", "DateReveived" };
 
             //Add as many filters as needed
-            if (LocationID.HasValue)
+            if (LocationID.Length > 0)
             {
-                sumQ = sumQ.Where(p => p.LocationID == LocationID);
+                sumQ = sumQ.Where(p => LocationID.Contains(p.LocationID));
                 ViewData["Filtering"] = "btn-danger";
             }
             if (SupplierID.HasValue)

@@ -13,7 +13,7 @@ namespace CAAMarketing.Models
         public string Name { get; set; }
 
         [Display(Name = "Description")]
-        [StringLength(50, ErrorMessage = "cannot be more than 50 characters long.")]
+        [DataType(DataType.MultilineText)]
         public string Description { get; set; }
 
         [Display(Name = "Date")]

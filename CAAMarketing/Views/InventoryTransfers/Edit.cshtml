@@ -42,15 +42,14 @@
                         <input asp-for="TransferDate" class="form-control" required style="border-color: red" />
                 <span asp-validation-for="TransferDate" class="text-danger"></span>
             </div>
+            <br/>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+               
+                        <input type="submit" value="Save" class="btn-submit" />
+                        <div class="tooltip"> <a  asp-action="Index"> <img src="~/images/icons8-go-back-24.png" alt="Back Icon" /> <span class="tooltiptext">Back</span></a> </div>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a href='@ViewData["returnURL"]'>Back to List</a>
 </div>
 
     </div>

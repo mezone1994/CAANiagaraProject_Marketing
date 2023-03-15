@@ -6,7 +6,7 @@
     //CAAMarketing.Models.Item SelectedItems = (CAAMarketing.Models.Item)ViewBag.SelectedItems
 }
 
-
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" integrity="sha384-HzLeBuhoNPvSl5KYnjx0BT+WB0QEEqLprO+NBkkk5gbc67FTaL7XIGa2w1L0Xbgc" crossorigin="anonymous">
 
 <div class="container">
     <ul class="progressbar">
@@ -24,50 +24,43 @@
 
 
         <div class="deimage">
-            <h1><u><b>Step 1:</b></u></h1><h2>Select The Items For This Transfer :</h2><h6>Note: Some Items Will Not Show In This Table Since They Are Only In The Selected Location You Chose.</h6>
+            <h1 style="padding-top:15px"><u><b>Step 2:</b></u></h1><h2>Select The Items For This Transfer :</h2><h6>Note: Some Items Will Not Show In This Table Since They Are Only In The Selected Location You Chose.</h6>
             <hr />
 
          <div/>
             <button class="btn btn-success @(ViewData["Filtering"])" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click this to filter/search">
             <i class="material-icons">Filter/Search</i>
         </button>
-        <button type="button" class="btn btn-primary" onclick="window.location.href='@Url.Action("ChooseItemQuantities", "InventoryTransfers")'">Save/Continue</button>
+        <button type="button" class="btn btn-primary" title="Click this to Save/Continue" onclick="window.location.href='@Url.Action("ChooseItemQuantities", "InventoryTransfers")'">Save/Continue</button>
 
         </div>
+        <br/>
+        <form method="get" asp-action="SelectItems">
         <div class="collapse @(ViewData["Filtering"])" id="collapseFilter">
             <div class="card card-body">
                 <div class="row">
                     <div class="form-group col-md-4">
-                        <label class="control-label">Search Event:</label>
+                        <label class="control-label">Search Item:</label>
                     @Html.TextBox("SearchString", null, new { @class = "form-control" })
                     </div>
                     <div class="form-group col-md-4 align-self-end">
                         <input type="submit" name="actionButton" value="Filter" title="click here to filter" class="btn btn-success" />
-                    <a asp-action="Index" title="Click here to clear the filter" class="btn btn-outline-dark">Clear</a>
+                    <a asp-action="SelectItems" title="Click here to clear the filter" class="btn btn-outline-dark">Clear</a>
                     </div>
                 </div>
             </div>
         </div>
 <p style="padding-top:10px;"></p>
+</form>
 
 
 
 <div style="width:100%;">
-
-
-
 <form asp-action="SelectItems" method="get" style="float: left; width:1020px;">
     
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
 
-    
-       
-    <div class="cont">
-        <div class="deimage">
-            
-         <div/>
-    </div>
     
 <div class="table-responsive">
     <div class="table-wrapper" style="width: 1000px;">
@@ -75,23 +68,20 @@
     <thead class="thead-light">
         <tr>
             <th></th>
-            <th>
+            <th style="text-align:center">
                 <input type="submit" name="actionButton" title="click here to sort by event" value="Item" class="btn btn-link" />
             </th>
-            <th>
+            <th style="text-align:center">
                 <input type="submit" name="actionButton" value="Supplier" title="click here to sort by Supplier" class="btn btn-link" />
             </th>
 
-            <th>
+            <th style="text-align:center">
                 <input type="submit" name="actionButton" value="Locations" title="click here to sort by date" class="btn btn-link" />
             </th>
-            <th>
+            <th style="text-align:center">
                 <input type="submit" name="actionButton" value="Quantity" title="click here to sort by date" class="btn btn-link" />
             </th>
-@*            <th>
-                <input type="submit" name="actionButton" value="Locations" title="click here to sort by date" class="btn btn-link" />
-            </th>*@
-            <th></th>
+            <th style="text-align:center"></th>
         </tr>
     </thead>
     <tbody>
@@ -155,37 +145,40 @@
                           }
                     </td>
                     @if (item.isSlectedForEvent == false)
-
-                     {
-                     <td>
-                        <a href="#" onclick="selectItem(event, @item.ID)" title="Click this to select the item">Select</a>
-                     </td>
-                     } 
-                     else
-                     {
-                     <td>
-                       <a id="disabled-link"><img src="/images/check-mark.png" alt="Check Icon" title="Item Is Selected"  class="padding-for-actions-check" /></a>
-                     </td>           
-                     }
+                {
+                  <td>
+                    <a href="#" onclick="selectItem(event, @item.ID)" title="Click this to select the item">
+                      <i class="fas fa-check-circle"></i> Select
+                    </a>
+                  </td>
+                } 
+                else
+                {
+                  <td>
+                    <i class="fas fa-check-circle" style="color:green;"></i> Selected
+                  </td>           
+                }
                             </tr>
             }
 
         
 
-    </tbody>
-</table>
+     </tbody>
+                </table>
+            </div>
+            <partial name="_PagingNavBar" />
+        </div>
+        
 
-    </div>
-    <partial name="_PagingNavBar" />
-</div>   
+    </form>
 </div>
-</form>
-</div>
+
 <div class="selectedItems" style="float:right;">
     <h2>Selected Items:</h2>
 @if (ViewBag.SelectedItems != null)
     {
         int selectedcount = 0;
+        <div class="table-container"> 
         <table class="table table-hover">
             <tbody>
                 
@@ -195,7 +188,7 @@
                     {
                         selectedcount += 1;
                         <tr>
-                            <td>
+                                <td>
                                 @{
                                     if (item.ItemThumbNail?.Content != null)
                                     {
@@ -206,29 +199,29 @@
                                     else
                                     {
                                         @:<div>
-                                        <img src="~/images/image-not-found_tm.png" alt="Image not found" title="Image not found" class="img-fluid avatar" style="height:60px; width:60px;"/>
+                                        <img src="~/images/image-not-found_tm.png" alt="Image not found" title="Image not found" class="img-fluid avatar" style="height:40px; width:40px;"/>
                                         @:</div>
                                     }
                                 }
                             </td>
-                            <td>
-                                @item.Name
-                            </td>
-                            <td>
-                                @item.Supplier.Name
-                            </td>
-                            <td>
-                                <img src="/images/close.png" alt="Cancel Icon" title="Unselect the item you chose" onclick="unselectItem(event, @item.ID)" class="padding-for-actions" />
-                            </td>
-                        </tr>
+                                <td class="col-md-6">
+                                    @item.Name
+                                </td>
+                                <td class="col-md-6">
+                                    (#@item.UPC)
+                                </td>
+                                <td class="col-md-2">
+                                    <img src="/images/close.png" alt="Cancel Icon" title="Unselect the item you chose" onclick="unselectItem(event, @item.ID)" class="padding-for-actions" />
+                                </td>
+                            </tr>
                     }
                 }
                 
                 @if(selectedcount == 0){<p>No records selected, Please select record</p> ; }
             </tbody>
         </table>
+        </div>
     }
-</div>
 </div>
 @section Scripts{
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -378,107 +371,107 @@
 
 <style>
     .selectedItems {
-  position: inherit;
- /* top: 150px; */
-  /*right: -50%;*/
-  width: 450px; 
-  padding: 10px;
-  background-color: #f1f1f1;
-  border: 1px solid #ccc;
-}
-
-    
-    .selectedItems h2 {
-        font-size: 24px;
-        margin-bottom: 20px;
+        position: inherit;
+        /* top: 150px; */
+        /*right: -50%;*/
+        margin-top: 30px;
+        width: 450px;
+        padding: 10px;
+        background-color: #f1f1f1;
+        border: 1px solid #ccc;
     }
 
-    
-    .selectedItems table {
-        margin-top: 20px;
-    }
-    
-    .selectedItems img {
-        max-width: 60px;
-        max-height: 60px;
-        margin-right: 10px;
-    }
-    
-    .selectedItems td {
-        vertical-align: middle;
-    }
-    
-    .selectedItems a {
-        color: #007bff;
-        text-decoration: none;
-    }
-    
-    .selectedItems a:hover {
-        text-decoration: underline;
-    }
-    
-    .selectedItems input[type="submit"] {
-        font-size: 16px;
-        font-weight: normal;
-        padding: 0;
-        margin: 0;
-        border: none;
-        background-color: transparent;
-        color: #007bff;
-        text-decoration: none;
-        cursor: pointer;
-    }
-    
-    .selectedItems input[type="submit"]:hover {
-        text-decoration: underline;
-    }
+
+        .selectedItems h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+
+        .selectedItems table {
+            margin-top: 20px;
+        }
+
+        .selectedItems img {
+            max-width: 60px;
+            max-height: 60px;
+            margin-right: 10px;
+        }
+
+        .selectedItems td {
+            vertical-align: middle;
+        }
+
+        .selectedItems a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+            .selectedItems a:hover {
+                text-decoration: underline;
+            }
+
+        .selectedItems input[type="submit"] {
+            font-size: 16px;
+            font-weight: normal;
+            padding: 0;
+            margin: 0;
+            border: none;
+            background-color: transparent;
+            color: #007bff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+            .selectedItems input[type="submit"]:hover {
+                text-decoration: underline;
+            }
 
 
     .selected-row {
         background-color: rgba(0, 255, 0, 0.2);
-    transition: background-color 0.3s ease-in-out;
-
-}
+        transition: background-color 0.3s ease-in-out;
+    }
 </style>
 
 
- <style>
+<style>
     .table {
         font-size: 16px;
         font-family: Arial, sans-serif;
         border-collapse: collapse;
         width: 100%;
     }
-    
-    .table th {
-        background-color: #f2f2f2;
-        color: #333;
-        text-align: left;
-        padding: 12px;
-    }
-    
-    .table td {
-        border-bottom: 1px solid #ddd;
-        padding: 8px;
-    }
-    
-/*    .table tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }*/
-    
-    .table tr:not(.selected-row):hover {
-        background-color: #E8E8E8;
-    }
 
-    .table tr.selected-row:hover {
-        background-color: #50C878;
-    }
-    
-    
+        .table th {
+            background-color: #f2f2f2;
+            color: #333;
+            text-align: left;
+            padding: 12px;
+        }
+
+        .table td {
+            border-bottom: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        /*    .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }*/
+
+        .table tr:not(.selected-row):hover {
+            background-color: #E8E8E8;
+        }
+
+        .table tr.selected-row:hover {
+            background-color: #50C878;
+        }
+
+
     .padding-for-actions {
         padding: 5px;
     }
-    
+
     .disabled-link {
         color: #aaa;
     }
@@ -487,70 +480,66 @@
 
 <style>
     /* Style for the table header */
-thead th {
-  background-color: #f2f2f2;
-  font-weight: bold;
-}
+    thead th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
 
-/* Style for the table rows */
-tbody tr {
-  background-color: #f9f9f9;
-}
-
-
-
-/* Style for the table cells */
-td {
-  border: none;
-  vertical-align: middle;
-  padding: 10px;
-}
-
-/* Style for the table cell containing the item thumbnail */
-td:first-child {
-  width: 80px;
-}
-
-/* Style for the table cell containing the item name */
-td:nth-child(2) {
-  font-weight: bold;
-}
-
-/* Style for the table cell containing the "Select" link */
-td:last-child {
-  text-align: center;
-}
-
-/* Style for the "Select" link */
-.padding-for-actions {
-   cursor: pointer;
-  width:40px;
-  height:30px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  /*background-color: #007bff;*/
-  color: #fff;
-  text-decoration: none;
-}
-
-/* Style for the "Select" link */
-.padding-for-actions-check {
-  width:40px;
-  height:30px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  /*background-color: #007bff;*/
-  color: #fff;
-  text-decoration: none;
-}
-
-.padding-for-actions:hover {
-  background-color: #0069d9;
-  color: #fff;
-}
+    /* Style for the table rows */
+    tbody tr {
+        background-color: #f9f9f9;
+    }
 
 
 
+    /* Style for the table cells */
+    td {
+        border: none;
+        vertical-align: middle;
+        padding: 10px;
+    }
 
+        /* Style for the table cell containing the item thumbnail */
+        td:first-child {
+            width: 80px;
+        }
+
+        /* Style for the table cell containing the item name */
+        td:nth-child(2) {
+            font-weight: bold;
+        }
+
+        /* Style for the table cell containing the "Select" link */
+        td:last-child {
+            text-align: center;
+        }
+
+    /* Style for the "Select" link */
+    .padding-for-actions {
+        cursor: pointer;
+        width: 40px;
+        height: 30px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        /*background-color: #007bff;*/
+        color: #fff;
+        text-decoration: none;
+    }
+
+    /* Style for the "Select" link */
+    .padding-for-actions-check {
+        width: 40px;
+        height: 30px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        /*background-color: #007bff;*/
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .padding-for-actions:hover {
+        background-color: #0069d9;
+        color: #fff;
+    }
 
 </style>

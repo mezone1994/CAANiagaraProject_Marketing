@@ -548,6 +548,7 @@ namespace CAAMarketing.Controllers
                 .Include(i => i.Supplier)
                 .Include(i => i.Category)
                 .Include(i => i.Inventories)
+                .Include(i => i.ItemImages).Include(i => i.ItemThumbNail)
                 .Include(i => i.Inventories).ThenInclude(i => i.Location)
                 .Where(i => i.Inventories.Count(inv => inv.LocationID == toLocationId) < i.Inventories.Count)
                 .AsNoTracking();
@@ -579,7 +580,7 @@ namespace CAAMarketing.Controllers
             ViewData["sortDirection"] = sortDirection;
 
 
-            var SelectedItems = await _context.Items.Include(i => i.Supplier).Include(i => i.Category)
+            var SelectedItems = await _context.Items.Include(i => i.Supplier).Include(i => i.Category).Include(i => i.ItemImages).Include(i => i.ItemThumbNail)
             .ToListAsync();
 
             ViewBag.SelectedItems = SelectedItems;
@@ -602,7 +603,7 @@ namespace CAAMarketing.Controllers
         {
             if (ModelState.IsValid)
             {
-                var itemsupdate = _context.Items.Where(i => i.ID == ItemID).FirstOrDefault();
+                var itemsupdate = _context.Items.Include(i => i.ItemImages).Include(i => i.ItemThumbNail).Where(i => i.ID == ItemID).FirstOrDefault();
 
                 itemsupdate.isSlectedForEvent = true;
                 _context.Update(itemsupdate);
@@ -632,7 +633,7 @@ namespace CAAMarketing.Controllers
             if (ModelState.IsValid)
             {
 
-                var itemsupdate = _context.Items.Where(i => i.ID == ItemID).FirstOrDefault();
+                var itemsupdate = _context.Items.Include(i => i.ItemImages).Include(i => i.ItemThumbNail).Where(i => i.ID == ItemID).FirstOrDefault();
 
                 itemsupdate.isSlectedForEvent = false;
                 _context.Update(itemsupdate);
@@ -667,6 +668,7 @@ namespace CAAMarketing.Controllers
                 .Include(i => i.Supplier)
                 .Include(i => i.Category)
                 .Include(i => i.Inventories)
+                .Include(i => i.ItemImages).Include(i => i.ItemThumbNail)
                 .Include(i => i.Inventories).ThenInclude(i => i.Location)
                 .Where(i => i.isSlectedForEvent == true)
             .ToListAsync();

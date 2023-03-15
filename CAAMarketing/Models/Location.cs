@@ -42,7 +42,6 @@ namespace CAAMarketing.Models
 
         [Display(Name = "Address")]
         [Required(ErrorMessage = "You cannot leave the name blank.")]
-        [StringLength(150, ErrorMessage = "name cannot be more than 150 characters long.")]
         public string Address { get; set; }
 
         public ICollection<InventoryTransfer> InventoryTransfersFrom { get; set; }

@@ -30,7 +30,6 @@ namespace CAAMarketing.Models
         public string Phone { get; set; }
 
         [Required(ErrorMessage = "You Need A Supplier Address!")]
-        [StringLength(50, ErrorMessage = "Address cannot be more than 50 characters long! Please Try Again...")]
         public string Address { get; set; }
 
        

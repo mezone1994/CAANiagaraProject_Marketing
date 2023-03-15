@@ -497,7 +497,8 @@ namespace CAAMarketing.Controllers
                 return BadRequest("The total reserved quantity of the item is greater than the available quantity in the inventory.");
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "OrderItems", new { itemId = itemReservation.ItemId });
+
         }
 
         //For Adding Event

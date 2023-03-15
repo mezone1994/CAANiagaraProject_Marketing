@@ -356,7 +356,14 @@ namespace CAAMarketing.Controllers
                 .Include(i => i.Supplier)
                 .Include(i => i.Category)
                 .Include(i => i.Inventories)
+                .Include(i=>i.ItemImages)
+                .Include(i=>i.ItemThumbNail)
                 .Include(i => i.Inventories).ThenInclude(i => i.Location)
+                .AsNoTracking();
+
+            var inv = _context.Inventories
+                .Include(i => i.Item)
+                .Include(i => i.Location)
                 .AsNoTracking();
 
             if (!String.IsNullOrEmpty(SearchString))
@@ -378,52 +385,11 @@ namespace CAAMarketing.Controllers
                 }
             }
 
-            ////Now we know which field and direction to sort by
-            //if (sortField == "Location")
-            //{
-            //    if (sortDirection == "asc")
-            //    {
-            //        events = events
-            //            .OrderBy(p => p.location);
-            //    }
-            //    else
-            //    {
-            //        events = events
-            //            .OrderByDescending(p => p.location);
-            //    }
-            //}
-            //else if (sortField == "Date")
-            //{
-            //    if (sortDirection == "asc")
-            //    {
-            //        events = events
-            //            .OrderBy(p => p.Date);
-            //    }
-            //    else
-            //    {
-            //        events = events
-            //            .OrderByDescending(p => p.Date);
-            //    }
-            //}
-            //else //Sorting by Patient Name
-            //{
-            //    if (sortDirection == "asc")
-            //    {
-            //        events = events
-            //            .OrderBy(p => p.Name);
-            //    }
-            //    else
-            //    {
-            //        events = events
-            //            .OrderByDescending(p => p.Name);
-            //    }
-            //}
-            //Set sort for next time
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
 
 
-            var SelectedItems = await _context.Items.Include(i=>i.Supplier).Include(i=>i.Category)
+            var SelectedItems = await _context.Items.Include(i=>i.Supplier).Include(i=>i.Category).Include(i => i.ItemImages).Include(i => i.ItemThumbNail)
             .ToListAsync();
 
             ViewBag.SelectedItems = SelectedItems;
@@ -458,7 +424,7 @@ namespace CAAMarketing.Controllers
 
 
 
-                var itemsupdate = _context.Items.Where(i => i.ID == ItemID).FirstOrDefault();
+                var itemsupdate = _context.Items.Include(i => i.ItemImages).Include(i => i.ItemThumbNail).Where(i => i.ID == ItemID).FirstOrDefault();
 
                 itemsupdate.isSlectedForEvent= true;
                 _context.Update(itemsupdate);
@@ -499,7 +465,7 @@ namespace CAAMarketing.Controllers
 
 
 
-                var itemsupdate = _context.Items.Where(i => i.ID == ItemID).FirstOrDefault();
+                var itemsupdate = _context.Items.Include(i=>i.ItemImages).Include(i=>i.ItemThumbNail).Where(i => i.ID == ItemID).FirstOrDefault();
 
                 itemsupdate.isSlectedForEvent = false;
                 _context.Update(itemsupdate);
@@ -539,6 +505,8 @@ namespace CAAMarketing.Controllers
                 .Include(i => i.Supplier)
                 .Include(i => i.Category)
                 .Include(i=>i.Inventories)
+                .Include(i=>i.ItemImages)
+                .Include(i=>i.ItemThumbNail)
                 .Include(i=>i.Inventories).ThenInclude(i=>i.Location)
                 .Where(i=>i.isSlectedForEvent == true)
             .ToListAsync();
